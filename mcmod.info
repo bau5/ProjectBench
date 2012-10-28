@@ -1,0 +1,21 @@
+[
+{
+  "modid": "bau5_ProjectBench",
+  "name": "Project Bench",
+  "description": "Project Bench - for all those failed crafting attempts because of forgotten materials",
+  "version": "1.0",
+  "mcversion": "1.3.2",
+  "url": "",
+  "updateUrl": "",
+  "authors": [
+    "bau5"
+  ],
+  "credits": "by bau5, inspiration from RP2 by Eloraam",
+  "logoFile": "",
+  "screenshots": [
+  ],
+  "parent":"",
+  "dependencies": [
+  ]
+}
+]
