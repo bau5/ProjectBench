@@ -1,22 +1,71 @@
 package bau5.mods.projectbench.common;
 
 import net.minecraft.src.Block;
+import net.minecraft.src.CraftingManager;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
+import net.minecraft.src.InventoryBasic;
+import net.minecraft.src.InventoryCraftResult;
+import net.minecraft.src.InventoryCrafting;
+import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
+import net.minecraft.src.Container;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
 import net.minecraft.src.TileEntity;
 
 public class TileEntityProjectBench extends TileEntity implements IInventory
 {
+	class LocalInventoryCrafting extends InventoryCrafting
+	{
+		public LocalInventoryCrafting() {
+			super(new Container(){
+				public boolean canInteractWith(EntityPlayer var1) {
+					// TODO Auto-generated method stub
+					return false;
+				}
+			}, 3, 3);
+		}
+		public Container eventHandler;
+	};
+	
 	private ItemStack[] inv;
+	
+	public IInventory craftResult;
+	public IInventory craftSupplyMatrix;
 	
 	public TileEntityProjectBench()
 	{
+		craftSupplyMatrix = new InventoryBasic("pbCraftingSupply", 18);
 		inv = new ItemStack[27];
 	}
+	public ItemStack findRecipe() {
+		InventoryCrafting craftMatrix = new LocalInventoryCrafting();
 
+		for (int i = 0; i < craftMatrix.getSizeInventory(); ++i) {
+			ItemStack stack = getStackInSlot(i);
+
+			craftMatrix.setInventorySlotContents(i, stack);
+		}
+
+		ItemStack recipe = CraftingManager.getInstance().findMatchingRecipe(craftMatrix);
+
+		return recipe;
+	}
+	@Override
+	public void onInventoryChanged()
+	{
+		for(int i = 0; i < inv.length; i++)
+		{
+			ItemStack temp = inv[i];
+			if(temp != null)
+			{
+				System.out.println(temp.getItem().toString() +" at " +i);
+			}
+			else 
+				System.out.println("null at " +i);
+		}
+	}
 	@Override
 	public int getSizeInventory() 
 	{

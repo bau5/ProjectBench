@@ -1,5 +1,6 @@
 package bau5.mods.projectbench.common;
 
+import bau5.mods.projectbench.common.TileEntityProjectBench.LocalInventoryCrafting;
 import net.minecraft.src.Container;
 import net.minecraft.src.CraftingManager;
 import net.minecraft.src.EntityPlayer;
@@ -15,18 +16,22 @@ import net.minecraft.src.SlotCrafting;
 public class ContainerProjectBench extends Container
 {
 	protected TileEntityProjectBench tileEntity;
-	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3); 
-	public IInventory craftResult = new InventoryCraftResult();
-	public IInventory craftingSupplyMatrix = new InventoryBasic("pbCraftingSupply", 18);
+	
+	public IInventory craftSupplyMatrix;
+	public IInventory craftResultMatrix;
 	public int craftResultSlot = 0;
 	
 	public ContainerProjectBench(InventoryPlayer invPlayer, TileEntityProjectBench tpb)
 	{
 		tileEntity = tpb;
-		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, craftMatrix, craftResult, 
-										 craftingSupplyMatrix, craftResultSlot, 124, 35));
+		//Change this to tileEntity to clone the tileEntities
+		craftSupplyMatrix = tileEntity.craftSupplyMatrix;
+		craftResultMatrix = new InventoryCraftResult();
+		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, tileEntity, craftResultMatrix, 
+										 craftSupplyMatrix, craftResultSlot, 124, 35));
 		layoutContainer(invPlayer, tileEntity);
 		bindPlayerInventory(invPlayer);
+		updateCraftingResults();
 	}
 	private void layoutContainer(InventoryPlayer invPlayer, TileEntityProjectBench tpb)
 	{
@@ -40,7 +45,7 @@ public class ContainerProjectBench extends Container
 		{
 			for(col = 0; col < 3; col++)
 			{
-				slot = new Slot(craftMatrix, ++index, 30 + col * 18, 17 + row * 18);
+				slot = new Slot(tileEntity, ++index, 30 + col * 18, 17 + row * 18);
 				addSlotToContainer(slot);
 				counter++;
 			}
@@ -52,12 +57,12 @@ public class ContainerProjectBench extends Container
 			{
 				if(row == 1)
 				{
-					slot = new Slot(craftingSupplyMatrix, 9 + col, 8 + col * 18, 
+					slot = new Slot(tileEntity, 18 + col, 8 + col * 18, 
 									(row * 2 - 1) + 77 + row * 18);
 					addSlotToContainer(slot);
 				} else
 				{
-					slot = new Slot(craftingSupplyMatrix, row + col, 8 + col * 18,
+					slot = new Slot(tileEntity, 9 + col, 8 + col * 18,
 							77 + row * 18);
 					addSlotToContainer(slot);
 				}
@@ -81,12 +86,21 @@ public class ContainerProjectBench extends Container
 			addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 142 + 37));
 		}
 	}
-	public void onCraftMatrixChanged(IInventory inv)
+	@Override
+	public void updateCraftingResults()
 	{
-		ItemStack stack = CraftingManager.getInstance().findMatchingRecipe(this.craftMatrix);
-		craftResult.setInventorySlotContents(0, stack);
+		super.updateCraftingResults();
+		craftResultMatrix.setInventorySlotContents(0, tileEntity.findRecipe());
 	}
-	
+	@Override
+	public ItemStack slotClick(int slot, int par2, boolean par3, EntityPlayer player)
+	{
+		craftResultMatrix.setInventorySlotContents(0, tileEntity.findRecipe());
+		ItemStack stack = super.slotClick(slot, par2, par3, player);
+		onCraftMatrixChanged(tileEntity);
+		tileEntity.onInventoryChanged();
+		return stack;
+	}
 	@Override
 	public boolean canInteractWith(EntityPlayer player) 
 	{
