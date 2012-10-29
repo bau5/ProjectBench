@@ -1,9 +1,11 @@
 package bau5.mods.projectbench.common;
 
+import bau5.mods.projectbench.common.TileEntityProjectBench.LocalInventoryCrafting;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.src.Container;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
+import net.minecraft.src.InventoryCrafting;
 import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.SlotCrafting;
@@ -12,9 +14,8 @@ import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 
 public class SlotPBCrafting extends SlotCrafting
 {
-	private Container parentContainer;
 	private EntityPlayer thePlayer;
-	private IInventory craftMatrix;
+	private final IInventory craftMatrix;
 	private IInventory craftResultMatrix;
 	private IInventory craftSupplyMatrix;
 
@@ -27,7 +28,6 @@ public class SlotPBCrafting extends SlotCrafting
 		craftMatrix = craftingMatrix;
 		craftResultMatrix = craftingResultMatrix;
 		craftSupplyMatrix = craftingSupplyMatrix;
-		parentContainer = parent;
 	}
 
 	@Override
@@ -58,7 +58,6 @@ public class SlotPBCrafting extends SlotCrafting
                         }
                     }
                 }
-        		parentContainer.onCraftMatrixChanged(craftMatrix);
         		return;
         	}
         }
