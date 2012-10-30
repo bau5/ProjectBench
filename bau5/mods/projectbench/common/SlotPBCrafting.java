@@ -17,11 +17,13 @@ public class SlotPBCrafting extends SlotCrafting
 	private EntityPlayer thePlayer;
 	private final IInventory craftMatrix;
 	private IInventory craftResultMatrix;
+	//This is actually the TileEntity, need to use the 
+	//tileEntity's inventory to satisfy crafting.
 	private IInventory craftSupplyMatrix;
 
 	public SlotPBCrafting(Container parent, EntityPlayer player, IInventory craftingMatrix, 
-			IInventory craftingResultMatrix, IInventory craftingSupplyMatrix, 
-									  int slotID, int xDisplay, int yDisplay) 
+						  IInventory craftingResultMatrix, IInventory craftingSupplyMatrix, 
+									                int slotID, int xDisplay, int yDisplay) 
 	{
 		super(player, craftingMatrix, craftingResultMatrix, slotID, xDisplay, yDisplay);
 		thePlayer = player;
@@ -29,109 +31,47 @@ public class SlotPBCrafting extends SlotCrafting
 		craftResultMatrix = craftingResultMatrix;
 		craftSupplyMatrix = craftingSupplyMatrix;
 	}
-
+	
+	// TODO Fix behavior for this inventory!!!
 	@Override
 	public void onPickupFromSlot(ItemStack stack)
     {
+		boolean found = false;
         GameRegistry.onItemCrafted(thePlayer, stack, craftMatrix);
         this.onCrafting(stack);
         
-        for(int invIndex = 0; invIndex < craftSupplyMatrix.getSizeInventory(); ++invIndex)
+        //Looping through crafting matrix finding required items
+        for(int invIndex = 0; invIndex < 9; invIndex++)
         {
+        	found = false;
+        	//Grabs the item for comparison
         	ItemStack craftComponentStack = craftSupplyMatrix.getStackInSlot(invIndex);
         	if(craftComponentStack != null)
         	{
-        		craftSupplyMatrix.decrStackSize(invIndex, 1);
-        		if (craftComponentStack.getItem().hasContainerItem())
-                {
-                    ItemStack containerItem = craftComponentStack.getItem().getContainerItemStack(craftComponentStack);
-
-                    if (!craftComponentStack.getItem().doesContainerItemLeaveCraftingGrid(craftComponentStack) || !this.thePlayer.inventory.addItemStackToInventory(containerItem))
-                    {
-                        if (this.craftSupplyMatrix.getStackInSlot(invIndex) == null)
-                        {
-                            this.craftSupplyMatrix.setInventorySlotContents(invIndex, containerItem);
-                        }
-                        else
-                        {
-                            this.thePlayer.dropPlayerItem(containerItem);
-                        }
-                    }
-                }
-        		return;
+        		//Checking the supply inventory for matching item
+        		for(int supplyInv = 9; supplyInv < 27; supplyInv++)
+        		{
+        			//Grabs the item in the supply Matrix
+        			ItemStack supplyMatrixStack = craftSupplyMatrix.getStackInSlot(supplyInv);
+        			if(supplyMatrixStack != null)
+        			{
+        				if(supplyMatrixStack.getItem().equals(craftComponentStack.getItem()))
+        				{
+        					//Found item!
+        					System.out.println("Found matching item in craftSupply! " + found);
+        					found = true;
+        					craftSupplyMatrix.decrStackSize(supplyInv, 1);
+        					break;
+        				}
+        			}
+        		}
+        		//Didn't find it in the supply inventory, remove from crafting matrix
+        		if(!found)
+        		{
+        			System.out.println("Found matching item in craftMatrix!");
+        			craftSupplyMatrix.decrStackSize(invIndex, 1);
+        		}
         	}
         }
-        for (int var2 = 0; var2 < this.craftMatrix.getSizeInventory(); ++var2)
-        {
-            ItemStack var3 = this.craftMatrix.getStackInSlot(var2);
-
-            if (var3 != null)
-            {
-                this.craftMatrix.decrStackSize(var2, 1);
-
-                if (var3.getItem().hasContainerItem())
-                {
-                    ItemStack var4 = var3.getItem().getContainerItemStack(var3);
-
-                    if (!var3.getItem().doesContainerItemLeaveCraftingGrid(var3) || !this.thePlayer.inventory.addItemStackToInventory(var4))
-                    {
-                        if (this.craftMatrix.getStackInSlot(var2) == null)
-                        {
-                            this.craftMatrix.setInventorySlotContents(var2, var4);
-                        }
-                        else
-                        {
-                            this.thePlayer.dropPlayerItem(var4);
-                        }
-                    }
-                }
-            }
-        }
-//        for (int invIndex = 0; invIndex < craftMatrix.getSizeInventory(); ++invIndex)
-//        {
-//            ItemStack craftingMatrixStackEquiv = craftMatrix.getStackInSlot(invIndex);
-//            Item craftingItemToFind = null;
-//            if(craftingMatrixStackEquiv != null)
-//            {
-//                craftingItemToFind = craftingMatrixStackEquiv.getItem();
-//            } else continue;
-//            ItemStack supplyMatrixStackEquiv = null;
-//            
-//            for(int supplyInvIndex = 0; supplyInvIndex < craftSupplyMatrix.getSizeInventory(); supplyInvIndex++)
-//            {
-//            	if(craftSupplyMatrix.getStackInSlot(supplyInvIndex) != null && craftSupplyMatrix.getStackInSlot(supplyInvIndex).getItem().equals(craftingItemToFind))
-//            	{
-//            		supplyMatrixStackEquiv = craftSupplyMatrix.getStackInSlot(supplyInvIndex);
-//            	}
-//            }
-//
-//            if (supplyMatrixStackEquiv != null)
-//            {
-//                this.craftSupplyMatrix.decrStackSize(invIndex, 1);
-//
-//                if (supplyMatrixStackEquiv.getItem().hasContainerItem())
-//                {
-//                    ItemStack stack3 = supplyMatrixStackEquiv.getItem().getContainerItemStack(supplyMatrixStackEquiv);
-//                    
-//                    if (stack3.isItemStackDamageable() && stack3.getItemDamage() >= stack3.getMaxDamage())
-//                    {
-//                        MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(thePlayer, stack3));
-//                        stack3 = null;
-//                    }
-//
-//                    if (stack3 != null && (!supplyMatrixStackEquiv.getItem().doesContainerItemLeaveCraftingGrid(supplyMatrixStackEquiv) || !this.thePlayer.inventory.addItemStackToInventory(stack3)))
-//                    {
-//                        if (this.craftSupplyMatrix.getStackInSlot(invIndex) == null)
-//                        {
-//                            this.craftSupplyMatrix.setInventorySlotContents(invIndex, stack3);
-//                        }
-//                        else
-//                        {
-//                            this.thePlayer.dropPlayerItem(stack3);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-        }
+    }
 }
