@@ -31,8 +31,7 @@ public class SlotPBCrafting extends SlotCrafting
 		craftResultMatrix = craftingResultMatrix;
 		craftSupplyMatrix = craftingSupplyMatrix;
 	}
-	
-	// TODO Fix behavior for this inventory!!!
+
 	@Override
 	public void onPickupFromSlot(ItemStack stack)
     {
@@ -58,7 +57,7 @@ public class SlotPBCrafting extends SlotCrafting
         				if(supplyMatrixStack.getItem().equals(craftComponentStack.getItem()))
         				{
         					//Found item!
-        					System.out.println("Found matching item in craftSupply! " + found);
+//        					System.out.println("Found matching item in craftSupply! " + found);
         					found = true;
         					craftSupplyMatrix.decrStackSize(supplyInv, 1);
         					break;
@@ -68,7 +67,7 @@ public class SlotPBCrafting extends SlotCrafting
         		//Didn't find it in the supply inventory, remove from crafting matrix
         		if(!found)
         		{
-        			System.out.println("Found matching item in craftMatrix!");
+//        			System.out.println("Found matching item in craftMatrix!");
         			craftSupplyMatrix.decrStackSize(invIndex, 1);
         		}
         	}
