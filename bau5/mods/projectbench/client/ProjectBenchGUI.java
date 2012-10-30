@@ -13,7 +13,6 @@ public class ProjectBenchGUI extends GuiContainer {
 
     public ProjectBenchGUI (InventoryPlayer inventoryPlayer, TileEntityProjectBench tileEntity) 
     {
-        //the container is instanciated and passed to the superclass for handling
         super(new ContainerProjectBench(inventoryPlayer, tileEntity));
         ySize += 40;
     }
@@ -21,17 +20,12 @@ public class ProjectBenchGUI extends GuiContainer {
     @Override
     protected void drawGuiContainerForegroundLayer() 
     {
-        //draw text and stuff here
-        //the parameters for drawString are: string, x, y, color
         fontRenderer.drawString("Project Bench", 8, 6, 4210752);
-        //draws "Inventory" or your regional equivalent
-//        fontRenderer.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 4210752);
     }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
     {
-        //draw your Gui here, only thing you need to change is the path
         int texture = mc.renderEngine.getTexture(ProjectBench.baseTexFile +"/pbgui.png");
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.renderEngine.bindTexture(texture);

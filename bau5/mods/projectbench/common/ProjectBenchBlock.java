@@ -4,6 +4,7 @@ import java.util.Random;
 
 import net.minecraft.src.Block;
 import net.minecraft.src.BlockContainer;
+import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityItem;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
@@ -23,6 +24,7 @@ public class ProjectBenchBlock extends BlockContainer
 		setHardness(2.0F);
 		setResistance(1.5F);
 		setBlockName("bau5ProjectBench");
+		setCreativeTab(CreativeTabs.tabDecorations);
 	}
 	
 	public String getTextureFile()

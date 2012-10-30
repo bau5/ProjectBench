@@ -114,33 +114,39 @@ public class ContainerProjectBench extends Container
         {
             ItemStack stack2 = slot.getStack();
             stack = stack2.copy();
-
+            
             if (numSlot == 0)
             {
-                if (!this.mergeItemStack(stack2, 10, 46, true))
+                if (!this.mergeItemStack(stack2, 10, 47, true))
                 {
                     return null;
                 }
 
                 slot.onSlotChange(stack2, stack);
             }
-            else if (numSlot >= 10 && numSlot < 37)
+            //Merge crafting matrix item with supply matrix inventory
+            else if(numSlot > 0 && numSlot <= 9)
             {
-                if (!this.mergeItemStack(stack2, 37, 46, false))
+            	if(!this.mergeItemStack(stack2, 10, 28, false))
+            	{
+            		return null;
+            	}
+            }
+            //Merge Supply matrix item with player inventory
+            else if (numSlot >= 10 && numSlot <= 27)
+            {
+                if (!this.mergeItemStack(stack2, 28, 64, false))
                 {
                     return null;
                 }
             }
-            else if (numSlot >= 37 && numSlot < 46)
+            //Merge player inventory item with supply matrix
+            else if (numSlot >= 28 && numSlot < 64)
             {
-                if (!this.mergeItemStack(stack2, 10, 37, false))
+                if (!this.mergeItemStack(stack2, 10, 28, false))
                 {
                     return null;
                 }
-            }
-            else if (!this.mergeItemStack(stack2, 10, 46, false))
-            {
-                return null;
             }
 
             if (stack2.stackSize == 0)

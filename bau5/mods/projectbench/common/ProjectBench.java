@@ -22,7 +22,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "0.1")
+@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
 public class ProjectBench 
 {
@@ -35,13 +35,7 @@ public class ProjectBench
 	public Block projectBench;
 	public static String baseTexFile = "/pb_resources";
 	public static String textureFile = baseTexFile + "/pbsheet.png";
-	
-	@PreInit
-	public void preInit(FMLPreInitializationEvent ev)
-	{
-		
-	}
-
+  
 	@Init
 	public void initMain(FMLInitializationEvent ev)
 	{
@@ -52,7 +46,7 @@ public class ProjectBench
 		LanguageRegistry.addName(projectBench, "Project Bench");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
 		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1), new Object[]{
-			"#", '#', Block.dirt
+			" C ", "WHW", 'C', Block.workbench, 'W', Block.planks, 'H', Block.chest
 		});
 	}
 }

@@ -6,16 +6,16 @@
   "version": "1.0",
   "mcversion": "1.3.2",
   "url": "",
-  "updateUrl": "",
+  "updateUrl": "https://github.com/bau5/ProjectBench,
   "authors": [
     "bau5"
   ],
   "credits": "by bau5, inspiration from RP2 by Eloraam",
   "logoFile": "",
-  "screenshots": [
+  "screenshots": [ "/pb_resources/screenshots/pic1.png"
   ],
   "parent":"",
-  "dependencies": [
+  "dependencies": [ "MinecraftForge"
   ]
 }
 ]
