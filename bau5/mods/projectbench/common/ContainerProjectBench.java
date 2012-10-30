@@ -24,11 +24,10 @@ public class ContainerProjectBench extends Container
 	public ContainerProjectBench(InventoryPlayer invPlayer, TileEntityProjectBench tpb)
 	{
 		tileEntity = tpb;
-		//Change this to tileEntity to clone the tileEntities
 		craftSupplyMatrix = tileEntity.craftSupplyMatrix;
 		craftResultMatrix = new InventoryCraftResult();
 		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, tileEntity, craftResultMatrix, 
-										 craftSupplyMatrix, craftResultSlot, 124, 35));
+										 tileEntity, craftResultSlot, 124, 35));
 		layoutContainer(invPlayer, tileEntity);
 		bindPlayerInventory(invPlayer);
 		updateCraftingResults();
@@ -163,34 +162,4 @@ public class ContainerProjectBench extends Container
 
         return stack;
     }
-//	@Override
-//    public ItemStack transferStackInSlot(int slot) 
-//	{
-//        ItemStack stack = null;
-//        Slot slotObject = (Slot) inventorySlots.get(slot);
-//
-//        //null checks and checks if the item can be stacked (maxStackSize > 1)
-//        if (slotObject != null && slotObject.getHasStack()) 
-//        {
-//            ItemStack stackInSlot = slotObject.getStack();
-//            stack = stackInSlot.copy();
-//
-//            //merges the item into player inventory since its in the tileEntity
-//            if (slot == 0) {
-//                if (!mergeItemStack(stackInSlot, 1, inventorySlots.size(), true)) {
-//                        return null;
-//                }
-//            //places it into the tileEntity is possible since its in the player inventory
-//            } else if (!mergeItemStack(stackInSlot, 0, 1, false)) {
-//                return null;
-//            }
-//
-//            if (stackInSlot.stackSize == 0) {
-//                slotObject.putStack(null);
-//            } else {
-//                slotObject.onSlotChanged();
-//            }
-//        }
-//        return stack;
-//    }
 }

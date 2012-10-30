@@ -53,20 +53,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 		return recipe;
 	}
 	@Override
-	public void onInventoryChanged()
-	{
-		for(int i = 0; i < inv.length; i++)
-		{
-			ItemStack temp = inv[i];
-			if(temp != null)
-			{
-				System.out.println(temp.getItem().toString() +" at " +i);
-			}
-			else 
-				System.out.println("null at " +i);
-		}
-	}
-	@Override
 	public int getSizeInventory() 
 	{
 		return inv.length;
