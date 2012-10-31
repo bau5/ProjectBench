@@ -25,7 +25,7 @@ public class ContainerProjectBench extends Container
 	{
 		tileEntity = tpb;
 		craftSupplyMatrix = tileEntity.craftSupplyMatrix;
-		craftResultMatrix = new InventoryCraftResult();
+		craftResultMatrix = tileEntity.craftResult;
 		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, tileEntity, craftResultMatrix, 
 										 tileEntity, craftResultSlot, 124, 35));
 		layoutContainer(invPlayer, tileEntity);
