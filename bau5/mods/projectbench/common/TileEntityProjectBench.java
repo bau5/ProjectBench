@@ -33,10 +33,12 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	
 	public IInventory craftResult;
 	public IInventory craftSupplyMatrix;
+	private ItemStack result;
 	
 	public TileEntityProjectBench()
 	{
 		craftSupplyMatrix = new InventoryBasic("pbCraftingSupply", 18);
+		craftResult = new InventoryCraftResult();
 		inv = new ItemStack[27];
 	}
 	public ItemStack findRecipe() {
