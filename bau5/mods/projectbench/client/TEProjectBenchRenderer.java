@@ -26,7 +26,9 @@ import net.minecraft.src.RenderManager;
 import net.minecraft.src.Tessellator;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.TileEntitySpecialRenderer;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.IItemRenderer;
+import net.minecraftforge.client.IItemRenderer.ItemRenderType;
 import net.minecraftforge.client.MinecraftForgeClient;
 
 public class TEProjectBenchRenderer extends TileEntitySpecialRenderer 
@@ -45,39 +47,33 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer
 		renderBlocks = new RenderBlocks(te.worldObj);
 		renderBlocks.renderBlockByRenderType(ProjectBench.instance.projectBench, 
 														 (int)x, (int)y, (int)z);
+		
 		ItemStack craftingResult = tpb.findRecipe();
+		EntityItem entityItem = new EntityItem(tpb.worldObj);
+		entityItem.item = craftingResult;
 		if(craftingResult != null)
 		{
-			GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-            GL11.glPushMatrix();
-			glTranslatef((float)x, (float)y, (float)z);
-			glTranslatef(0.5F, 1.2F, 0.5F);
-			glScalef(0.3F, 0.3F, 0.3F);
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.overrideTexture(craftingResult);
-            this.renderBlocks.renderBlockAsItem(Block.blocksList[craftingResult.itemID], craftingResult.getItemDamage(), 1.0F);
-            GL11.glPopMatrix();
-            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-            
-//			GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-//			glPushMatrix();
-////			glDisable(GL11.GL_LIGHTING);
-//			glTranslatef((float)x, (float)y, (float)z);
-//			glTranslatef(0.5F, 1.2F, 0.5F);
-//			glScalef(0.3F, 0.3F, 0.3F);
-//			GL11.glColor4f(1F, 1F, 1F, 1F);
-//			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-//			if(craftingResult.itemID < Block.blocksList.length && 
-//			   Block.blocksList[craftingResult.itemID] != null)
-//			{
-//				bindTextureByName("/terrain.png");
-//				overrideTexture(Block.blocksList[craftingResult.itemID]);
-//				renderBlocks.renderBlockAsItem(Block.blocksList[craftingResult.itemID], craftingResult.getItemDamage(), 1.0F);
-//			}
-////			glEnable(GL11.GL_LIGHTING);
-//			glPopMatrix();
-//            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+			if(craftingResult.itemID < Block.blocksList.length &&
+			   Block.blocksList[craftingResult.itemID] != null)
+			{
+				bindTextureByName("/terrain.png");
+	            this.overrideTexture(craftingResult);
+	            GL11.glPushMatrix();
+				  GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+				  GL11.glDisable(GL11.GL_LIGHTING);
+				    GL11.glPushMatrix();
+				      glTranslatef((float)x, (float)y, (float)z);
+				      glTranslatef(0.5F, 1.2F, 0.5F);
+				      glScalef(0.3F, 0.3F, 0.3F);
+				        glPushMatrix();
+	                      GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	                      this.renderBlocks.renderBlockAsItem(Block.blocksList[craftingResult.itemID], craftingResult.getItemDamage(), 0.5F);
+	                    glPopMatrix();
+	                GL11.glPopMatrix();
+	              GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+	              GL11.glEnable(GL11.GL_LIGHTING);
+	            GL11.glPopMatrix();
+			}
 		}
 	}
 	//Thank you CPW <3
