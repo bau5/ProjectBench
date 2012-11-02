@@ -3,10 +3,10 @@
   "modid": "bau5_ProjectBench",
   "name": "Project Bench",
   "description": "Project Bench - for all those failed crafting attempts because of forgotten materials",
-  "version": "1.0",
+  "version": "@VERSION@",
   "mcversion": "1.3.2",
   "url": "",
-  "updateUrl": "https://github.com/bau5/ProjectBench,
+  "updateUrl": "https://github.com/bau5/ProjectBench",
   "authors": [
     "bau5"
   ],
