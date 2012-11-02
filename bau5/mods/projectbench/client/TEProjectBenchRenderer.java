@@ -35,7 +35,7 @@ import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.IItemRenderer.ItemRenderType;
 import net.minecraftforge.client.MinecraftForgeClient;
 
-public class TEProjectBenchRenderer extends TileEntitySpecialRenderer  
+public class TEProjectBenchRenderer extends TileEntitySpecialRenderer 
 {
 	private RenderBlocks renderBlocks;
 
@@ -85,15 +85,15 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer
 
         GL11.glScalef(0.3F, 0.3F, 0.3F); //making smaller
         this.bindTextureByName("/terrain.png"); //texture bound
+        glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
         GL11.glPushMatrix(); //new matrix
-        int var4 = (int) tpb.worldObj.getBrightness((int)x, (int)y, (int)z, tpb.worldObj.provider.lightBrightnessTable.length - 1);
-       	int var5 = var4 % 65536;
-        int var6 = var4 / 65536;
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)var5 / 1.0F, (float)var6 / 1.0F);
         //^from what i can tell does nothing
         //v passes the block off to be rendered by the typical handler
+        renderBlocks.useInventoryTint = false;
         this.renderBlocks.renderBlockAsItem(Block.blocksList[craftingResult.itemID], 
-        										craftingResult.getItemDamage(), 15);
+        										craftingResult.getItemDamage(), 1.0F);
         GL11.glPopMatrix(); //popping 3rd matrix
 	}
 }
