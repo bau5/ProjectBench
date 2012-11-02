@@ -32,6 +32,7 @@ public class ProjectBench
 				serverSide = "bau5.mods.projectbench.common.CommonProxy")
 	public static CommonProxy proxy;
 	
+	public int pbRenderID = 79;
 	public Block projectBench;
 	public static String baseTexFile = "/pb_resources";
 	public static String textureFile = baseTexFile + "/pbsheet.png";
