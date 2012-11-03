@@ -5,8 +5,11 @@ import java.util.logging.Logger;
 import net.minecraft.src.Block;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Material;
+import net.minecraft.src.RenderHelper;
+import net.minecraft.src.RenderManager;
 
 
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -32,7 +35,7 @@ public class ProjectBench
 				serverSide = "bau5.mods.projectbench.common.CommonProxy")
 	public static CommonProxy proxy;
 	
-	public int pbRenderID = 79;
+	public int pbRenderID;
 	public Block projectBench;
 	public static String baseTexFile = "/pb_resources";
 	public static String textureFile = baseTexFile + "/pbsheet.png";
@@ -40,6 +43,7 @@ public class ProjectBench
 	@Init
 	public void initMain(FMLInitializationEvent ev)
 	{
+		pbRenderID = RenderingRegistry.getNextAvailableRenderId();
 		proxy.registerRenderInformation();
 		projectBench = new ProjectBenchBlock(700, Material.wood);
 		GameRegistry.registerBlock(projectBench);

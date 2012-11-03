@@ -10,12 +10,11 @@ import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
 public class PBWorldRenderer implements ISimpleBlockRenderingHandler
 {
-
 	@Override
 	public void renderInventoryBlock(Block block, int metadata, int modelID,
 			RenderBlocks renderBlocks) 
 	{
-		
+
 	}
 
 	@Override
