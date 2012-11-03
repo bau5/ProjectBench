@@ -93,15 +93,5 @@ public class ProjectBenchBlock extends BlockContainer
 	{
 		return new TileEntityProjectBench();
 	}
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return false;
-	}
-	@Override
-	public int getRenderType()
-	{
-		return ProjectBench.instance.pbRenderID;
-	}
 	
 }
