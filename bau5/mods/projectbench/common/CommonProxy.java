@@ -1,18 +1,18 @@
 package bau5.mods.projectbench.common;
 
-import bau5.mods.projectbench.client.ProjectBenchGUI;
+import bau5.mods.projectbench.client.ProjectBenchGui;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
+import net.minecraftforge.client.MinecraftForgeClient;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class CommonProxy implements IGuiHandler
 {
-	public void registerRenderInformation() 
+	public void registerRenderInformation()
 	{
-		  
+		
 	}
-
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world,
 			int x, int y, int z) 
@@ -22,10 +22,11 @@ public class CommonProxy implements IGuiHandler
 		{
 			switch(ID)
 			{
-			case 0: return new ContainerProjectBench(player.inventory, (TileEntityProjectBench) te);
+			case 0: return new ContainerProjectBench(player.inventory, (TileEntityProjectBench)te);
 			}
 		}
 		return null;
+		
 	}
 
 	@Override
@@ -34,9 +35,9 @@ public class CommonProxy implements IGuiHandler
 	{
 		switch(ID)
 		{
-		case 0:
-			return new ProjectBenchGUI(player.inventory, (TileEntityProjectBench) world.getBlockTileEntity(x, y, z));
+		case 0: return new ProjectBenchGui(player.inventory, (TileEntityProjectBench)world.getBlockTileEntity(x, y, z));
 		}
 		return null;
 	}
+
 }

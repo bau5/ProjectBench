@@ -1,15 +1,13 @@
 package bau5.mods.projectbench.common;
 
-import net.minecraft.src.Block;
+import net.minecraft.src.Container;
 import net.minecraft.src.CraftingManager;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
 import net.minecraft.src.InventoryBasic;
 import net.minecraft.src.InventoryCraftResult;
 import net.minecraft.src.InventoryCrafting;
-import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
-import net.minecraft.src.Container;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
 import net.minecraft.src.TileEntity;
@@ -30,6 +28,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	};
 	
 	private ItemStack[] inv;
+	private byte facing;
 	
 	public IInventory craftResult;
 	public IInventory craftSupplyMatrix;
@@ -50,9 +49,18 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 			craftMatrix.setInventorySlotContents(i, stack);
 		}
 
-		ItemStack recipe = CraftingManager.getInstance().findMatchingRecipe(craftMatrix);
+		ItemStack recipe = CraftingManager.getInstance().func_82787_a(craftMatrix, worldObj);
 
 		return recipe;
+	}
+	public void setDirectionFacing(byte byt)
+	{
+		System.out.println("Set to " +byt);
+		facing = byt;
+	}
+	public byte getDirectionFacing()
+	{
+		return facing;
 	}
 	@Override
 	public int getSizeInventory() 

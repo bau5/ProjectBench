@@ -6,17 +6,17 @@ import net.minecraft.src.Block;
 import net.minecraft.src.BlockContainer;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityItem;
+import net.minecraft.src.EntityLiving;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Material;
+import net.minecraft.src.MathHelper;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
-import net.minecraftforge.common.MinecraftForge;
 
-public class ProjectBenchBlock extends BlockContainer 
-{
+public class ProjectBenchBlock extends BlockContainer {
 
 	public ProjectBenchBlock(int id, Material mat) 
 	{
@@ -24,7 +24,6 @@ public class ProjectBenchBlock extends BlockContainer
 		setHardness(2.0F);
 		setResistance(1.5F);
 		setBlockName("bau5ProjectBench");
-		setCreativeTab(CreativeTabs.tabDecorations);
 	}
 	
 	public String getTextureFile()
@@ -40,13 +39,44 @@ public class ProjectBenchBlock extends BlockContainer
 		default: return 0;
 		}
 	}
-	
+	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving el)
+    {
+        byte byt = 0;
+        int dir = MathHelper.floor_double((double)(el.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+
+        if (dir == 0)
+        {
+            byt = 2;
+        }
+
+        if (dir == 1)
+        {
+            byt = 5;
+        }
+
+        if (dir == 2)
+        {
+            byt = 3;
+        }
+
+        if (dir == 3)
+        {
+            byt = 4;
+        }
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if(te != null && te instanceof TileEntityProjectBench)
+        {
+        	TileEntityProjectBench tpb = (TileEntityProjectBench)te;
+        	tpb.setDirectionFacing(byt);
+        }
+    }
+	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
 			 int par6, float par7, float par8, float par9)
     {
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te == null || player.isSneaking())
-		{
+		{	
 			return false;
 		}
         player.openGui(ProjectBench.instance, 0, world, x, y, z);
@@ -87,11 +117,22 @@ public class ProjectBenchBlock extends BlockContainer
 			}
 		}
 	}
-	
+
 	@Override
-	public TileEntity createNewTileEntity(World world)
+	public TileEntity createNewTileEntity(World var1) 
 	{
 		return new TileEntityProjectBench();
 	}
-	
+	@Override
+	public boolean renderAsNormalBlock()
+	{
+		return true;
+	}
+//	@Override
+//	public int getRenderType()
+//	{
+//		return ProjectBench.instance.pbRenderID;
+//	}
+
+
 }

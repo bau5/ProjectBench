@@ -1,17 +1,11 @@
 package bau5.mods.projectbench.common;
 
-import bau5.mods.projectbench.common.TileEntityProjectBench.LocalInventoryCrafting;
 import net.minecraft.src.Container;
-import net.minecraft.src.CraftingManager;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
-import net.minecraft.src.InventoryBasic;
-import net.minecraft.src.InventoryCraftResult;
-import net.minecraft.src.InventoryCrafting;
 import net.minecraft.src.InventoryPlayer;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Slot;
-import net.minecraft.src.SlotCrafting;
 
 public class ContainerProjectBench extends Container
 {
@@ -92,7 +86,7 @@ public class ContainerProjectBench extends Container
 		craftResultMatrix.setInventorySlotContents(0, tileEntity.findRecipe());
 	}
 	@Override
-	public ItemStack slotClick(int slot, int par2, boolean par3, EntityPlayer player)
+	public ItemStack slotClick(int slot, int par2, int par3, EntityPlayer player)
 	{
 		craftResultMatrix.setInventorySlotContents(0, tileEntity.findRecipe());
 		ItemStack stack = super.slotClick(slot, par2, par3, player);
@@ -105,7 +99,7 @@ public class ContainerProjectBench extends Container
 	{
 		return tileEntity.isUseableByPlayer(player);
 	}
-	public ItemStack transferStackInSlot(int numSlot)
+	public ItemStack func_82846_b(EntityPlayer player, int numSlot)
     {
         ItemStack stack = null;
         Slot slot = (Slot)this.inventorySlots.get(numSlot);
@@ -163,9 +157,10 @@ public class ContainerProjectBench extends Container
                 return null;
             }
 
-            slot.onPickupFromSlot(stack2);
+            slot.func_82870_a(player, stack2);
         }
 
         return stack;
     }
 }
+
