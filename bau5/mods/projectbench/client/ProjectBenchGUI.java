@@ -7,18 +7,17 @@ import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.TileEntityProjectBench;
 import net.minecraft.src.GuiContainer;
 import net.minecraft.src.InventoryPlayer;
-import net.minecraft.src.StatCollector;
 
-public class ProjectBenchGUI extends GuiContainer {
+public class ProjectBenchGui extends GuiContainer {
 
-    public ProjectBenchGUI (InventoryPlayer inventoryPlayer, TileEntityProjectBench tileEntity) 
+    public ProjectBenchGui (InventoryPlayer inventoryPlayer, TileEntityProjectBench tileEntity) 
     {
         super(new ContainerProjectBench(inventoryPlayer, tileEntity));
         ySize += 40;
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer() 
+    protected void drawGuiContainerForegroundLayer(int par1, int par2) 
     {
         fontRenderer.drawString("Project Bench", 8, 6, 4210752);
     }

@@ -1,16 +1,12 @@
 package bau5.mods.projectbench.common;
 
-import bau5.mods.projectbench.common.TileEntityProjectBench.LocalInventoryCrafting;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.src.Container;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
-import net.minecraft.src.InventoryCrafting;
-import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
+import net.minecraft.src.Slot;
 import net.minecraft.src.SlotCrafting;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 
 public class SlotPBCrafting extends SlotCrafting
 {
@@ -33,10 +29,10 @@ public class SlotPBCrafting extends SlotCrafting
 	}
 
 	@Override
-	public void onPickupFromSlot(ItemStack stack)
+	public void func_82870_a(EntityPlayer player, ItemStack stack)
     {
 		boolean found = false;
-        GameRegistry.onItemCrafted(thePlayer, stack, craftMatrix);
+        GameRegistry.onItemCrafted(player, stack, craftMatrix);
         this.onCrafting(stack);
         
         //Looping through crafting matrix finding required items
