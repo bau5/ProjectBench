@@ -55,7 +55,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	}
 	public void setDirectionFacing(byte byt)
 	{
-		System.out.println("Set to " +byt);
 		facing = byt;
 	}
 	public byte getDirectionFacing()
@@ -150,6 +149,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	{
 		super.readFromNBT(tagCompound);
 		
+		setDirectionFacing(tagCompound.getByte("Facing"));
+		
 		NBTTagList tagList = tagCompound.getTagList("Inventory");
 		for(int i = 0; i < tagList.tagCount(); i++)
 		{
@@ -166,6 +167,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	{
 		super.writeToNBT(tagCompound);
 		
+		tagCompound.setByte("Facing", getDirectionFacing());
+		
 		NBTTagList itemList = new NBTTagList();	
 		
 		for(int i = 0; i < inv.length; i++)
@@ -180,5 +183,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 			}
 		}
 		tagCompound.setTag("Inventory", itemList);
+		tagCompound.setByte("Facing", getDirectionFacing());
 	}
 }

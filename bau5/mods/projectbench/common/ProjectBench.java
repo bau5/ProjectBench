@@ -26,7 +26,8 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.0")
+//1.4.2
+@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.1")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
 public class ProjectBench 
 {
