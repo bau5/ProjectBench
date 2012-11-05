@@ -1,26 +1,32 @@
 package bau5.mods.projectbench.client;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GLContext;
+import cpw.mods.fml.client.FMLClientHandler;
+
 import static org.lwjgl.opengl.GL11.glColor4f;
-import static org.lwjgl.opengl.GL11.glPushMatrix;
-import static org.lwjgl.opengl.GL11.glPopMatrix;
-import static org.lwjgl.opengl.GL11.glScalef;
-import static org.lwjgl.opengl.GL11.glTranslatef;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glEndList;
+import static org.lwjgl.opengl.GL11.glGenLists;
+import static org.lwjgl.opengl.GL11.glNewList;
+import static org.lwjgl.opengl.GL11.glPopMatrix;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.opengl.GL11.glRotatef;
+import static org.lwjgl.opengl.GL11.glScalef;
+import static org.lwjgl.opengl.GL11.glTranslatef;
+
+import org.lwjgl.opengl.GL11;
 
 import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.TileEntityProjectBench;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.Block;
 import net.minecraft.src.EntityItem;
+import net.minecraft.src.IBlockAccess;
+import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.OpenGlHelper;
 import net.minecraft.src.RenderBlocks;
-import net.minecraft.src.RenderHelper;
+import net.minecraft.src.RenderManager;
 import net.minecraft.src.Tessellator;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.TileEntitySpecialRenderer;
@@ -29,8 +35,8 @@ import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.IItemRenderer.ItemRenderType;
 import net.minecraftforge.client.MinecraftForgeClient;
 
-public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
-
+public class TEProjectBenchRenderer extends TileEntitySpecialRenderer  
+{
 	private RenderBlocks renderBlocks;
 
 	//Function that renders tile entity and the other block thing
@@ -46,19 +52,9 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 		renderBlocks = new RenderBlocks(tpb.worldObj);
 		renderBlocks.renderBlockByRenderType(ProjectBench.instance.projectBench, 
 														 (int)x, (int)y, (int)z);
-		int dirRotation = 0;
-		byte facing = tpb.getDirectionFacing();
-		switch(facing)
-		{
-		case 2: dirRotation = -90; break;
-		case 3: dirRotation = 90; break;
-		case 4: dirRotation = 0; break;
-		case 5: dirRotation = 180; break;
-		default: dirRotation = 0; break;
-		}
+		
 		ItemStack stack = tpb.findRecipe();
-//		if(stack != null && tpb.worldObj.getBlockId((int)x, (int)y + 1, (int)z) == 0)
-		if(true == false)
+		if(stack != null && tpb.worldObj.getBlockId((int)x, (int)y + 1, (int)z) == 0)
 		{
 			EntityItem ei = new EntityItem(tpb.worldObj);
 			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -73,12 +69,17 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 			float var9 = (float)(Minecraft.getSystemTime()) / (3000.0F) * 256.0F;
             
 			glRotatef(var9 / 5, 0, 1.0F, 0);
-			IItemRenderer customItemRenderer = MinecraftForgeClient.getItemRenderer(stack, ItemRenderType.ENTITY);
+			IItemRenderer customItemRenderer = MinecraftForgeClient.getItemRenderer(stack, IItemRenderer.ItemRenderType.ENTITY);
 			
 			if(customItemRenderer != null)
 			{
+				glPushMatrix();
+				glTranslatef(0, 0.25F, 0);
+				glScalef(0.8F, 0.8F, 0.8F);
 				ForgeHooksClient.bindTexture(stack.getItem().getTextureFile(), 0);
-				customItemRenderer.renderItem(ItemRenderType.ENTITY, stack, stack.getItemDamage());
+				ei.item = stack;
+				customItemRenderer.renderItem(IItemRenderer.ItemRenderType.ENTITY, stack, renderBlocks, ei);
+				glPopMatrix();
 			} else if(stack.itemID < Block.blocksList.length && Block.blocksList[stack.itemID] != null
 					  && Block.blocksList[stack.itemID].blockID != 0)
 			{
@@ -120,3 +121,4 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 		}
 	}
 }
+		

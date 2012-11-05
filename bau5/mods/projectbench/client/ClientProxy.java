@@ -13,13 +13,7 @@ public class ClientProxy extends CommonProxy
 	public void registerRenderInformation()
 	{
 		MinecraftForgeClient.preloadTexture(ProjectBench.textureFile);
-//		RenderingRegistry.registerBlockHandler(getPBRenderID(), new PBWorldRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityProjectBench.class, 
 													 new TEProjectBenchRenderer());
-	}
-	
-	public int getPBRenderID()
-	{
-		return ProjectBench.instance.pbRenderID;
 	}
 } 

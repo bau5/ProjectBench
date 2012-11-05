@@ -27,7 +27,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 //1.4.2
-@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.1")
+@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.2")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
 public class ProjectBench 
 {
@@ -37,7 +37,6 @@ public class ProjectBench
 				serverSide = "bau5.mods.projectbench.common.CommonProxy")
 	public static CommonProxy proxy;
 	
-	public int pbRenderID;
 	public Block projectBench;
 	public static String baseTexFile = "/pb_resources";
 	public static String textureFile = baseTexFile + "/pbsheet.png";
@@ -45,7 +44,6 @@ public class ProjectBench
 	@Init
 	public void initMain(FMLInitializationEvent ev)
 	{
-		pbRenderID = RenderingRegistry.getNextAvailableRenderId();
 		proxy.registerRenderInformation();
 		projectBench = new ProjectBenchBlock(700, Material.wood).setCreativeTab(CreativeTabs.tabDecorations);
 		GameRegistry.registerBlock(projectBench);
