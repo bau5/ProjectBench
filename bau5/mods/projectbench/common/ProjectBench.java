@@ -32,7 +32,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 //1.4.2
-@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.2")
+@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.3")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
 public class ProjectBench 
 {

@@ -111,7 +111,7 @@ public class ContainerProjectBench extends Container
             
             if (numSlot == 0)
             {
-                if (!this.mergeItemStack(stack2, 10, 47, true))
+                if (!this.mergeItemStack(stack2, 10, 55, true))
                 {
                     return null;
                 }
