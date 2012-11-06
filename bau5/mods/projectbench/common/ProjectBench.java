@@ -1,15 +1,20 @@
 package bau5.mods.projectbench.common;
 
+import java.awt.event.KeyEvent;
 import java.util.logging.Logger;
+
+import org.lwjgl.input.Keyboard;
 
 import net.minecraft.src.Block;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.ItemStack;
+import net.minecraft.src.KeyBinding;
 import net.minecraft.src.Material;
 import net.minecraft.src.RenderHelper;
 import net.minecraft.src.RenderManager;
 
 
+import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -44,6 +49,7 @@ public class ProjectBench
 	@Init
 	public void initMain(FMLInitializationEvent ev)
 	{
+		KeyBindingRegistry.registerKeyBinding(new KeyBindingHandler());
 		proxy.registerRenderInformation();
 		projectBench = new ProjectBenchBlock(700, Material.wood).setCreativeTab(CreativeTabs.tabDecorations);
 		GameRegistry.registerBlock(projectBench);
