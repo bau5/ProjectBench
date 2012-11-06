@@ -3,10 +3,10 @@
   "modid": "bau5_ProjectBench",
   "name": "Project Bench",
   "description": "Project Bench - for all those failed crafting attempts because of forgotten materials",
-  "version": "@VERSION@",
-  "mcversion": "1.3.2",
-  "url": "",
-  "updateUrl": "https://github.com/bau5/ProjectBench",
+  "version": "1.3",
+  "mcversion": "1.4.2",
+  "url": "http://www.minecraftforum.net/topic/1550010-142132sspsmp-project-bench-forge/",
+  "updateUrl": "",
   "authors": [
     "bau5"
   ],
