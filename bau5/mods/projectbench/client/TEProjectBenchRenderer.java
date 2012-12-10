@@ -38,6 +38,7 @@ import net.minecraftforge.client.MinecraftForgeClient;
 public class TEProjectBenchRenderer extends TileEntitySpecialRenderer  
 {
 	private RenderBlocks renderBlocks;
+	private boolean RENDER_ITEM = ProjectBench.instance.DO_RENDER;
 
 	//Function that renders tile entity and the other block thing
 	@Override
@@ -54,7 +55,7 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer
 														 (int)x, (int)y, (int)z);
 		
 		ItemStack stack = tpb.findRecipe();
-		if(stack != null && tpb.worldObj.getBlockId((int)x, (int)y + 1, (int)z) == 0)
+		if(RENDER_ITEM && stack != null && tpb.worldObj.getBlockId(tpb.xCoord, tpb.yCoord + 1, tpb.zCoord) == 0)
 		{
 			EntityItem ei = new EntityItem(tpb.worldObj);
 			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -63,7 +64,8 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer
 			glTranslatef((float)x,(float)y,(float)z);
 			glTranslatef(0.5F, 1.2F, 0.5F);
 			glScalef(0.3F, 0.3F, 0.3F);
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 170 / 1.0F, 170 / 1.0F);
+
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 170F, 170F);
 			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			
 			float var9 = (float)(Minecraft.getSystemTime()) / (3000.0F) * 256.0F;

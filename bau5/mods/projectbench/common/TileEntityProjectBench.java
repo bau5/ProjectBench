@@ -10,6 +10,7 @@ import net.minecraft.src.InventoryCrafting;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
+import net.minecraft.src.Packet;
 import net.minecraft.src.TileEntity;
 
 public class TileEntityProjectBench extends TileEntity implements IInventory
@@ -33,7 +34,15 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	public IInventory craftResult;
 	public IInventory craftSupplyMatrix;
 	private ItemStack result;
+	private int numPlayersUsing;
+	private boolean visited = false;
+	private int sync = 0;
 	
+	public void onInventoryChanged()
+	{
+		super.onInventoryChanged();
+		worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
+	}
 	public TileEntityProjectBench()
 	{
 		craftSupplyMatrix = new InventoryBasic("pbCraftingSupply", 18);
@@ -43,14 +52,16 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	public ItemStack findRecipe() {
 		InventoryCrafting craftMatrix = new LocalInventoryCrafting();
 
-		for (int i = 0; i < craftMatrix.getSizeInventory(); ++i) {
+		for (int i = 0; i < craftMatrix.getSizeInventory(); ++i) 
+		{
 			ItemStack stack = getStackInSlot(i);
-
 			craftMatrix.setInventorySlotContents(i, stack);
 		}
 
-		ItemStack recipe = CraftingManager.getInstance().func_82787_a(craftMatrix, worldObj);
-
+		ItemStack recipe = CraftingManager.getInstance().findMatchingRecipe(craftMatrix, worldObj);
+		onInventoryChanged();
+		System.out.println("Recipe is " +recipe);
+		this.result = recipe;
 		return recipe;
 	}
 	public void setDirectionFacing(byte byt)
@@ -91,6 +102,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 				}
 			}
 		}
+		onInventoryChanged();
 		return stack;
 	}
 
@@ -102,6 +114,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 		{
 			setInventorySlotContents(slot, null);
 		}
+		onInventoryChanged();
 		return stack;
 	}
 
@@ -113,6 +126,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 		{
 			stack.stackSize = getInventoryStackLimit();
 		}
+		onInventoryChanged();
 	}
 
 	@Override
@@ -133,15 +147,86 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 		return worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) == this &&
 				player.getDistanceSq(xCoord +0.5, yCoord +0.5, zCoord +0.5) < 64;
 	}
+	
+	public int[] getRecipeStacksForPacket()
+	{
+		ItemStack result = findRecipe();
+		if(result != null)
+		{
+			int[] craftingStacks = new int[27];
+			int index = 0;
+			for(int i = 0; i < 9; i++)
+			{
+				if(inv[i] != null)
+				{
+					craftingStacks[index++] = inv[i].itemID;
+					craftingStacks[index++] = inv[i].stackSize;
+					craftingStacks[index++] = inv[i].getItemDamage();
+				} else
+				{
+					craftingStacks[index++] = 0;
+					craftingStacks[index++] = 0;
+					craftingStacks[index++] = 0;
+				}
+			}
+			return craftingStacks;
+		} else
+			return null;
+	}
 
+	public void buildResultFromPacket(int[] stacksData)
+	{
+		System.out.println("asdf");
+		if(stacksData.length != 0)
+		{
+			int index = 0;
+			for(int i = 0; i < 9; i++)
+			{
+				if(stacksData[index + 2] != 0)
+				{
+					ItemStack stack = new ItemStack(stacksData[index], stacksData[index+1], stacksData[index+2]);
+					System.out.println("Building from packet @ " +i +" : " +stack);
+				}
+			}
+			findRecipe();
+		}
+	}
 	@Override
-	public void openChest() {
+	public Packet getDescriptionPacket()
+	{
+		return PBPacketHandler.prepPacket(this);
 		
+	}
+	@Override
+	public void receiveClientEvent(int code, int info)
+	{
+		if(code == 1)
+		{
+			findRecipe();
+		}
 	}
 
 	@Override
-	public void closeChest() {
-		
+	public void openChest() 
+	{
+		worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
+	}
+
+	@Override
+	public void closeChest() 
+	{
+		worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
+	}
+	@Override
+	public void updateEntity() 
+	{
+		super.updateEntity();
+		if((++sync % 20)*4 == 0)
+		{
+			System.out.println("Syncing");
+			worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
+			findRecipe();
+		}
 	}
 	
 	@Override

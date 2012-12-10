@@ -16,6 +16,7 @@ import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
 
+//TODO add sided inventory thingy to control where piped input goes
 public class ProjectBenchBlock extends BlockContainer {
 
 	public ProjectBenchBlock(int id, Material mat) 
@@ -68,8 +69,15 @@ public class ProjectBenchBlock extends BlockContainer {
         {
         	TileEntityProjectBench tpb = (TileEntityProjectBench)te;
         	tpb.setDirectionFacing(byt);
+        	world.markBlockNeedsUpdate(x, y, z);
         }
     }
+	@Override
+	public void onBlockAdded(World world, int i, int j, int k)
+	{
+		super.onBlockAdded(world, i, j, k);
+		world.markBlockNeedsUpdate(i, j, k);
+	}
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
 			 int par6, float par7, float par8, float par9)
@@ -128,11 +136,6 @@ public class ProjectBenchBlock extends BlockContainer {
 	{
 		return true;
 	}
-//	@Override
-//	public int getRenderType()
-//	{
-//		return ProjectBench.instance.pbRenderID;
-//	}
 
 
 }

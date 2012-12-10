@@ -9,6 +9,7 @@ import bau5.mods.projectbench.common.TileEntityProjectBench;
 
 public class ClientProxy extends CommonProxy
 {
+	
 	@Override
 	public void registerRenderInformation()
 	{
