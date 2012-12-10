@@ -63,7 +63,6 @@ public class ContainerProjectBench extends Container
 			}
 		}
 	}
-	
 	protected void bindPlayerInventory(InventoryPlayer invPlayer) 
 	{
 		for(int i = 0; i < 3; i++)
@@ -99,7 +98,8 @@ public class ContainerProjectBench extends Container
 	{
 		return tileEntity.isUseableByPlayer(player);
 	}
-	public ItemStack func_82846_b(EntityPlayer player, int numSlot)
+	@Override
+	public ItemStack transferStackInSlot(EntityPlayer player, int numSlot)
     {
         ItemStack stack = null;
         Slot slot = (Slot)this.inventorySlots.get(numSlot);
@@ -123,7 +123,10 @@ public class ContainerProjectBench extends Container
             {
             	if(!this.mergeItemStack(stack2, 10, 28, false))
             	{
-            		return null;
+            		if(!this.mergeItemStack(stack2, 28, 64, false))
+            		{
+                		return null;
+            		}
             	}
             }
             //Merge Supply matrix item with player inventory
@@ -157,7 +160,7 @@ public class ContainerProjectBench extends Container
                 return null;
             }
 
-            slot.func_82870_a(player, stack2);
+            slot.onPickupFromSlot(player, stack2);
         }
 
         return stack;

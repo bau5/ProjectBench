@@ -1,6 +1,5 @@
 package bau5.mods.projectbench.common;
 
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.src.Block;
 import net.minecraft.src.BlockContainer;
@@ -34,11 +33,11 @@ public class SlotPBCrafting extends SlotCrafting
 	}
 
 	@Override
-	public void func_82870_a(EntityPlayer player, ItemStack stack)
+	public void onPickupFromSlot(EntityPlayer player, ItemStack stack)
     {
 		boolean found = false;
 		boolean metaSens = false;
-        GameRegistry.onItemCrafted(player, stack, craftMatrix);
+        GameRegistry.onItemCrafted(thePlayer, stack, craftMatrix);
         this.onCrafting(stack);
         
         //Looping through crafting matrix finding required items
@@ -50,9 +49,9 @@ public class SlotPBCrafting extends SlotCrafting
         	if(craftComponentStack != null)
         	{
         		if(!craftComponentStack.isItemStackDamageable() && craftComponentStack.getMaxDamage() == 0
-	        				&& craftComponentStack.itemID != Block.planks.blockID
-	        				&& craftComponentStack.itemID != Block.cloth.blockID
-	        				&& craftComponentStack.itemID != Block.leaves.blockID)
+        				&& craftComponentStack.itemID != Block.planks.blockID
+        				&& craftComponentStack.itemID != Block.cloth.blockID
+        				&& craftComponentStack.itemID != Block.leaves.blockID)
 				{
 					metaSens = true;
 				}
@@ -110,7 +109,7 @@ public class SlotPBCrafting extends SlotCrafting
 	    		}
         		
         		//Didn't find it in the supply inventory, remove from crafting matrix
-        		if(!found)
+    			if(!found)
         		{
         			craftSupplyMatrix.decrStackSize(invIndex, 1);
         			if (craftComponentStack.getItem().hasContainerItem())
