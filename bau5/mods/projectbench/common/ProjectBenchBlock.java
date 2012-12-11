@@ -16,7 +16,6 @@ import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
 
-//TODO add sided inventory thingy to control where piped input goes
 public class ProjectBenchBlock extends BlockContainer {
 
 	public ProjectBenchBlock(int id, Material mat) 
@@ -40,38 +39,6 @@ public class ProjectBenchBlock extends BlockContainer {
 		default: return 0;
 		}
 	}
-	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving el)
-    {
-        byte byt = 0;
-        int dir = MathHelper.floor_double((double)(el.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-
-        if (dir == 0)
-        {
-            byt = 2;
-        }
-
-        if (dir == 1)
-        {
-            byt = 5;
-        }
-
-        if (dir == 2)
-        {
-            byt = 3;
-        }
-
-        if (dir == 3)
-        {
-            byt = 4;
-        }
-        TileEntity te = world.getBlockTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityProjectBench)
-        {
-        	TileEntityProjectBench tpb = (TileEntityProjectBench)te;
-        	tpb.setDirectionFacing(byt);
-        	world.markBlockNeedsUpdate(x, y, z);
-        }
-    }
 	@Override
 	public void onBlockAdded(World world, int i, int j, int k)
 	{

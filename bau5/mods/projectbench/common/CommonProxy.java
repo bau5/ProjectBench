@@ -8,10 +8,7 @@ import cpw.mods.fml.common.network.IGuiHandler;
 
 public class CommonProxy implements IGuiHandler
 {
-	public void registerRenderInformation()
-	{
-		
-	}
+	public void registerRenderInformation()	{ }
 	
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world,
@@ -26,18 +23,17 @@ public class CommonProxy implements IGuiHandler
 			}
 		}
 		return null;
-		
 	}
 
 	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world,
 			int x, int y, int z) 
 	{
-		TileEntity te = world.getBlockTileEntity(x, y, z);
 		switch(ID)
 		{
-		case 0: return new ProjectBenchGui(player.inventory, (TileEntityProjectBench)te);
+		case 0: return new ProjectBenchGui(player.inventory, (TileEntityProjectBench)world.getBlockTileEntity(x, y, z));
 		}
 		return null;
 	}
+
 }

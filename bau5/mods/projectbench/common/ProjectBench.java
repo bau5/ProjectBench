@@ -35,7 +35,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-//1.4.4
+//1.4.5
 @Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.5")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false,
 			channels = {"bau5_PB"}, packetHandler = PBPacketHandler.class)
