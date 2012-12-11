@@ -12,8 +12,10 @@ import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
 import net.minecraft.src.Packet;
 import net.minecraft.src.TileEntity;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.ISidedInventory;
 
-public class TileEntityProjectBench extends TileEntity implements IInventory
+public class TileEntityProjectBench extends TileEntity implements IInventory, ISidedInventory
 {
 	class LocalInventoryCrafting extends InventoryCrafting
 	{
@@ -29,13 +31,13 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	};
 	
 	private ItemStack[] inv;
-	private byte facing;
 	
 	public IInventory craftResult;
 	public IInventory craftSupplyMatrix;
-	private ItemStack result;
 	private int numPlayersUsing;
 	private boolean visited = false;
+	private boolean posted = false;
+	private ItemStack result;
 	private int sync = 0;
 	
 	public void onInventoryChanged()
@@ -49,7 +51,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 		craftResult = new InventoryCraftResult();
 		inv = new ItemStack[27];
 	}
-	public ItemStack findRecipe() {
+	public ItemStack findRecipe() 
+	{
 		InventoryCrafting craftMatrix = new LocalInventoryCrafting();
 
 		for (int i = 0; i < craftMatrix.getSizeInventory(); ++i) 
@@ -60,17 +63,21 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 
 		ItemStack recipe = CraftingManager.getInstance().findMatchingRecipe(craftMatrix, worldObj);
 		onInventoryChanged();
-		System.out.println("Recipe is " +recipe);
-		this.result = recipe;
+		if(recipe != null)
+			this.result = recipe;
+		else
+		{
+			result = null;
+		}
 		return recipe;
 	}
-	public void setDirectionFacing(byte byt)
+	public ItemStack getResult()
 	{
-		facing = byt;
+		return result;
 	}
-	public byte getDirectionFacing()
+	public ItemStack setResult(ItemStack stack)
 	{
-		return facing;
+		return stack;
 	}
 	@Override
 	public int getSizeInventory() 
@@ -176,20 +183,25 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 
 	public void buildResultFromPacket(int[] stacksData)
 	{
-		System.out.println("asdf");
 		if(stacksData.length != 0)
 		{
 			int index = 0;
 			for(int i = 0; i < 9; i++)
 			{
-				if(stacksData[index + 2] != 0)
+				if(stacksData[index + 1] != 0)
 				{
 					ItemStack stack = new ItemStack(stacksData[index], stacksData[index+1], stacksData[index+2]);
-					System.out.println("Building from packet @ " +i +" : " +stack);
+					inv[i] = stack;
 				}
+				else
+				{
+					inv[i] = null;
+				}
+				index = index + 3;
 			}
 			findRecipe();
-		}
+		} else
+			this.setResult(null);
 	}
 	@Override
 	public Packet getDescriptionPacket()
@@ -202,8 +214,10 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	{
 		if(code == 1)
 		{
-			findRecipe();
+			getDescriptionPacket();
 		}
+		else
+			System.out.println(code);
 	}
 
 	@Override
@@ -223,9 +237,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 		super.updateEntity();
 		if((++sync % 20)*4 == 0)
 		{
-			System.out.println("Syncing");
 			worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
-			findRecipe();
 		}
 	}
 	
@@ -233,8 +245,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	public void readFromNBT(NBTTagCompound tagCompound)
 	{
 		super.readFromNBT(tagCompound);
-		
-		setDirectionFacing(tagCompound.getByte("Facing"));
 		
 		NBTTagList tagList = tagCompound.getTagList("Inventory");
 		for(int i = 0; i < tagList.tagCount(); i++)
@@ -252,8 +262,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 	{
 		super.writeToNBT(tagCompound);
 		
-		tagCompound.setByte("Facing", getDirectionFacing());
-		
 		NBTTagList itemList = new NBTTagList();	
 		
 		for(int i = 0; i < inv.length; i++)
@@ -268,6 +276,23 @@ public class TileEntityProjectBench extends TileEntity implements IInventory
 			}
 		}
 		tagCompound.setTag("Inventory", itemList);
-		tagCompound.setByte("Facing", getDirectionFacing());
+	}
+	@Override
+	public int getStartInventorySide(ForgeDirection side) 
+	{
+		switch(side)
+		{
+		case UP: return 0;
+		default: return 9;
+		}
+	}
+	@Override
+	public int getSizeInventorySide(ForgeDirection side) 
+	{
+		switch(side)
+		{
+		case UP: return 9;
+		default: return 18;
+		}
 	}
 }

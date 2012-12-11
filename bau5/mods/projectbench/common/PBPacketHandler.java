@@ -33,16 +33,20 @@ public class PBPacketHandler implements IPacketHandler
 		if(hasStacks)
 		{
 			result = new int[27];
-			result[0] = bis.readInt();
-			result[1] = bis.readInt();
-			result[2] = bis.readInt();
+			for(int u = 0; u < result.length; u++)
+			{
+				result[u] = bis.readInt();
+			}
 		}
 		World w = FMLClientHandler.instance().getClient().theWorld;
 		TileEntity te = w.getBlockTileEntity(i, j, k);
 		if(te instanceof TileEntityProjectBench)
 		{
 			TileEntityProjectBench tpb = (TileEntityProjectBench)te;
-			tpb.buildResultFromPacket(result);
+			if(hasStacks)
+				tpb.buildResultFromPacket(result);
+			else
+				tpb.setResult(null);
 		}
 	}
 
@@ -67,9 +71,9 @@ public class PBPacketHandler implements IPacketHandler
 			dos.writeByte(hasStacks ? 1 : 0);
 			if(hasStacks)
 			{
-				for(int i1 = 0; i1 < 27; i1++)
+				for(int u = 0; u < 27; u++)
 				{
-					dos.writeInt(crafting[i1]);
+					dos.writeInt(crafting[u]);
 				}
 			}
 		} catch(IOException ex)

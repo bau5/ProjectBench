@@ -21,12 +21,9 @@ import bau5.mods.projectbench.common.TileEntityProjectBench;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.Block;
 import net.minecraft.src.EntityItem;
-import net.minecraft.src.IBlockAccess;
-import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.OpenGlHelper;
 import net.minecraft.src.RenderBlocks;
-import net.minecraft.src.RenderManager;
 import net.minecraft.src.Tessellator;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.TileEntitySpecialRenderer;
@@ -54,9 +51,12 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer
 		renderBlocks.renderBlockByRenderType(ProjectBench.instance.projectBench, 
 														 (int)x, (int)y, (int)z);
 		
-		ItemStack stack = tpb.findRecipe();
-		if(RENDER_ITEM && stack != null && tpb.worldObj.getBlockId(tpb.xCoord, tpb.yCoord + 1, tpb.zCoord) == 0)
+		if(RENDER_ITEM && tpb.worldObj.getBlockId(tpb.xCoord, tpb.yCoord + 1, tpb.zCoord) == 0 && tpb.worldObj.getClosestPlayer(tpb.xCoord, tpb.yCoord, tpb.zCoord, 15) != null)
 		{
+			ItemStack stack = tpb.getResult();
+			System.out.println(stack);
+			if(stack == null)
+				return;
 			EntityItem ei = new EntityItem(tpb.worldObj);
 			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			glPushMatrix();
@@ -72,7 +72,6 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer
             
 			glRotatef(var9 / 5, 0, 1.0F, 0);
 			IItemRenderer customItemRenderer = MinecraftForgeClient.getItemRenderer(stack, IItemRenderer.ItemRenderType.ENTITY);
-			
 			if(customItemRenderer != null)
 			{
 				glPushMatrix();
