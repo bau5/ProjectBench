@@ -5,14 +5,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
-
 import net.minecraft.src.INetworkManager;
 import net.minecraft.src.Packet;
 import net.minecraft.src.Packet250CustomPayload;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
+
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
+
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.IPacketHandler;
@@ -29,7 +30,7 @@ public class PBPacketHandler implements IPacketHandler
 		int j = bis.readInt();
 		int k = bis.readInt();
 		boolean hasStacks = bis.readByte() != 0;
-		int[] result = new int[0];
+		int[] result = null;
 		if(hasStacks)
 		{
 			result = new int[27];

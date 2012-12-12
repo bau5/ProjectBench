@@ -2,16 +2,12 @@ package bau5.mods.projectbench.common;
 
 import java.util.Random;
 
-import net.minecraft.src.Block;
 import net.minecraft.src.BlockContainer;
-import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityItem;
-import net.minecraft.src.EntityLiving;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Material;
-import net.minecraft.src.MathHelper;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;

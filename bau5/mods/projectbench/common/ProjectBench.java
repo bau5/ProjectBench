@@ -1,34 +1,20 @@
 package bau5.mods.projectbench.common;
 
-import java.awt.event.KeyEvent;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.lwjgl.input.Keyboard;
-
 
 import net.minecraft.src.Block;
 import net.minecraft.src.CreativeTabs;
+import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
-import net.minecraft.src.KeyBinding;
 import net.minecraft.src.Material;
-import net.minecraft.src.RenderHelper;
-import net.minecraft.src.RenderManager;
 import net.minecraftforge.common.Configuration;
-
-
-import cpw.mods.fml.client.registry.KeyBindingRegistry;
-import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -83,7 +69,7 @@ public class ProjectBench
 		LanguageRegistry.addName(projectBench, "Project Bench");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
 		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1), new Object[]{
-			" C ", "WHW", 'C', Block.workbench, 'W', Block.planks, 'H', Block.chest
+			" G ", "ICI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'C', Block.workbench, 'W', Block.planks, 'H', Block.chest
 		});
 	}
 }
