@@ -15,9 +15,12 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 
 import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.server.FMLServerHandler;
 
 public class PBPacketHandler implements IPacketHandler
 {
@@ -39,7 +42,9 @@ public class PBPacketHandler implements IPacketHandler
 				result[u] = bis.readInt();
 			}
 		}
-		World w = FMLClientHandler.instance().getClient().theWorld;
+		
+		World w = ProjectBench.instance.proxy.getClientSideWorld();
+		
 		TileEntity te = w.getBlockTileEntity(i, j, k);
 		if(te instanceof TileEntityProjectBench)
 		{
