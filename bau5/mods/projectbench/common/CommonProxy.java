@@ -1,9 +1,9 @@
 package bau5.mods.projectbench.common;
 
-import bau5.mods.projectbench.client.ProjectBenchGui;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
+import bau5.mods.projectbench.client.ProjectBenchGui;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class CommonProxy implements IGuiHandler
@@ -16,7 +16,7 @@ public class CommonProxy implements IGuiHandler
 	{
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te instanceof TileEntityProjectBench)
-		{
+		{ 
 			switch(ID)
 			{
 			case 0: return new ContainerProjectBench(player.inventory, (TileEntityProjectBench)te);

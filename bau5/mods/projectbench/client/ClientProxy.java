@@ -1,11 +1,10 @@
 package bau5.mods.projectbench.client;
 
-import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.client.MinecraftForgeClient;
-import bau5.mods.projectbench.common.CommonProxy;
 import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.TileEntityProjectBench;
+import bau5.mods.projectbench.common.CommonProxy;
+import cpw.mods.fml.client.registry.ClientRegistry;
 
 public class ClientProxy extends CommonProxy
 {

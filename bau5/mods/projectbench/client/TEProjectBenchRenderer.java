@@ -1,23 +1,13 @@
 package bau5.mods.projectbench.client;
 
-import cpw.mods.fml.client.FMLClientHandler;
-
 import static org.lwjgl.opengl.GL11.glColor4f;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glEndList;
-import static org.lwjgl.opengl.GL11.glGenLists;
-import static org.lwjgl.opengl.GL11.glNewList;
 import static org.lwjgl.opengl.GL11.glPopMatrix;
 import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.opengl.GL11.glRotatef;
 import static org.lwjgl.opengl.GL11.glScalef;
 import static org.lwjgl.opengl.GL11.glTranslatef;
-
-import org.lwjgl.opengl.GL11;
-
-import bau5.mods.projectbench.common.ProjectBench;
-import bau5.mods.projectbench.common.TileEntityProjectBench;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.Block;
 import net.minecraft.src.EntityItem;
@@ -29,15 +19,15 @@ import net.minecraft.src.TileEntity;
 import net.minecraft.src.TileEntitySpecialRenderer;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.IItemRenderer;
-import net.minecraftforge.client.IItemRenderer.ItemRenderType;
 import net.minecraftforge.client.MinecraftForgeClient;
+import bau5.mods.projectbench.common.ProjectBench;
+import bau5.mods.projectbench.common.TileEntityProjectBench;
 
 public class TEProjectBenchRenderer extends TileEntitySpecialRenderer  
 {
 	private RenderBlocks renderBlocks;
 	private boolean RENDER_ITEM = ProjectBench.instance.DO_RENDER;
 
-	//Function that renders tile entity and the other block thing
 	@Override
 	public void renderTileEntityAt(TileEntity te, double x, double y,
 										 double z, float partialTick) 
@@ -54,7 +44,6 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer
 		if(RENDER_ITEM && tpb.worldObj.getBlockId(tpb.xCoord, tpb.yCoord + 1, tpb.zCoord) == 0 && tpb.worldObj.getClosestPlayer(tpb.xCoord, tpb.yCoord, tpb.zCoord, 15) != null)
 		{
 			ItemStack stack = tpb.getResult();
-			System.out.println(stack);
 			if(stack == null)
 				return;
 			EntityItem ei = new EntityItem(tpb.worldObj);

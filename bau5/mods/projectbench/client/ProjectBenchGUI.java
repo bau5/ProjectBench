@@ -1,12 +1,13 @@
 package bau5.mods.projectbench.client;
 
+import net.minecraft.src.GuiContainer;
+import net.minecraft.src.InventoryPlayer;
+
 import org.lwjgl.opengl.GL11;
 
 import bau5.mods.projectbench.common.ContainerProjectBench;
 import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.TileEntityProjectBench;
-import net.minecraft.src.GuiContainer;
-import net.minecraft.src.InventoryPlayer;
 
 public class ProjectBenchGui extends GuiContainer {
 

@@ -35,8 +35,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	public IInventory craftResult;
 	public IInventory craftSupplyMatrix;
 	private int numPlayersUsing;
-	private boolean visited = false;
-	private boolean posted = false;
 	private ItemStack result;
 	private int sync = 0;
 	
@@ -75,9 +73,9 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	{
 		return result;
 	}
-	public ItemStack setResult(ItemStack stack)
+	public void setResult(ItemStack stack)
 	{
-		return stack;
+		result = stack;
 	}
 	@Override
 	public int getSizeInventory() 
@@ -183,6 +181,11 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 
 	public void buildResultFromPacket(int[] stacksData)
 	{
+		if(stacksData == null)
+		{
+			this.setResult(null);
+			return;
+		}
 		if(stacksData.length != 0)
 		{
 			int index = 0;
@@ -216,8 +219,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		{
 			getDescriptionPacket();
 		}
-		else
-			System.out.println(code);
 	}
 
 	@Override
@@ -235,7 +236,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	public void updateEntity() 
 	{
 		super.updateEntity();
-		if((++sync % 20)*4 == 0)
+		if(++sync % 20 == 0)
 		{
 			worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
 		}
