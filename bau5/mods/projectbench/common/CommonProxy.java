@@ -29,9 +29,15 @@ public class CommonProxy implements IGuiHandler
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world,
 			int x, int y, int z) 
 	{
+		TileEntity te = world.getBlockTileEntity(x,y,z);
+		TileEntityProjectBench tpb = null;
+		if(te != null && te instanceof TileEntityProjectBench)
+			tpb = (TileEntityProjectBench) te;
+		if(tpb == null)
+			return null;
 		switch(ID)
 		{
-		case 0: return new ProjectBenchGui(player.inventory, (TileEntityProjectBench)world.getBlockTileEntity(x, y, z));
+		case 0: return new ProjectBenchGui(player.inventory, tpb);
 		}
 		return null;
 	}
