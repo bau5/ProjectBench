@@ -45,6 +45,9 @@ public class PBPacketHandler implements IPacketHandler
 		
 		World w = ProjectBench.instance.proxy.getClientSideWorld();
 		
+		if(w == null) //Possible?
+			return;
+		
 		TileEntity te = w.getBlockTileEntity(i, j, k);
 		if(te instanceof TileEntityProjectBench)
 		{
