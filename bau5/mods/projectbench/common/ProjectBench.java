@@ -79,8 +79,5 @@ public class ProjectBench
 		GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgrade, 1), new Object[]{
 			" G ", "IWI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'W', Block.planks, 'H', Block.chest
 		});
-		GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgrade, 1), new Object[]{
-			" d ", 'd', Block.dirt
-		});
 	}
 }
