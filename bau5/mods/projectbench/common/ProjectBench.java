@@ -36,6 +36,7 @@ public class ProjectBench
 	private static int pbID;
 	private static int pbUpID;
 	public static boolean DO_RENDER = true;
+	public static int  SPEED_FACTOR = 5;
 	
 	public Block projectBench;
 	public Item  projectBenchUpgrade;
@@ -52,6 +53,12 @@ public class ProjectBench
 			pbID = config.getBlock("Project Bench", 700).getInt(700);
 			pbUpID = config.getItem(Configuration.CATEGORY_ITEM, "Upgrad Item", 13070).getInt(13070);
 			DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldRenderItem", true).getBoolean(true);
+			SPEED_FACTOR = config.get(Configuration.CATEGORY_GENERAL, "speedFactor", 5).getInt(5);
+			if(SPEED_FACTOR < 0)
+			{
+				SPEED_FACTOR = 5;
+				FMLLog.severe("Project Bench: Config registered a negative number.\n\t Using default of " +SPEED_FACTOR);
+			}
 		} catch(Exception ex)
 		{
 			FMLLog.log(Level.SEVERE, ex, "Project Bench: Error encountered while loading config file.");
@@ -67,7 +74,7 @@ public class ProjectBench
 		proxy.registerRenderInformation();
 		projectBench = new ProjectBenchBlock(pbID, Material.wood).setCreativeTab(CreativeTabs.tabDecorations);
 		projectBenchUpgrade = new PBUpgradeItem(pbUpID).setCreativeTab(CreativeTabs.tabMisc);
-		System.out.println("ProjectBench: Registered block id @ " +pbID +". Rendering: " +DO_RENDER);
+		System.out.println("ProjectBench: Registered block id @ " +pbID +". Rendering: " +DO_RENDER + " @ " +SPEED_FACTOR);
 		GameRegistry.registerBlock(projectBench);
 		GameRegistry.registerTileEntity(TileEntityProjectBench.class, "bau5pbTileEntity");
 		LanguageRegistry.addName(projectBench, "Project Bench");

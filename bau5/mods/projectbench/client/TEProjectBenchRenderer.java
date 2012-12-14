@@ -8,6 +8,7 @@ import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.opengl.GL11.glRotatef;
 import static org.lwjgl.opengl.GL11.glScalef;
 import static org.lwjgl.opengl.GL11.glTranslatef;
+import cpw.mods.fml.common.FMLLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.Block;
 import net.minecraft.src.EntityItem;
@@ -27,6 +28,7 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer
 {
 	private RenderBlocks renderBlocks;
 	private boolean RENDER_ITEM = ProjectBench.instance.DO_RENDER;
+	private int    SPEED_FACTOR = ProjectBench.instance.SPEED_FACTOR;
 
 	@Override
 	public void renderTileEntityAt(TileEntity te, double x, double y,
@@ -59,7 +61,7 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer
 			
 			float var9 = (float)(Minecraft.getSystemTime()) / (3000.0F) * 256.0F;
             
-			glRotatef(var9 / 5, 0, 1.0F, 0);
+			glRotatef(var9 / SPEED_FACTOR, 0, 1.0F, 0);
 			IItemRenderer customItemRenderer = MinecraftForgeClient.getItemRenderer(stack, IItemRenderer.ItemRenderType.ENTITY);
 			if(customItemRenderer != null)
 			{
