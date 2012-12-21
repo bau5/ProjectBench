@@ -2,15 +2,15 @@ package bau5.mods.projectbench.common;
 
 import java.util.Random;
 
-import net.minecraft.src.BlockContainer;
-import net.minecraft.src.EntityItem;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.IInventory;
-import net.minecraft.src.ItemStack;
-import net.minecraft.src.Material;
-import net.minecraft.src.NBTTagCompound;
-import net.minecraft.src.TileEntity;
-import net.minecraft.src.World;
+import net.minecraft.block.BlockContainer;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 public class ProjectBenchBlock extends BlockContainer {
 
@@ -39,7 +39,7 @@ public class ProjectBenchBlock extends BlockContainer {
 	public void onBlockAdded(World world, int i, int j, int k)
 	{
 		super.onBlockAdded(world, i, j, k);
-		world.markBlockNeedsUpdate(i, j, k);
+		world.markBlockForUpdate(i, j, k);
 	}
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
@@ -77,7 +77,7 @@ public class ProjectBenchBlock extends BlockContainer {
 				EntityItem ei = new EntityItem(world, x + rx, y + ry, z + rz,
 						new ItemStack(item.itemID, item.stackSize, item.getItemDamage()));
 				if(item.hasTagCompound())
-					ei.item.setTagCompound((NBTTagCompound) item.getTagCompound().copy());
+					ei.func_92014_d().setTagCompound((NBTTagCompound) item.getTagCompound().copy());
 				float factor = 0.05f;
 				ei.motionX = rand.nextGaussian() * factor;
 				ei.motionY = rand.nextGaussian() * factor + 0.2F;

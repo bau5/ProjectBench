@@ -1,11 +1,11 @@
 package bau5.mods.projectbench.common;
 
-import net.minecraft.src.Container;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.IInventory;
-import net.minecraft.src.InventoryPlayer;
-import net.minecraft.src.ItemStack;
-import net.minecraft.src.Slot;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 
 public class ContainerProjectBench extends Container
 {
@@ -32,7 +32,7 @@ public class ContainerProjectBench extends Container
 		int col;
 		int index = -1;
 		int counter = 0;
-		Slot slot;
+		Slot slot = null;
 
 		for(row = 0; row < 3; row++)
 		{

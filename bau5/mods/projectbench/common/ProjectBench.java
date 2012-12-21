@@ -2,11 +2,11 @@ package bau5.mods.projectbench.common;
 
 import java.util.logging.Level;
 
-import net.minecraft.src.Block;
-import net.minecraft.src.CreativeTabs;
-import net.minecraft.src.Item;
-import net.minecraft.src.ItemStack;
-import net.minecraft.src.Material;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -21,8 +21,8 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-//1.4.4/1.4.5
-@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.5.1")
+//1.4.6
+@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.6")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false,
 			channels = {"bau5_PB"}, packetHandler = PBPacketHandler.class)
 public class ProjectBench 
@@ -36,6 +36,7 @@ public class ProjectBench
 	private static int pbID;
 	private static int pbUpID;
 	public static boolean DO_RENDER = true;
+	public static boolean DO_ALT_RENDER = false;
 	public static int  SPEED_FACTOR = 5;
 	
 	public Block projectBench;
@@ -51,8 +52,9 @@ public class ProjectBench
 		{
 			config.load(); 
 			pbID = config.getBlock("Project Bench", 700).getInt(700);
-			pbUpID = config.getItem(Configuration.CATEGORY_ITEM, "Upgrad Item", 13070).getInt(13070);
+			pbUpID = config.getItem(Configuration.CATEGORY_ITEM, "Upgrade Item", 13070).getInt(13070);
 			DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldRenderItem", true).getBoolean(true);
+			DO_ALT_RENDER = config.get(Configuration.CATEGORY_GENERAL, "alternativeRender", false).getBoolean(false);
 			SPEED_FACTOR = config.get(Configuration.CATEGORY_GENERAL, "speedFactor", 5).getInt(5);
 			if(SPEED_FACTOR < 0)
 			{
@@ -74,8 +76,8 @@ public class ProjectBench
 		proxy.registerRenderInformation();
 		projectBench = new ProjectBenchBlock(pbID, Material.wood).setCreativeTab(CreativeTabs.tabDecorations);
 		projectBenchUpgrade = new PBUpgradeItem(pbUpID).setCreativeTab(CreativeTabs.tabMisc);
-		System.out.println("ProjectBench: Registered block id @ " +pbID +". Rendering: " +DO_RENDER + " @ " +SPEED_FACTOR);
-		GameRegistry.registerBlock(projectBench);
+		System.out.println("ProjectBench: Registered block id @ " +pbID +". Rendering: " +DO_RENDER + " w/ alt: " + DO_ALT_RENDER +" @: " +SPEED_FACTOR);
+		GameRegistry.registerBlock(projectBench, "bau5_ProjectBench");
 		GameRegistry.registerTileEntity(TileEntityProjectBench.class, "bau5pbTileEntity");
 		LanguageRegistry.addName(projectBench, "Project Bench");
 		LanguageRegistry.addName(projectBenchUpgrade, "Project Bench Upgrade");
