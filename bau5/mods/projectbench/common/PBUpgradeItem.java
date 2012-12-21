@@ -2,11 +2,15 @@ package bau5.mods.projectbench.common;
 
 import java.util.List;
 
-import net.minecraft.src.Block;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.Item;
-import net.minecraft.src.ItemStack;
-import net.minecraft.src.World;
+import cpw.mods.fml.client.FMLClientHandler;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockSand;
+import net.minecraft.client.particle.EntityDiggingFX;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 public class PBUpgradeItem extends Item	
 {
@@ -41,7 +45,7 @@ public class PBUpgradeItem extends Item
 			world.setBlock(x, y, z, 0);
 			world.setBlockTileEntity(x, y, z, new TileEntityProjectBench());
 			world.setBlockWithNotify(x, y, z, ProjectBench.instance.projectBench.blockID);
-			world.markBlockAsNeedsUpdate(x, y, z);
+			world.markBlockForUpdate(x, y, z);
 			
 			return true;
 		}

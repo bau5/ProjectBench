@@ -1,20 +1,17 @@
 package bau5.mods.projectbench.common;
 
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.TileEntity;
-import net.minecraft.src.World;
 import bau5.mods.projectbench.client.ProjectBenchGui;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class CommonProxy implements IGuiHandler
 {
 	public void registerRenderInformation()	{ }
-	
+
 	@Override
-	public Object getServerGuiElement(int ID, EntityPlayer player, World world,
-			int x, int y, int z) 
-	{
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+	public Object getServerGuiElement(int ID,
+			net.minecraft.entity.player.EntityPlayer player,
+			net.minecraft.world.World world, int x, int y, int z) {
+		net.minecraft.tileentity.TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te instanceof TileEntityProjectBench)
 		{ 
 			switch(ID)
@@ -26,10 +23,11 @@ public class CommonProxy implements IGuiHandler
 	}
 
 	@Override
-	public Object getClientGuiElement(int ID, EntityPlayer player, World world,
-			int x, int y, int z) 
-	{
-		TileEntity te = world.getBlockTileEntity(x,y,z);
+	public Object getClientGuiElement(int ID,
+			net.minecraft.entity.player.EntityPlayer player,
+			net.minecraft.world.World world, int x, int y, int z) {
+		
+		net.minecraft.tileentity.TileEntity te = world.getBlockTileEntity(x,y,z);
 		TileEntityProjectBench tpb = null;
 		if(te != null && te instanceof TileEntityProjectBench)
 			tpb = (TileEntityProjectBench) te;
@@ -42,7 +40,7 @@ public class CommonProxy implements IGuiHandler
 		return null;
 	}
 	
-	public World getClientSideWorld()
+	public net.minecraft.world.World getClientSideWorld()
 	{
 		return null;
 	}

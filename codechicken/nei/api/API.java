@@ -1,6 +1,6 @@
 package codechicken.nei.api;
 
-import net.minecraft.src.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiContainer;
 
 public class API
 {

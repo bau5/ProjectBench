@@ -1,17 +1,17 @@
 package bau5.mods.projectbench.common;
 
-import net.minecraft.src.Container;
-import net.minecraft.src.CraftingManager;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.IInventory;
-import net.minecraft.src.InventoryBasic;
-import net.minecraft.src.InventoryCraftResult;
-import net.minecraft.src.InventoryCrafting;
-import net.minecraft.src.ItemStack;
-import net.minecraft.src.NBTTagCompound;
-import net.minecraft.src.NBTTagList;
-import net.minecraft.src.Packet;
-import net.minecraft.src.TileEntity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.inventory.InventoryCraftResult;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
 
@@ -37,11 +37,15 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	private int numPlayersUsing;
 	private ItemStack result;
 	private int sync = 0;
+	public int tickCount;
+    public float itemRotation2;
+    public float itemRotationPrev;
+    public float itemRotation;
 	
 	public void onInventoryChanged()
 	{
 		super.onInventoryChanged();
-		worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
+		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	public TileEntityProjectBench()
 	{
@@ -69,6 +73,16 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		}
 		return recipe;
 	}
+	
+	public ItemStack[] getCrafting()
+	{
+		ItemStack[] craftings = new ItemStack[9];
+		for(int i = 0; i < 9; i++)
+		{
+			craftings[i] = inv[i];
+		}
+		return craftings;
+	}
 	public ItemStack getResult()
 	{
 		return result;
@@ -77,6 +91,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	{
 		result = stack;
 	}
+	
 	@Override
 	public int getSizeInventory() 
 	{
@@ -232,15 +247,14 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	{
 		worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
 	}
-	@Override
-	public void updateEntity() 
-	{
+	public void updateEntity()
+    {
 		super.updateEntity();
 		if(++sync % 20 == 0)
 		{
 			worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
 		}
-	}
+    }
 	
 	@Override
 	public void readFromNBT(NBTTagCompound tagCompound)
