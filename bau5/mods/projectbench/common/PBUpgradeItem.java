@@ -41,7 +41,7 @@ public class PBUpgradeItem extends Item
 		if(world.getBlockId(x,y,z) == Block.workbench.blockID && world.getBlockTileEntity(x, y, z) == null)
 		{
 			if(!player.capabilities.isCreativeMode)
-				player.inventory.consumeInventoryItem(ProjectBench.instance.projectBenchUpgrade.shiftedIndex);
+				player.inventory.consumeInventoryItem(ProjectBench.instance.projectBenchUpgrade.itemID);
 			world.setBlock(x, y, z, 0);
 			world.setBlockTileEntity(x, y, z, new TileEntityProjectBench());
 			world.setBlockWithNotify(x, y, z, ProjectBench.instance.projectBench.blockID);

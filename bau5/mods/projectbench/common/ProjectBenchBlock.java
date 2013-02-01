@@ -77,7 +77,7 @@ public class ProjectBenchBlock extends BlockContainer {
 				EntityItem ei = new EntityItem(world, x + rx, y + ry, z + rz,
 						new ItemStack(item.itemID, item.stackSize, item.getItemDamage()));
 				if(item.hasTagCompound())
-					ei.func_92014_d().setTagCompound((NBTTagCompound) item.getTagCompound().copy());
+					ei.getEntityItem().setTagCompound((NBTTagCompound) item.getTagCompound().copy());
 				float factor = 0.05f;
 				ei.motionX = rand.nextGaussian() * factor;
 				ei.motionY = rand.nextGaussian() * factor + 0.2F;
@@ -88,7 +88,7 @@ public class ProjectBenchBlock extends BlockContainer {
 			}
 		}
 	}
-
+	
 	@Override
 	public TileEntity createNewTileEntity(World var1) 
 	{

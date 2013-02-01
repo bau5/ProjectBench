@@ -11,11 +11,14 @@ import static org.lwjgl.opengl.GL11.glTranslatef;
 
 import java.util.Random;
 
+import org.lwjgl.util.vector.Matrix4f;
+
 import cpw.mods.fml.client.FMLClientHandler;
 
 import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.TileEntityProjectBench;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -25,19 +28,20 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 	private RenderBlocks renderBlocks;
 	private RenderItem   renderItems;
-	private Minecraft	 mc;
-	private Random  	 rand;
-	private float		 previousRotation = 0F;
-	private float		 stallPoint = 0F;
-	
-	private boolean RENDER_ITEM = ProjectBench.instance.DO_RENDER;
-	private boolean ALT_RENDER  = ProjectBench.instance.DO_ALT_RENDER;
-	private int SPEED_FACTOR = ProjectBench.instance.SPEED_FACTOR;
+	private Minecraft    mc;
+	private Random       rand;
 
+	private boolean RENDER_ITEM = ProjectBench.instance.DO_RENDER;
+	private int    SPEED_FACTOR = ProjectBench.instance.SPEED_FACTOR;
+
+	private Matrix4f projectionMatrix = null;
+	private Matrix4f viewMatrix = null;
+	
 	public TEProjectBenchRenderer()
 	{
 		rand = new Random();
@@ -49,8 +53,7 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 			public boolean shouldBob() { return false; }
 			public boolean shouldSpreadItems() { return false; }
 		};
-		renderItems.setRenderManager(RenderManager.instance);
-		
+		renderItems.setRenderManager(RenderManager.instance);		
 	}
 	
 	@Override
@@ -68,8 +71,8 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 			count++;
 			if(count > 2) throw ex;
 			renderBlocks = new RenderBlocks(tpb.worldObj);
-		}
-
+		}		
+		
 		if (RENDER_ITEM && tpb.worldObj.getBlockId(tpb.xCoord, tpb.yCoord + 1, tpb.zCoord) == 0
 						&& tpb.worldObj.getClosestPlayer(tpb.xCoord, tpb.yCoord, tpb.zCoord, 15) != null
 						&& !mc.isGamePaused) {
@@ -78,31 +81,36 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 				return;
 			EntityItem ei = new EntityItem(tpb.worldObj);
 			ei.hoverStart = 0f;
-			ei.func_92013_a(stack);
+			ei.func_92058_a(stack);
 			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			glPushMatrix();
 			glEnable(32826 /* rescale */);
 			glTranslatef((float) x, (float) y, (float) z);
-			glTranslatef(0.5F, 1.2F, 0.5F);
-			glScalef(0.3F, 0.3F, 0.3F);
 
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 170F, 170F);
 			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			
 			float rotational = (float) (Minecraft.getSystemTime()) / (3000.0F) * 300.0F;
 
-			if(ei.func_92014_d() == null)
+			if(!ei.getEntityItem().equals(stack))
 				return;
-			if(ALT_RENDER)
+			if(stack.itemID < Block.blocksList.length && Block.blocksList[stack.itemID] != null
+					  && Block.blocksList[stack.itemID].blockID != 0)
 			{
-				glRotatef(rotational / SPEED_FACTOR, 0F, 1F, 0F);
-				glScalef(2.5F, 2.5F, 2.5F);
+				glPushMatrix();
+				glTranslatef(0.5F, 1.2F, 0.5F);
+				glRotatef(rotational / SPEED_FACTOR, 0F, 1.0F, 0F);
 				renderItems.doRenderItem(ei, 0, 0, 0, 0, 0);
+				glPopMatrix();
 			}else
 			{
-				
+				glPushMatrix();
+				glTranslatef(0.5F, 1.1F, 0.5F);
+				glScalef(0.6F, 0.6F, 0.6F);
+				glRotatef(rotational / SPEED_FACTOR, 0F, 1.0F, 0F);
+				renderItems.doRenderItem(ei, 0, 0, 0, 0, 0);
+				glPopMatrix();
 			}
-			
 			glDisable(32826 /* scale */);
 			glPopMatrix();
 			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
