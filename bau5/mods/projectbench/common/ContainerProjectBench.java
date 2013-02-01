@@ -24,7 +24,7 @@ public class ContainerProjectBench extends Container
 										 tileEntity, craftResultSlot, 124, 35));
 		layoutContainer(invPlayer, tileEntity);
 		bindPlayerInventory(invPlayer);
-		updateCraftingResults();
+		detectAndSendChanges();
 	}
 	private void layoutContainer(InventoryPlayer invPlayer, TileEntityProjectBench tpb)
 	{
@@ -79,9 +79,9 @@ public class ContainerProjectBench extends Container
 		}
 	}
 	@Override
-	public void updateCraftingResults()
+	public void detectAndSendChanges()
 	{
-		super.updateCraftingResults();
+		super.detectAndSendChanges();
 		craftResultMatrix.setInventorySlotContents(0, tileEntity.findRecipe());
 	}
 	@Override
