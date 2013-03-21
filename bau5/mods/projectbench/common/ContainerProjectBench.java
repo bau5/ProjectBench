@@ -1,5 +1,7 @@
 package bau5.mods.projectbench.common;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -12,18 +14,18 @@ public class ContainerProjectBench extends Container
 	protected TileEntityProjectBench tileEntity;
 	
 	public IInventory craftSupplyMatrix;
-	public IInventory craftResultMatrix;
 	public int craftResultSlot = 0;
-	
+	private boolean containerChanged;
+		
 	public ContainerProjectBench(InventoryPlayer invPlayer, TileEntityProjectBench tpb)
 	{
 		tileEntity = tpb;
 		craftSupplyMatrix = tileEntity.craftSupplyMatrix;
-		craftResultMatrix = tileEntity.craftResult;
-		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, tileEntity, craftResultMatrix, 
+		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, tileEntity, tileEntity.craftResult, 
 										 tileEntity, craftResultSlot, 124, 35));
 		layoutContainer(invPlayer, tileEntity);
 		bindPlayerInventory(invPlayer);
+		containerChanged = true;
 		detectAndSendChanges();
 	}
 	private void layoutContainer(InventoryPlayer invPlayer, TileEntityProjectBench tpb)
@@ -82,15 +84,21 @@ public class ContainerProjectBench extends Container
 	public void detectAndSendChanges()
 	{
 		super.detectAndSendChanges();
-		craftResultMatrix.setInventorySlotContents(0, tileEntity.findRecipe());
+	}
+	
+	public void updateCrafting(boolean forceUpdate){
+		if(forceUpdate)
+			tileEntity.markShouldUpdate();
+		tileEntity.onInventoryChanged();
+		tileEntity.findRecipe(false);
 	}
 	@Override
 	public ItemStack slotClick(int slot, int par2, int par3, EntityPlayer player)
 	{
-		craftResultMatrix.setInventorySlotContents(0, tileEntity.findRecipe());
 		ItemStack stack = super.slotClick(slot, par2, par3, player);
-		onCraftMatrixChanged(tileEntity);
-		tileEntity.onInventoryChanged();
+		if(slot <= 9){
+			updateCrafting(true);
+		}
 		return stack;
 	}
 	@Override
@@ -115,8 +123,8 @@ public class ContainerProjectBench extends Container
                 {
                     return null;
                 }
-
-                slot.onSlotChange(stack2, stack);
+                containerChanged = true;
+                updateCrafting(true);
             }
             //Merge crafting matrix item with supply matrix inventory
             else if(numSlot > 0 && numSlot <= 9)
@@ -128,6 +136,8 @@ public class ContainerProjectBench extends Container
                 		return null;
             		}
             	}
+            	containerChanged = true;
+            	updateCrafting(true);
             }
             //Merge Supply matrix item with player inventory
             else if (numSlot >= 10 && numSlot <= 27)

@@ -4,37 +4,54 @@ import java.util.Random;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Icon;
 import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class ProjectBenchBlock extends BlockContainer {
-
+	
+	@SideOnly(Side.CLIENT)
+	private Icon[] icons;
+	
 	public ProjectBenchBlock(int id, Material mat) 
 	{
 		super(id, mat);
 		setHardness(2.0F);
 		setResistance(1.5F);
-		setBlockName("bau5ProjectBench");
+		setUnlocalizedName("bau5ProjectBench");
 	}
 	
 	public String getTextureFile()
 	{
 		return ProjectBench.textureFile;
 	}
-	public int getBlockTextureFromSide(int side)
-    {
-		switch(side)
-		{
-		case 0: return 2;
-		case 1: return 1;
-		default: return 0;
+
+	@Override
+	public Icon getBlockTextureFromSideAndMetadata(int i, int j){
+		switch(i){
+		case 0: return icons[2];
+		case 1: return icons[1];
+		default: return icons[0];
 		}
 	}
+	
+	@SideOnly(Side.CLIENT)
+    public void func_94332_a(IconRegister register)
+    {
+		icons = new Icon[3];
+        icons[0] = register.func_94245_a("projectbench:pbblock0");
+        icons[1] = register.func_94245_a("projectbench:pbblock1");
+        icons[2] = register.func_94245_a("projectbench:pbblock2");
+    }
+	
 	@Override
 	public void onBlockAdded(World world, int i, int j, int k)
 	{
@@ -99,6 +116,4 @@ public class ProjectBenchBlock extends BlockContainer {
 	{
 		return true;
 	}
-
-
 }

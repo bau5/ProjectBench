@@ -5,13 +5,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
-
 import net.minecraft.network.INetworkManager;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
+
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
@@ -40,7 +42,7 @@ public class PBPacketHandler implements IPacketHandler
 		
 		World w = ProjectBench.instance.proxy.getClientSideWorld();
 		
-		if(w == null) //Possible?
+		if(w == null)
 			return;
 		
 		TileEntity te = w.getBlockTileEntity(i, j, k);
@@ -54,7 +56,7 @@ public class PBPacketHandler implements IPacketHandler
 		}
 	}
 
-	public static net.minecraft.network.packet.Packet prepPacket(TileEntityProjectBench tpb)
+	public static Packet prepPacket(TileEntityProjectBench tpb)
 	{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(140);
 		DataOutputStream dos = new DataOutputStream(bos);
@@ -84,12 +86,11 @@ public class PBPacketHandler implements IPacketHandler
 		{
 			FMLLog.log(Level.SEVERE, ex, "Project Bench: failed packet prepping.");
 		}
-		net.minecraft.network.packet.Packet250CustomPayload packet = new net.minecraft.network.packet.Packet250CustomPayload();
+		Packet250CustomPayload packet = new Packet250CustomPayload();
 		packet.channel = "bau5_PB";
 		packet.data = bos.toByteArray();
 		packet.length = bos.size();
 		packet.isChunkDataPacket = true;
-		
 		
 		return packet;
 	}
