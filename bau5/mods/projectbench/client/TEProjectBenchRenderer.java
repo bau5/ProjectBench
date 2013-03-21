@@ -11,13 +11,6 @@ import static org.lwjgl.opengl.GL11.glTranslatef;
 
 import java.util.Random;
 
-import org.lwjgl.util.vector.Matrix4f;
-
-import cpw.mods.fml.client.FMLClientHandler;
-
-import bau5.mods.projectbench.common.ProjectBench;
-import bau5.mods.projectbench.common.TileEntityProjectBench;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -28,19 +21,20 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import bau5.mods.projectbench.common.ProjectBench;
+import bau5.mods.projectbench.common.TileEntityProjectBench;
+import cpw.mods.fml.client.FMLClientHandler;
 
 public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 	private RenderBlocks renderBlocks;
 	private RenderItem   renderItems;
 	private Minecraft    mc;
 	private Random       rand;
+	private Block block;
 
-	private boolean RENDER_ITEM = ProjectBench.instance.DO_RENDER;
-	private int    SPEED_FACTOR = ProjectBench.instance.SPEED_FACTOR;
-
-	private Matrix4f projectionMatrix = null;
-	private Matrix4f viewMatrix = null;
+	private boolean RENDER_ITEM = ProjectBench.DO_RENDER;
+	private boolean  RENDER_ALL = ProjectBench.RENDER_ALL;
+	private int    SPEED_FACTOR = ProjectBench.SPEED_FACTOR;
 	
 	public TEProjectBenchRenderer()
 	{
@@ -53,35 +47,31 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 			public boolean shouldBob() { return false; }
 			public boolean shouldSpreadItems() { return false; }
 		};
-		renderItems.setRenderManager(RenderManager.instance);		
+		renderItems.setRenderManager(RenderManager.instance);	
+		block = ProjectBench.instance.projectBench;
 	}
 	
 	@Override
 	public void renderTileEntityAt(TileEntity te, double x, double y, double z, float partialTick) {
+		renderBlocks.blockAccess = te.worldObj;
 		if (te == null || !(te instanceof TileEntityProjectBench)) {
 			return;
 		}
 		int count = 0;
 		TileEntityProjectBench tpb = (TileEntityProjectBench) te;
-		try{
-			renderBlocks.renderBlockByRenderType(
-					ProjectBench.instance.projectBench, (int) x, (int) y, (int) z);
-		} catch (NullPointerException ex)
-		{
-			count++;
-			if(count > 2) throw ex;
-			renderBlocks = new RenderBlocks(tpb.worldObj);
-		}		
-		
+		renderBlocks.renderStandardBlock(block, (int) x, (int) y, (int) z);
+
 		if (RENDER_ITEM && tpb.worldObj.getBlockId(tpb.xCoord, tpb.yCoord + 1, tpb.zCoord) == 0
 						&& tpb.worldObj.getClosestPlayer(tpb.xCoord, tpb.yCoord, tpb.zCoord, 15) != null
 						&& !mc.isGamePaused) {
 			ItemStack stack = tpb.getResult();
 			if (stack == null)
 				return;
+			if(!RENDER_ALL)
+				stack.stackSize = 1;
 			EntityItem ei = new EntityItem(tpb.worldObj);
 			ei.hoverStart = 0f;
-			ei.func_92058_a(stack);
+			ei.setEntityItemStack(stack);
 			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			glPushMatrix();
 			glEnable(32826 /* rescale */);

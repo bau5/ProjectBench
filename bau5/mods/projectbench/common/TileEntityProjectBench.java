@@ -14,6 +14,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
+import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class TileEntityProjectBench extends TileEntity implements IInventory, ISidedInventory
 {
@@ -22,7 +23,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		public LocalInventoryCrafting() {
 			super(new Container(){
 				public boolean canInteractWith(EntityPlayer var1) {
-					// TODO Auto-generated method stub
 					return false;
 				}
 			}, 3, 3);
@@ -31,47 +31,56 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	};
 	
 	private ItemStack[] inv;
-	
+	private Packet nextPacket;
+	private boolean shouldUpdate = false; 
 	public IInventory craftResult;
 	public IInventory craftSupplyMatrix;
-	private int numPlayersUsing;
+	public LocalInventoryCrafting craftMatrix;
 	private ItemStack result;
 	private int sync = 0;
-	public int tickCount;
-    public float itemRotation2;
-    public float itemRotationPrev;
-    public float itemRotation;
 	
 	public void onInventoryChanged()
 	{
 		super.onInventoryChanged();
-		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	public TileEntityProjectBench()
 	{
-		craftSupplyMatrix = new InventoryBasic("pbCraftingSupply", 18);
+		craftSupplyMatrix = new InventoryBasic("pbCraftingSupply", true, 18);
 		craftResult = new InventoryCraftResult();
 		inv = new ItemStack[27];
+		shouldUpdate = true;
+		craftMatrix = new LocalInventoryCrafting();
 	}
-	public ItemStack findRecipe() 
+	public ItemStack findRecipe(boolean fromPacket) 
 	{
-		InventoryCrafting craftMatrix = new LocalInventoryCrafting();
-
+		if(!shouldUpdate){
+			return getResult();
+		}
+		shouldUpdate = false;
+		
+		ItemStack stack = null;
 		for (int i = 0; i < craftMatrix.getSizeInventory(); ++i) 
 		{
-			ItemStack stack = getStackInSlot(i);
+			stack = getStackInSlot(i);
 			craftMatrix.setInventorySlotContents(i, stack);
 		}
 
 		ItemStack recipe = CraftingManager.getInstance().findMatchingRecipe(craftMatrix, worldObj);
-		onInventoryChanged();
-		if(recipe != null)
-			this.result = recipe;
-		else
-		{
-			result = null;
-		}
+		
+		setResult(recipe);
+		updateResultSlot();
+		
+		System.out.println("Actually finding recipe. " +result);
+		if(!fromPacket)
+			nextPacket = PBPacketHandler.prepPacket(this);
 		return recipe;
+	}
+	
+	public void markShouldUpdate(){
+		shouldUpdate = true;
+	}
+	public void updateResultSlot(){
+		craftResult.setInventorySlotContents(0, result);
 	}
 	
 	public ItemStack[] getCrafting()
@@ -83,13 +92,18 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		}
 		return craftings;
 	}
+	
 	public ItemStack getResult()
 	{
-		return result;
+		return (result == null) ? null : result.copy();
 	}
 	public void setResult(ItemStack stack)
 	{
-		result = stack;
+		if(stack != null)
+			result = stack.copy();
+		else
+			result = null;
+		updateResultSlot();
 	}
 	
 	@Override
@@ -122,6 +136,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 				}
 			}
 		}
+		if(slot <= 9)
+			markShouldUpdate();
 		onInventoryChanged();
 		return stack;
 	}
@@ -146,6 +162,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		{
 			stack.stackSize = getInventoryStackLimit();
 		}
+		if(slot <= 9)
+			markShouldUpdate();
 		onInventoryChanged();
 	}
 
@@ -170,7 +188,13 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	
 	public int[] getRecipeStacksForPacket()
 	{
-		ItemStack result = findRecipe();
+		ItemStack result = null;
+		if(shouldUpdate){
+			result = findRecipe(true);
+		}
+		else{
+			result = this.result;
+		}
 		if(result != null)
 		{
 			int[] craftingStacks = new int[27];
@@ -217,7 +241,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 				}
 				index = index + 3;
 			}
-			findRecipe();
+			shouldUpdate = true;
+			findRecipe(true);
 		} else
 			this.setResult(null);
 	}
@@ -225,34 +250,40 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	public Packet getDescriptionPacket()
 	{
 		return PBPacketHandler.prepPacket(this);
-		
 	}
 	@Override
-	public void receiveClientEvent(int code, int info)
+	public boolean receiveClientEvent(int code, int info)
 	{
+		System.out.println("ClientEvent");
 		if(code == 1)
 		{
 			getDescriptionPacket();
+			return true;
 		}
+		return false;
 	}
 
 	@Override
-	public void openChest() 
-	{
-		worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
-	}
+	public void openChest() {}
 
 	@Override
-	public void closeChest() 
-	{
-		worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
-	}
+	public void closeChest() {}
 	public void updateEntity()
     {
 		super.updateEntity();
-		if(++sync % 20 == 0)
-		{
-			worldObj.addBlockEvent(xCoord, yCoord, zCoord, ProjectBench.instance.projectBench.blockID, 1, 1);
+		
+		if(++sync % 20 == 0){
+			if(nextPacket != null){
+				PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 20,
+							   worldObj.getWorldInfo().getDimension(), nextPacket);
+				System.out.println("Sent packet.");
+				nextPacket = null;
+			}
+		}
+		if(sync > 6000){
+			PacketDispatcher.sendPacketToAllInDimension(PBPacketHandler.prepPacket(this),
+					worldObj.getWorldInfo().getDimension());
+			sync = 0;
 		}
     }
 	
@@ -292,6 +323,35 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		}
 		tagCompound.setTag("Inventory", itemList);
 	}
+	//TODO Update for vanilla sided inventory eventually.
+	/*
+	//Get start inventory side
+	@Override
+	public int func_94127_c(int side) {
+		switch(side)
+		{
+		case 0: return 0;
+		default: return 9;
+		}
+	}
+	//Get size inventory based on side
+	@Override
+	public int func_94128_d(int side) {
+		switch(side)
+		{
+		case 0: return 9;
+		default: return 18;
+		}
+	}*/
+	@Override
+	public boolean func_94042_c() {
+		return false;
+	}
+	@Override
+	public boolean func_94041_b(int i, ItemStack itemstack) {
+		return false;
+	}
+	
 	@Override
 	public int getStartInventorySide(ForgeDirection side) 
 	{
