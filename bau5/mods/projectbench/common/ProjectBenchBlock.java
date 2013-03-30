@@ -1,10 +1,12 @@
 package bau5.mods.projectbench.common;
 
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -28,17 +30,22 @@ public class ProjectBenchBlock extends BlockContainer {
 		setResistance(1.5F);
 		setUnlocalizedName("bau5ProjectBench");
 	}
-	
-	public String getTextureFile()
-	{
-		return ProjectBench.textureFile;
-	}
 
 	@Override
 	public Icon getBlockTextureFromSideAndMetadata(int i, int j){
-		switch(i){
-		case 0: return icons[2];
-		case 1: return icons[1];
+		switch(j){
+		case 0:
+			switch(i){
+			case 0: return icons[2];
+			case 1: return icons[1];
+			default: return icons[0];
+			}
+		case 1:
+			switch(i){
+			case 0: return icons[5];
+			case 1: return icons[4];
+			default: return icons[3];
+			}
 		default: return icons[0];
 		}
 	}
@@ -46,10 +53,13 @@ public class ProjectBenchBlock extends BlockContainer {
 	@SideOnly(Side.CLIENT)
     public void func_94332_a(IconRegister register)
     {
-		icons = new Icon[3];
+		icons = new Icon[6];
         icons[0] = register.func_94245_a("projectbench:pbblock0");
         icons[1] = register.func_94245_a("projectbench:pbblock1");
         icons[2] = register.func_94245_a("projectbench:pbblock2");
+        icons[3] = register.func_94245_a("projectbench:pbblockii0");
+        icons[4] = register.func_94245_a("projectbench:pbblockii1");
+        icons[5] = register.func_94245_a("projectbench:pbblockii2");
     }
 	
 	@Override
@@ -67,7 +77,16 @@ public class ProjectBenchBlock extends BlockContainer {
 		{	
 			return false;
 		}
-        player.openGui(ProjectBench.instance, 0, world, x, y, z);
+		int meta = world.getBlockMetadata(x, y, z);
+
+		switch(meta){
+			case 0:
+				player.openGui(ProjectBench.instance, 0, world, x, y, z);
+				break;
+			case 1:
+				player.openGui(ProjectBench.instance, 1, world, x, y, z);
+				break;
+		}
 		return true;
     }
 	public void breakBlock(World world, int x, int y, int z, int par5, int par6)
@@ -105,15 +124,28 @@ public class ProjectBenchBlock extends BlockContainer {
 			}
 		}
 	}
-	
+	public TileEntity createTileEntity(World world, int metadata)
+    {
+		switch(metadata){
+		case 0: return new TileEntityProjectBench();
+		case 1: return new TEProjectBenchII();
+		default: return null;
+		}
+    }
 	@Override
 	public TileEntity createNewTileEntity(World var1) 
 	{
-		return new TileEntityProjectBench();
+		return null;
 	}
 	@Override
 	public boolean renderAsNormalBlock()
 	{
 		return true;
 	}
+	@SideOnly(Side.CLIENT)
+    public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
+    {
+        par3List.add(new ItemStack(par1, 1, 0));
+        par3List.add(new ItemStack(par1, 1, 1));
+    }
 }

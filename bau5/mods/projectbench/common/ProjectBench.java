@@ -12,9 +12,11 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -74,19 +76,28 @@ public class ProjectBench
 	public void initMain(FMLInitializationEvent ev)
 	{
 		projectBench = new ProjectBenchBlock(pbID, Material.wood).setCreativeTab(CreativeTabs.tabDecorations);
-		GameRegistry.registerBlock(projectBench, "bau5_ProjectBench");
+		GameRegistry.registerBlock(projectBench, PBItemBlock.class, "pb_block");
 		proxy.registerRenderInformation();
 		projectBenchUpgrade = new PBUpgradeItem(pbUpID).setCreativeTab(CreativeTabs.tabMisc);
 		System.out.println("ProjectBench: Registered block id @ " +pbID +". Rendering: " +DO_RENDER +" @: " +SPEED_FACTOR);
 		GameRegistry.registerTileEntity(TileEntityProjectBench.class, "bau5pbTileEntity");
-		LanguageRegistry.addName(projectBench, "Project Bench");
+		GameRegistry.registerTileEntity(TEProjectBenchII.class, "bau5pbTileEntityII");
+		LanguageRegistry.instance().addStringLocalization("blockProject BenchI", "Project Bench Mk. I");
+		LanguageRegistry.instance().addStringLocalization("blockProject BenchII", "Project Bench Mk. II");
 		LanguageRegistry.addName(projectBenchUpgrade, "Project Bench Upgrade");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
-		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1), new Object[]{
+		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 0), new Object[]{
 			" G ", "ICI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'C', Block.workbench, 'W', Block.planks, 'H', Block.chest
+		});
+		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 1), new Object[]{
+			"IPI", "WDW", "IBI", 'P', projectBench, 'I', Item.ingotIron, 'B', Block.blockSteel, 'D', Item.diamond, 'W', Block.planks
 		});
 		GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgrade, 1), new Object[]{
 			" G ", "IWI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'W', Block.planks, 'H', Block.chest
 		});
+	}
+	@PostInit
+	public void postInit(FMLPostInitializationEvent ev){
+		new RecipeManager();
 	}
 }
