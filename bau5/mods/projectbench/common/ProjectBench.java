@@ -24,9 +24,9 @@ import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-
-//1.5
-@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.7")
+	
+//1.5.1
+@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.7.1")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false,
 			channels = {"bau5_PB"}, packetHandler = PBPacketHandler.class)
 public class ProjectBench 
@@ -42,6 +42,7 @@ public class ProjectBench
 	public static boolean DO_RENDER = true;
 	public static boolean RENDER_ALL = false;
 	public static boolean II_DO_RENDER = true;
+	public static boolean DEBUG_MODE_ENABLED = false;
 	public static int  SPEED_FACTOR = 5;
 	
 	public Block projectBench;
@@ -62,6 +63,9 @@ public class ProjectBench
 			II_DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldIIRenderItems", true).getBoolean(true);
 			RENDER_ALL = config.get(Configuration.CATEGORY_GENERAL, "shouldRenerStackSize", false).getBoolean(false);
 			SPEED_FACTOR = config.get(Configuration.CATEGORY_GENERAL, "speedFactor", 5).getInt(5);
+			if(!DEBUG_MODE_ENABLED)
+				DEBUG_MODE_ENABLED = config.get(Configuration.CATEGORY_GENERAL, "debugMode", false).getBoolean(false);
+				
 			if(SPEED_FACTOR < 0)
 			{
 				SPEED_FACTOR = 5;
@@ -92,9 +96,9 @@ public class ProjectBench
 		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 0), new Object[]{
 			" G ", "ICI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'C', Block.workbench, 'W', Block.planks, 'H', Block.chest
 		});
-		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 1), new Object[]{
+		/*GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 1), new Object[]{
 			"IPI", "WDW", "IBI", 'P', projectBench, 'I', Item.ingotIron, 'B', Block.blockSteel, 'D', Item.diamond, 'W', Block.planks
-		});
+		});*/
 		GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgrade, 1), new Object[]{
 			" G ", "IWI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'W', Block.planks, 'H', Block.chest
 		});

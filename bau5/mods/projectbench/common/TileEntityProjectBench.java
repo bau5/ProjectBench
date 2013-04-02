@@ -15,7 +15,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
 import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityProjectBench extends TileEntity implements IInventory, ISidedInventory
 {
@@ -37,7 +36,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	public IInventory craftResult;
 	public IInventory craftSupplyMatrix;
 	public LocalInventoryCrafting craftMatrix;
-	private ItemStack result;
+	private ItemStack result = null;
+	private ItemStack lastResult;
 	private int sync = 0;
 	
 	public void onInventoryChanged()
@@ -54,6 +54,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	}
 	public ItemStack findRecipe(boolean fromPacket) 
 	{
+		lastResult = result;
 		if(!shouldUpdate){
 			return getResult();
 		}
@@ -71,8 +72,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		setResult(recipe);
 		updateResultSlot();
 		
-		System.out.println("Actually finding recipe. " +result);
-		if(!fromPacket)
+//		System.out.println("Actually finding recipe. " +result);
+		if(!fromPacket && lastResult != result)
 			nextPacket = PBPacketHandler.prepPacketMkI(this);
 		return recipe;
 	}
@@ -252,17 +253,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	{
 		return PBPacketHandler.prepPacketMkI(this);
 	}
-	@Override
-	public boolean receiveClientEvent(int code, int info)
-	{
-		System.out.println("ClientEvent");
-		if(code == 1)
-		{
-			getDescriptionPacket();
-			return true;
-		}
-		return false;
-	}
 
 	@Override
 	public void openChest() {}
@@ -278,7 +268,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 			if(nextPacket != null){
 				PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 20,
 							   worldObj.getWorldInfo().getDimension(), nextPacket);
-				System.out.println("Sent packet.");
+//				System.out.println("Sent packet.");
 				nextPacket = null;
 			}
 		}
@@ -346,15 +336,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		}
 	}*/
 	@Override
-	public boolean func_94042_c() {
-		return false;
-	}
-	@Override
-	public boolean func_94041_b(int i, ItemStack itemstack) {
-		return false;
-	}
-	
-	@Override
 	public int getStartInventorySide(ForgeDirection side) 
 	{
 		switch(side)
@@ -371,5 +352,15 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		case UP: return 9;
 		default: return 18;
 		}
+	}
+	@Override
+	public boolean isInvNameLocalized() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public boolean isStackValidForSlot(int i, ItemStack itemstack) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

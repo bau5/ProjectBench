@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import bau5.mods.projectbench.common.ProjectBench;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.item.Item;
@@ -32,6 +34,7 @@ public class RecipeManager {
 	private List<RecipeItem> orderedRecipes;
 	private long timeStart, timeEnd;
 	private static RecipeManager instance;
+	private static boolean DEBUG_MODE = ProjectBench.DEBUG_MODE_ENABLED;
 	
 	public RecipeManager(){
 		defaultRecipes = CraftingManager.getInstance().getRecipeList();
@@ -78,7 +81,7 @@ public class RecipeManager {
 		ri.setResult(result);
 		int i = Collections.binarySearch(orderedRecipes, ri, new PBRecipeSorter());
 		if(i >= orderedRecipes.size() || i < 0){
-			System.out.println("Recipe not found for " +result);
+			print("Recipe not found for " +result);
 		}
 		return orderedRecipes.get(i);
 	}
@@ -89,9 +92,9 @@ public class RecipeManager {
 		}
 	}
 	private void displayList(){
-		System.out.println("Recipes -- ");
+		print("Recipes -- ");
 		for(RecipeItem ri : orderedRecipes){
-			System.out.println(ri.getIndex() + " " +ri.result() +" " +ri.result().itemID);
+			print(ri.getIndex() + " " +ri.result() +" " +ri.result().itemID);
 		}
 	}
 	
@@ -163,9 +166,9 @@ public class RecipeManager {
 	public void displayRecipeForStack(ItemStack stack) {
 		for(RecipeItem rec : orderedRecipes){
 			if(ItemStack.areItemStacksEqual(stack, rec.result())){
-				System.out.println(" - Recipe for " +rec.result() +" -");
+				print(" - Recipe for " +rec.result() +" -");
 				for(ItemStack is : rec.items()){
-					System.out.println("\t" +is);
+					print("\t" +is);
 				}
 			}
 		}
@@ -184,13 +187,6 @@ public class RecipeManager {
 		RecipeItem newRecItem = new RecipeItem();
 		if(rec instanceof ShapedRecipes){
 			newRecItem.items = ((ShapedRecipes) rec).recipeItems;
-			ItemStack stack = new ItemStack(Block.stairCompactPlanks, 6, 0);
-			if(rec.getRecipeOutput().getItem().equals(stack.getItem())){
-				System.out.println("Check");
-				for(ItemStack is : newRecItem.items()){
-					System.out.println("\t" +is);
-				}
-			}
 		}else if(rec instanceof ShapelessRecipes){
 			List ls = ((ShapelessRecipes) rec).recipeItems;
 			if(ls.get(0) instanceof ItemStack){
@@ -226,11 +222,11 @@ public class RecipeManager {
 			}
 		}
 		else{
-			System.out.println("Recipe type not accounted for: " +rec.getRecipeOutput());
+			print("Recipe type not accounted for: " +rec.getRecipeOutput());
 		}
 		
 		if(newRecItem.items == null){
-			System.out.println("Recipe for " +newRecItem.result +" has no components.");
+			print("Recipe for " +newRecItem.result +" has no components.");
 			newRecItem = null;
 		}else{
 			newRecItem.result = rec.getRecipeOutput();
@@ -266,6 +262,16 @@ public class RecipeManager {
 		 */
 		public void postInit(){
 			consolidateStacks();
+			if(result.itemID < Block.blocksList.length){
+				if(result.itemID < Block.blocksList.length &&
+				   Block.blocksList[result.itemID] != null &&
+			       Block.blocksList[result.itemID] == Block.stairsWoodOak ||
+			       Block.blocksList[result.itemID] == Block.stairsWoodBirch ||
+			       Block.blocksList[result.itemID] == Block.stairsWoodSpruce ||
+			       Block.blocksList[result.itemID] == Block.stairsWoodJungle ){
+					isMetadataSensitive = true;				
+				}
+			}
 		}
 		/**
 		 * Takes the array of ItemStacks, which may be the same
@@ -296,16 +302,16 @@ public class RecipeManager {
 					}
 				}
 			}
-//			System.out.println("Old format.");
+//			print("Old format.");
 //			for(ItemStack is : items){
-//				System.out.println("\t" +is);
+//				print("\t" +is);
 //			}
-//			System.out.println("-- New format --");
+//			print("-- New format --");
 			int counter = 0;
 			items = new ItemStack[consolidatedItems.size()];
 			for(ItemStack is3 : consolidatedItems){
 				items[counter++] = is3;
-//				System.out.println(items[counter - 1]);
+//				print(items[counter - 1]);
 			}
 		}
 		
@@ -352,5 +358,18 @@ public class RecipeManager {
 	}
 	public static RecipeManager instance(){
 		return instance;
+	}
+	public static void print(String message){
+		if(DEBUG_MODE)
+			System.out.println(message);
+	}
+	public static void print(ItemStack stack){
+		print("" +stack);
+	}
+	public static void print(int i){
+		print("" +i);
+	}
+	public static void print(boolean bool){
+		print("" +bool);
 	}
 }

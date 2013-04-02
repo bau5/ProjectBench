@@ -49,15 +49,16 @@ public class ProjectBenchBlock extends BlockContainer {
 	}
 	
 	@SideOnly(Side.CLIENT)
-    public void func_94332_a(IconRegister register)
+	@Override
+    public void registerIcons(IconRegister register)
     {
 		icons = new Icon[6];
-        icons[0] = register.func_94245_a("projectbench:pbblock0");
-        icons[1] = register.func_94245_a("projectbench:pbblock1");
-        icons[2] = register.func_94245_a("projectbench:pbblock2");
-        icons[3] = register.func_94245_a("projectbench:pbblockii0");
-        icons[4] = register.func_94245_a("projectbench:pbblockii1");
-        icons[5] = register.func_94245_a("projectbench:pbblockii2");
+        icons[0] = register.registerIcon("projectbench:pbblock0");
+        icons[1] = register.registerIcon("projectbench:pbblock1");
+        icons[2] = register.registerIcon("projectbench:pbblock2");
+        icons[3] = register.registerIcon("projectbench:pbblockii0");
+        icons[4] = register.registerIcon("projectbench:pbblockii1");
+        icons[5] = register.registerIcon("projectbench:pbblockii2");
     }
 	
 	@Override
