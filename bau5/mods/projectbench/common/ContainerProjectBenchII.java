@@ -28,7 +28,6 @@ public class ContainerProjectBenchII extends Container
 	public void lookForOutputs(){
 		ItemStack[] stacks = tileEntity.consolidateItemStacks(true);
 		tileEntity.setListForDisplay((ArrayList)RecipeManager.instance().getValidRecipesByStacks(stacks));
-		System.out.println("Looking for outputs!");
 	}
 	
 	private void layoutContainer(){
@@ -86,12 +85,9 @@ public class ContainerProjectBenchII extends Container
 	}
 	@Override
 	public ItemStack slotClick(int slot, int clickType, int par3, EntityPlayer player){
-//		System.out.println(clickType +" " +par3 +" " +player.inventory.getItemStack());
 		int fake = clickType;
 		ItemStack originalStack = (slot < 45 && slot >= 0) ? tileEntity.getStackInSlot(slot) : null;
 		handleSlotClick(slot, fake, originalStack, player);
-//		System.out.println(tileEntity.worldObj +" says: " +originalStack);
-//		tileEntity.checkListAndInventory(originalStack);
 		if((clickType == 1 || clickType == 2) && (slot < 27 && slot >= 0))
 			return null;
 		ItemStack stack = super.slotClick(slot, fake, par3, player);		
@@ -126,7 +122,6 @@ public class ContainerProjectBenchII extends Container
 				if(items == null)
 					return false;
 				boolean success = tileEntity.consumeItems(items);
-				System.out.println("Success? " +success +" " +tileEntity.worldObj.isRemote);
 				if(success){
 					return true;
 				}else{

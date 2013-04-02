@@ -50,7 +50,7 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 	public void renderTileEntityAt(TileEntity te, double x, double y, double z, float f) {
 		if(te == null || !(te instanceof TEProjectBenchII))
 			return;
-		if(!RENDER_ITEMS) 
+		if(!RENDER_ITEMS || te.worldObj.getBlockId((int)x, (int)y, (int)z) != 0) 
 			return;
 		TEProjectBenchII tpb = (TEProjectBenchII)te;
 		itemList = tpb.getDisplayList();
@@ -66,7 +66,6 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 		glTranslatef((float) x, (float) y, (float) z);
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 170F, 170F);
 		glTranslatef(0F, 1.1F, 0F);
-//		glRotatef(0.25f, 0f, 1.0f, 0f);
 		glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		glScalef(0.4F, 0.4F, 0.4F);
 		
@@ -75,6 +74,8 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 		xShift = yShift = zShift = 0F;
 		zShift = 0.4F;
 		for(int i = 0; i < itemList.size(); i++){
+			if(i > 46)
+				break;
 			newStack = itemList.get(i).copy();
 			newStack.stackSize = 1;
 			xShift += 0.3F;
@@ -82,8 +83,6 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 				zShift += 0.4F;
 				xShift = 0.2F;
 			}
-			if(i > 46)
-				break;
 			ei.setEntityItemStack(newStack);
 			glPushMatrix();
 			glTranslatef(xShift, yShift, zShift);

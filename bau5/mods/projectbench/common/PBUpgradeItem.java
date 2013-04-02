@@ -25,8 +25,8 @@ public class PBUpgradeItem extends Item
 	}
 	
 	@Override
-	public void func_94581_a(IconRegister register) {
-		iconIndex = register.func_94245_a("projectbench:pbup");
+	public void updateIcons(IconRegister register) {
+		iconIndex = register.registerIcon("projectbench:pbup");
 	}
 	
 	@Override
@@ -38,9 +38,9 @@ public class PBUpgradeItem extends Item
 		{
 			if(!player.capabilities.isCreativeMode)
 				player.inventory.consumeInventoryItem(ProjectBench.instance.projectBenchUpgrade.itemID);
-			world.setBlockAndMetadataWithNotify(x, y, z, ProjectBench.instance.projectBench.blockID, 0, 3);
+			world.setBlock(x, y, z, ProjectBench.instance.projectBench.blockID, 0, 3);
 			world.setBlockTileEntity(x, y, z, new TileEntityProjectBench());
-			world.setBlockAndMetadataWithNotify(x, y, z, ProjectBench.instance.projectBench.blockID, 0, 3);
+			world.setBlock(x, y, z, ProjectBench.instance.projectBench.blockID, 0, 3);
 			world.markBlockForUpdate(x, y, z);
 			
 			return true;

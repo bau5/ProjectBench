@@ -38,7 +38,7 @@ public class ProjectBenchGui extends GuiContainer {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2,
 			int par3) {
-		mc.renderEngine.func_98187_b(texPath);
+		mc.renderEngine.bindTexture(texPath);
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		int x = (width - xSize) / 2;
 		int y = (height - ySize) / 2;

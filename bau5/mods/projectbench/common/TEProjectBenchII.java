@@ -54,7 +54,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 			disperseListAcrossMatrix();
 		}
 		if(sync == 20 && init && !worldObj.isRemote){
-			System.out.println("Sending to client...");
+			RecipeManager.print("Sending to client...");
 			sendListClientSide();
 		}
 		
@@ -71,12 +71,12 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		}else{
 			str = "client";
 		}
-//		System.out.println("Disperse for " +str +worldObj.isRemote);
+//		RecipeManager.print("Disperse for " +str +worldObj.isRemote);
 		for(int i = 0; i < inventoryStart; i++){
 			stack = (i < listToDisplay.size()) ? listToDisplay.get(i) : null;
 			inv[i] = stack;
 //			if(inv[i] != null)
-//				System.out.println("\t" +inv[i]);
+//				RecipeManager.print("\t" +inv[i]);
 		}
 	}
 	
@@ -106,20 +106,20 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public void removeResultFromDisplay(ItemStack resultToRemove){
 		if(resultToRemove == null)	
 				return;
-//		System.out.println(resultToRemove +" " +worldObj.isRemote +" " +listToDisplay.size());
+//		RecipeManager.print(resultToRemove +" " +worldObj.isRemote +" " +listToDisplay.size());
 		for(int i = 0; i < listToDisplay.size(); i++){
 			if(listToDisplay.get(i).getItem().equals(resultToRemove.getItem()))
 				listToDisplay.remove(i);
 		}
-//		System.out.println(" " +worldObj.isRemote +listToDisplay.size());
+//		RecipeManager.print(" " +worldObj.isRemote +listToDisplay.size());
 		updateNeeded = true;
 		ItemStack stack;
-//		System.out.println("--List");
+//		RecipeManager.print("--List");
 		for(int i = 0; i < inventoryStart; i++){
 			stack = (i < listToDisplay.size()) ? listToDisplay.get(i) : null;
 			inv[i] = stack;
 //			if(inv[i] != null)
-//				System.out.println("\t" +inv[i]);
+//				RecipeManager.print("\t" +inv[i]);
 		}
 	}
 	
@@ -132,7 +132,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public void setListForDisplay(ArrayList<ItemStack> list){
 		listToDisplay = list;
 		updateNeeded = true;
-		System.out.println("List is being set. " +((list == null) ? "null" : list.size()) +" " +((worldObj == null) ? "unknown" : worldObj.isRemote));
+		RecipeManager.print("List is being set. " +((list == null) ? "null" : list.size()) +" " +((worldObj == null) ? "unknown" : worldObj.isRemote));
 	}
 	
 	public ArrayList<ItemStack> getDisplayList(){
@@ -142,7 +142,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public void updateOutputRecipes(){
 		setListForDisplay(RecipeManager.instance().getValidRecipesByStacks(consolidateItemStacks(true)));
 		updateNeeded = true;
-		System.out.println(listToDisplay.size());
+		RecipeManager.print(listToDisplay.size());
 	}
 	
 	public void checkListAndInventory(ItemStack stack){
@@ -161,13 +161,13 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 				flag1 = true;
 		}
 		if(flag)
-			System.out.println("" +stack +" appears in " +str +" inventory.");
+			RecipeManager.print("" +stack +" appears in " +str +" inventory.");
 		else
-			System.out.println("" +stack +" doesn't appear in " +str +" inventory.");
+			RecipeManager.print("" +stack +" doesn't appear in " +str +" inventory.");
 		if(flag1)
-			System.out.println("" +stack +" is in " +str +" list.");
+			RecipeManager.print("" +stack +" is in " +str +" list.");
 		else
-			System.out.println("" +stack +" isn't in " +str +" list.");
+			RecipeManager.print("" +stack +" isn't in " +str +" list.");
 	}
 	
 	public ItemStack[] consolidateItemStacks(boolean override){
@@ -255,16 +255,16 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		ItemStack stack = null;
 		for(int i = 0; i < items.length; i++){
 			stack = clonedItems[i];
-//			System.out.println(stack);
+//			RecipeManager.print(stack);
 			for(ItemStack sin : consolidatedStacks){
 				if(sin.getItem().equals(stack.getItem())){
 					if(sin.stackSize >= stack.stackSize){
 						stack.stackSize = 0;
-//						System.out.println("Found bigger stack: " +sin.stackSize);
+//						RecipeManager.print("Found bigger stack: " +sin.stackSize);
 						break;
 					}else{
 						stack.stackSize -= sin.stackSize;
-//						System.out.println("Found smaller stack " +sin.stackSize +" : " +stack.stackSize); 
+//						RecipeManager.print("Found smaller stack " +sin.stackSize +" : " +stack.stackSize); 
 					}
 				}
 			}
@@ -431,11 +431,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	}
 
 	@Override
-	public boolean func_94042_c() {
-		return false;
-	}
-
-	@Override
 	public int getInventoryStackLimit() {
 		return 64;
 	}
@@ -491,20 +486,26 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		tagCompound.setTag("Inventory", itemList);
 	}
 
-	
-	@Override
-	public boolean func_94041_b(int i, ItemStack itemstack) {
-		return false;
-	}
 	@Override
 	public int getStartInventorySide(ForgeDirection side) {
-		// TODO Auto-generated method stub
-		return 0;
+		return 27;
 	}
 	@Override
 	public int getSizeInventorySide(ForgeDirection side) {
+		return 18;
+	}
+
+	@Override
+	public boolean isInvNameLocalized() {
 		// TODO Auto-generated method stub
-		return 0;
+		return false;
+	}
+
+	@Override
+	public boolean isStackValidForSlot(int i, ItemStack itemstack) {
+		if(i >= 27)
+			return true;
+		else return false;
 	}
 
 }

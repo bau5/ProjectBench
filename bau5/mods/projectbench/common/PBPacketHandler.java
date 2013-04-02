@@ -45,21 +45,21 @@ public class PBPacketHandler implements IPacketHandler
 		}
 		
 		World w = ProjectBench.instance.proxy.getClientSideWorld();			
-		System.out.println(w);
+//		System.out.println(w);
 		if(w == null)
 			return;
 		TileEntity te = w.getBlockTileEntity(i, j, k);
 		if(te instanceof TileEntityProjectBench)
 		{
 			TileEntityProjectBench tpb = (TileEntityProjectBench)te;
-			System.out.println("Got one for I");
+//			System.out.println("Got one for I");
 			if(hasStacks)
 				tpb.buildResultFromPacket(result);
 			else
 				tpb.setResult(null);
 		}else if(te instanceof TEProjectBenchII){
 			TEProjectBenchII tpb = (TEProjectBenchII)te;
-			System.out.println("Got one for II " +hasStacks +" " +tpb.worldObj.isRemote);
+//			System.out.println("Got one for II " +hasStacks +" " +tpb.worldObj.isRemote);
 			if(hasStacks)
 				tpb.buildResultFromPacket(result);
 			else
