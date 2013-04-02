@@ -96,7 +96,6 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 			{
 				glPushMatrix();
 				glTranslatef(0.5F, 1.1F, 0.5F);
-				glScalef(0.6F, 0.6F, 0.6F);
 				glRotatef(rotational / SPEED_FACTOR, 0F, 1.0F, 0F);
 				renderItems.doRenderItem(ei, 0, 0, 0, 0, 0);
 				glPopMatrix();

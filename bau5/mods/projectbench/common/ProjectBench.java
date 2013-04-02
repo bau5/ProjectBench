@@ -2,6 +2,8 @@ package bau5.mods.projectbench.common;
 
 import java.util.logging.Level;
 
+import bau5.mods.projectbench.common.recipes.RecipeManager;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
@@ -39,6 +41,7 @@ public class ProjectBench
 	private static int pbUpID;
 	public static boolean DO_RENDER = true;
 	public static boolean RENDER_ALL = false;
+	public static boolean II_DO_RENDER = true;
 	public static int  SPEED_FACTOR = 5;
 	
 	public Block projectBench;
@@ -56,6 +59,7 @@ public class ProjectBench
 			pbID = config.getBlock("Project Bench", 700).getInt(700);
 			pbUpID = config.getItem(Configuration.CATEGORY_ITEM, "Upgrade Item", 13070).getInt(13070);
 			DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldRenderItem", true).getBoolean(true);
+			II_DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldIIRenderItems", true).getBoolean(true);
 			RENDER_ALL = config.get(Configuration.CATEGORY_GENERAL, "shouldRenerStackSize", false).getBoolean(false);
 			SPEED_FACTOR = config.get(Configuration.CATEGORY_GENERAL, "speedFactor", 5).getInt(5);
 			if(SPEED_FACTOR < 0)
@@ -82,8 +86,7 @@ public class ProjectBench
 		System.out.println("ProjectBench: Registered block id @ " +pbID +". Rendering: " +DO_RENDER +" @: " +SPEED_FACTOR);
 		GameRegistry.registerTileEntity(TileEntityProjectBench.class, "bau5pbTileEntity");
 		GameRegistry.registerTileEntity(TEProjectBenchII.class, "bau5pbTileEntityII");
-		LanguageRegistry.instance().addStringLocalization("blockProject BenchI", "Project Bench Mk. I");
-		LanguageRegistry.instance().addStringLocalization("blockProject BenchII", "Project Bench Mk. II");
+
 		LanguageRegistry.addName(projectBenchUpgrade, "Project Bench Upgrade");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
 		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 0), new Object[]{

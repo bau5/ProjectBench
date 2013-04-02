@@ -15,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityProjectBench extends TileEntity implements IInventory, ISidedInventory
 {
@@ -72,7 +73,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		
 		System.out.println("Actually finding recipe. " +result);
 		if(!fromPacket)
-			nextPacket = PBPacketHandler.prepPacket(this);
+			nextPacket = PBPacketHandler.prepPacketMkI(this);
 		return recipe;
 	}
 	
@@ -249,7 +250,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	@Override
 	public Packet getDescriptionPacket()
 	{
-		return PBPacketHandler.prepPacket(this);
+		return PBPacketHandler.prepPacketMkI(this);
 	}
 	@Override
 	public boolean receiveClientEvent(int code, int info)
@@ -268,11 +269,12 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 
 	@Override
 	public void closeChest() {}
+
 	public void updateEntity()
     {
 		super.updateEntity();
 		
-		if(++sync % 20 == 0){
+		if(++sync % 40 == 0){
 			if(nextPacket != null){
 				PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 20,
 							   worldObj.getWorldInfo().getDimension(), nextPacket);
@@ -281,7 +283,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 			}
 		}
 		if(sync > 6000){
-			PacketDispatcher.sendPacketToAllInDimension(PBPacketHandler.prepPacket(this),
+			PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(),
 					worldObj.getWorldInfo().getDimension());
 			sync = 0;
 		}

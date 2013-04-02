@@ -1,9 +1,11 @@
 package bau5.mods.projectbench.common;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import bau5.mods.projectbench.common.recipes.RecipeManager;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
@@ -12,54 +14,21 @@ import net.minecraft.item.ItemStack;
 public class ContainerProjectBenchII extends Container	
 {
 	protected TEProjectBenchII tileEntity;
+	
 	private boolean slotClicked = false;
 	
 	public ContainerProjectBenchII(InventoryPlayer invPlayer, TEProjectBenchII tpbII){
 		tileEntity = tpbII;
 		layoutContainer();
 		bindPlayerInventory(invPlayer);
-		lookForOutputs();
-		tileEntity.forceUpdate();
 		detectAndSendChanges();
+		lookForOutputs();
 	}
 
 	public void lookForOutputs(){
-		for(int i = 0; i < 27; i++)
-			tileEntity.setInventorySlotContents(i, null);
-		
-		List<ItemStack> items = new ArrayList();
-		ItemStack stack = null;
-		for(int i = 0; i < 18; i++){
-			stack = tileEntity.getStackInSlot(i + 27);
-			if(stack!= null){
-				items.add(stack);
-			}
-		}
-		
-		ArrayList<ItemStack> consolidatedItems = new ArrayList();
-		main : for(ItemStack stackInArray : items){
-			if(stackInArray == null)
-				continue main;
-			if(consolidatedItems.size() == 0)
-				consolidatedItems.add(stackInArray.copy());
-			else{
-				int counter = 0;
-				for(ItemStack stackInList : consolidatedItems){
-					counter++;
-					if(stackInList.getItem().equals(stackInArray.getItem())){
-						stackInList.stackSize++;
-						continue main;
-					}else if(counter == consolidatedItems.size()){
-						consolidatedItems.add(stackInArray.copy());
-						continue main;
-					}
-				}
-			}
-		}
-		ItemStack[] stacks = new ItemStack[consolidatedItems.size()];
-		for(int i = 0; i < stacks.length; i++)
-			stacks[i] = consolidatedItems.get(i);
+		ItemStack[] stacks = tileEntity.consolidateItemStacks(true);
 		tileEntity.setListForDisplay((ArrayList)RecipeManager.instance().getValidRecipesByStacks(stacks));
+		System.out.println("Looking for outputs!");
 	}
 	
 	private void layoutContainer(){
@@ -117,12 +86,12 @@ public class ContainerProjectBenchII extends Container
 	}
 	@Override
 	public ItemStack slotClick(int slot, int clickType, int par3, EntityPlayer player){
-		System.out.println(clickType +" " +par3 +" " +player.inventory.getItemStack());
+//		System.out.println(clickType +" " +par3 +" " +player.inventory.getItemStack());
 		int fake = clickType;
 		ItemStack originalStack = (slot < 45 && slot >= 0) ? tileEntity.getStackInSlot(slot) : null;
 		handleSlotClick(slot, fake, originalStack, player);
-		System.out.println(tileEntity.worldObj +" says: " +originalStack);
-		tileEntity.checkListAndInventory(originalStack);
+//		System.out.println(tileEntity.worldObj +" says: " +originalStack);
+//		tileEntity.checkListAndInventory(originalStack);
 		if((clickType == 1 || clickType == 2) && (slot < 27 && slot >= 0))
 			return null;
 		ItemStack stack = super.slotClick(slot, fake, par3, player);		
@@ -157,7 +126,7 @@ public class ContainerProjectBenchII extends Container
 				if(items == null)
 					return false;
 				boolean success = tileEntity.consumeItems(items);
-				System.out.println("Success? " +success);
+				System.out.println("Success? " +success +" " +tileEntity.worldObj.isRemote);
 				if(success){
 					return true;
 				}else{
@@ -167,6 +136,7 @@ public class ContainerProjectBenchII extends Container
 			}
 		}else{
 			if(slot < 45){
+				slotClicked = true;
 				lookForOutputs();
 			}
 			return true;
@@ -230,9 +200,5 @@ public class ContainerProjectBenchII extends Container
 	@Override
 	public void detectAndSendChanges(){
 		super.detectAndSendChanges();
-		if(slotClicked){
-			lookForOutputs();
-			slotClicked = false;
-		}
 	}
 }
