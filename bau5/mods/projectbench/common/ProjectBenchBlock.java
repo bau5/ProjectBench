@@ -19,7 +19,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class ProjectBenchBlock extends BlockContainer {
-	
 	@SideOnly(Side.CLIENT)
 	private Icon[] icons;
 	
@@ -30,7 +29,6 @@ public class ProjectBenchBlock extends BlockContainer {
 		setResistance(1.5F);
 		setUnlocalizedName("bau5ProjectBench");
 	}
-
 	@Override
 	public Icon getBlockTextureFromSideAndMetadata(int i, int j){
 		switch(j){
@@ -102,7 +100,11 @@ public class ProjectBenchBlock extends BlockContainer {
 		if(!(te instanceof IInventory))
 			return;
 		IInventory inv = (IInventory)te;
-		for(int i = 0; i < inv.getSizeInventory(); i++)
+		int i = 0; 
+		int size = inv.getSizeInventory();
+		if(te instanceof TEProjectBenchII)
+			i = 27;
+		for(; i < size; i++)
 		{
 			ItemStack item = inv.getStackInSlot(i);
 			if(item != null && item.stackSize > 0)
@@ -148,4 +150,10 @@ public class ProjectBenchBlock extends BlockContainer {
         par3List.add(new ItemStack(par1, 1, 0));
         par3List.add(new ItemStack(par1, 1, 1));
     }
+	
+	@Override
+	public int damageDropped(int meta) {
+		// TODO Auto-generated method stub
+		return meta;
+	}
 }
