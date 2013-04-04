@@ -3,8 +3,6 @@ package bau5.mods.projectbench.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import bau5.mods.projectbench.common.recipes.RecipeManager;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
@@ -15,9 +13,8 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
+import bau5.mods.projectbench.common.recipes.RecipeManager;
 import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class TEProjectBenchII extends TileEntity implements IInventory, ISidedInventory
 {

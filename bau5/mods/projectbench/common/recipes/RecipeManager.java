@@ -1,19 +1,12 @@
 package bau5.mods.projectbench.common.recipes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import bau5.mods.projectbench.common.ProjectBench;
+import cpw.mods.fml.common.FMLLog;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockStairs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -21,6 +14,7 @@ import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
+import bau5.mods.projectbench.common.ProjectBench;
 
 /**
  * Handles translating & reformatting recipes as well as
@@ -107,8 +101,6 @@ public class RecipeManager {
 	 * @param stack The ItemStack that a recipe is needed for
 	 * @return An array of ItemStacks that is the recipe items.
 	 * 
-	 * 
-	 * 
 	 */
 	public ItemStack[] getComponentsToConsume(ItemStack stack) {
 		ItemStack[] itemsToConsume = null;
@@ -184,55 +176,75 @@ public class RecipeManager {
 	 * 
 	 */
 	private RecipeItem translateRecipe(IRecipe rec){
-		RecipeItem newRecItem = new RecipeItem();
-		if(rec instanceof ShapedRecipes){
-			newRecItem.items = ((ShapedRecipes) rec).recipeItems;
-		}else if(rec instanceof ShapelessRecipes){
-			List ls = ((ShapelessRecipes) rec).recipeItems;
-			if(ls.get(0) instanceof ItemStack){
-				List<ItemStack> ls2 = ls;
-				newRecItem.items = new ItemStack[ls2.size()];
-				for(int i = 0; i < ls2.size(); i++){
-					newRecItem.items[i] = ls2.get(i);
-				}
-			}
-		}else if(rec instanceof ShapedOreRecipe){
-			Object[] objArray = ((ShapedOreRecipe) rec).getInput();
-			newRecItem.items = new ItemStack[objArray.length];
-			for(int i = 0; i < objArray.length; i++){
-				if(objArray[i] instanceof ArrayList){
-					newRecItem.items[i] = (ItemStack)((List)objArray[i]).get(0);
-				}
-				else if(objArray[i] instanceof ItemStack){
-					newRecItem.items[i] = (ItemStack)objArray[i];
-				}
-			}
-		}else if(rec instanceof ShapelessOreRecipe){
-			List inputList = ((ShapelessOreRecipe) rec).getInput();
-			newRecItem.items = new ItemStack[inputList.size()];
-			for(int i = 0; i < inputList.size(); i++){
-				if(inputList.get(i) instanceof ArrayList){
-					if(inputList.get(0) instanceof ArrayList){
-						newRecItem.items[i] = (ItemStack)((List)(inputList).get(0)).get(0);
+		String type = "[null]";
+		try{
+			RecipeItem newRecItem = new RecipeItem();
+			if(rec instanceof ShapedRecipes){
+				type = "ShapedRecipes";
+				newRecItem.items = ((ShapedRecipes) rec).recipeItems;
+			}else if(rec instanceof ShapelessRecipes){
+				type = "ShapelessRecipes";
+				List ls = ((ShapelessRecipes) rec).recipeItems;
+				if(ls.get(0) instanceof ItemStack){
+					List<ItemStack> ls2 = ls;
+					newRecItem.items = new ItemStack[ls2.size()];
+					for(int i = 0; i < ls2.size(); i++){
+						newRecItem.items[i] = ls2.get(i);
 					}
 				}
-				if(inputList.get(i) instanceof ItemStack){
-					newRecItem.items[i] = (ItemStack)inputList.get(i);
+			}else if(rec instanceof ShapedOreRecipe){
+				type = "ShapedOreRecipe";
+				Object[] objArray = ((ShapedOreRecipe) rec).getInput();
+				newRecItem.items = new ItemStack[objArray.length];
+				for(int i = 0; i < objArray.length; i++){
+					if(objArray[i] instanceof ArrayList){
+						if(((List)objArray[i]) != null && ((List)objArray[i]).size() > 0)
+							newRecItem.items[i] = (ItemStack)((List)objArray[i]).get(0);
+						else
+							newRecItem.items[i] = null;
+					}
+					else if(objArray[i] instanceof ItemStack){
+						newRecItem.items[i] = (ItemStack)objArray[i];
+					}
+				}
+			}else if(rec instanceof ShapelessOreRecipe){
+				type = "ShapelessOreRecipe";
+				List inputList = ((ShapelessOreRecipe) rec).getInput();
+				newRecItem.items = new ItemStack[inputList.size()];
+				for(int i = 0; i < inputList.size(); i++){
+					if(inputList.get(i) instanceof ArrayList){
+						if(inputList.get(0) instanceof ArrayList){
+							if(((List)(inputList).get(0)) != null && ((List)(inputList).get(0)).size() > 0)
+								newRecItem.items[i] = (ItemStack)((List)(inputList).get(0)).get(0);
+							else
+								newRecItem.items[i] = null;
+						}
+					}
+					if(inputList.get(i) instanceof ItemStack){
+						newRecItem.items[i] = (ItemStack)inputList.get(i);
+					}
 				}
 			}
+			else{
+				print("Recipe type not accounted for: " +rec.getRecipeOutput());
+			}
+			
+			if(newRecItem.items == null){
+				print("Recipe for " +newRecItem.result +" has no components.");
+				newRecItem = null;
+			}else{
+				newRecItem.result = rec.getRecipeOutput();
+				newRecItem.recipe = rec;
+			}
+			return newRecItem;
+		}catch(Exception ex){
+			
+			System.err.println("Project Bench: Error encountered while translating recipe.");
+			System.err.println("\t Recipe for: " +rec.getRecipeOutput());
+			System.err.println("\tRecipe type: " +type);
+			System.err.println("Please report this on the forums or GitHub.");
+			return null;
 		}
-		else{
-			print("Recipe type not accounted for: " +rec.getRecipeOutput());
-		}
-		
-		if(newRecItem.items == null){
-			print("Recipe for " +newRecItem.result +" has no components.");
-			newRecItem = null;
-		}else{
-			newRecItem.result = rec.getRecipeOutput();
-			newRecItem.recipe = rec;
-		}
-		return newRecItem;
 	}
 		
 	/**
@@ -302,16 +314,10 @@ public class RecipeManager {
 					}
 				}
 			}
-//			print("Old format.");
-//			for(ItemStack is : items){
-//				print("\t" +is);
-//			}
-//			print("-- New format --");
 			int counter = 0;
 			items = new ItemStack[consolidatedItems.size()];
 			for(ItemStack is3 : consolidatedItems){
 				items[counter++] = is3;
-//				print(items[counter - 1]);
 			}
 		}
 		

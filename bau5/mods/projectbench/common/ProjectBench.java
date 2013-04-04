@@ -2,14 +2,13 @@ package bau5.mods.projectbench.common;
 
 import java.util.logging.Level;
 
-import bau5.mods.projectbench.common.recipes.RecipeManager;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Configuration;
+import bau5.mods.projectbench.common.recipes.RecipeManager;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -26,7 +25,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 	
 //1.5.1
-@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.7.1")
+@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.7.2")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false,
 			channels = {"bau5_PB"}, packetHandler = PBPacketHandler.class)
 public class ProjectBench 
