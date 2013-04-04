@@ -2,14 +2,12 @@ package bau5.mods.projectbench.common;
 
 import java.util.ArrayList;
 
-import bau5.mods.projectbench.common.recipes.RecipeManager;
-
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import bau5.mods.projectbench.common.recipes.RecipeManager;
 
 public class ContainerProjectBenchII extends Container	
 {
