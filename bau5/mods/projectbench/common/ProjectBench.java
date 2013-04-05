@@ -104,6 +104,6 @@ public class ProjectBench
 	}
 	@PostInit
 	public void postInit(FMLPostInitializationEvent ev){
-		new RecipeManager();
+//		new RecipeManager();
 	}
 }

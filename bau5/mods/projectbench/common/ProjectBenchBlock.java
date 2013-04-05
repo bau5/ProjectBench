@@ -131,7 +131,7 @@ public class ProjectBenchBlock extends BlockContainer {
     {
 		switch(metadata){
 		case 0: return new TileEntityProjectBench();
-		case 1: return new TEProjectBenchII();
+//		case 1: return new TEProjectBenchII();
 		default: return null;
 		}
     }
