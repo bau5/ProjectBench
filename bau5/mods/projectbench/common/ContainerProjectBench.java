@@ -81,6 +81,10 @@ public class ContainerProjectBench extends Container
 	@Override
 	public void detectAndSendChanges()
 	{
+		if(containerChanged){
+			updateCrafting(true);
+			containerChanged = false;
+		}
 		super.detectAndSendChanges();
 	}
 	
@@ -88,15 +92,17 @@ public class ContainerProjectBench extends Container
 		if(forceUpdate)
 			tileEntity.markShouldUpdate();
 		tileEntity.onInventoryChanged();
-		tileEntity.findRecipe(false);
 	}
 	@Override
 	public ItemStack slotClick(int slot, int par2, int par3, EntityPlayer player)
 	{
-		ItemStack stack = super.slotClick(slot, par2, par3, player);
+		System.out.println(slot);
 		if(slot <= 9){
 			updateCrafting(true);
 		}
+		if(par3 == 6)
+			containerChanged = true;
+		ItemStack stack = super.slotClick(slot, par2, par3, player);
 		return stack;
 	}
 	@Override
@@ -121,7 +127,6 @@ public class ContainerProjectBench extends Container
                 {
                     return null;
                 }
-                containerChanged = true;
                 updateCrafting(true);
             }
             //Merge crafting matrix item with supply matrix inventory
@@ -134,7 +139,6 @@ public class ContainerProjectBench extends Container
                 		return null;
             		}
             	}
-            	containerChanged = true;
             	updateCrafting(true);
             }
             //Merge Supply matrix item with player inventory

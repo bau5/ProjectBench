@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cpw.mods.fml.common.FMLLog;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -26,7 +24,6 @@ import bau5.mods.projectbench.common.ProjectBench;
 public class RecipeManager {
 	private List<IRecipe> defaultRecipes;
 	private List<RecipeItem> orderedRecipes;
-	private long timeStart, timeEnd;
 	private static RecipeManager instance;
 	private static boolean DEBUG_MODE = ProjectBench.DEBUG_MODE_ENABLED;
 	
@@ -38,8 +35,10 @@ public class RecipeManager {
 		displayList();
 		defaultRecipes = null;
 		instance = this;
+
+		System.out.println("\tRecipe Manager active.");
 	}
-	
+		
 	/**
 	 * Builds the initial list by iterating through the default
 	 * recipes and translating them into something easier to
@@ -185,7 +184,8 @@ public class RecipeManager {
 			}else if(rec instanceof ShapelessRecipes){
 				type = "ShapelessRecipes";
 				List ls = ((ShapelessRecipes) rec).recipeItems;
-				if(ls.get(0) instanceof ItemStack){
+				
+				if(ls.size() > 0 && ls.get(0) instanceof ItemStack){
 					List<ItemStack> ls2 = ls;
 					newRecItem.items = new ItemStack[ls2.size()];
 					for(int i = 0; i < ls2.size(); i++){
