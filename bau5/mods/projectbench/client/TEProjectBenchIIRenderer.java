@@ -85,7 +85,7 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 			glPushMatrix();
 			glTranslatef(xShift, yShift, zShift);
 			glPushMatrix();
-			if(newStack.itemID >= Block.blocksList.length &&
+			if(newStack.itemID <= Block.blocksList.length &&
 					Block.blocksList[newStack.itemID] != null)
 				glScalef(0.1f, 0.1f, 0.1f);
 			renderItems.doRenderItem(ei, 0, 0, 0, 0, 0);

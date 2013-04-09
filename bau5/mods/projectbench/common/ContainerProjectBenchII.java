@@ -84,10 +84,13 @@ public class ContainerProjectBenchII extends Container
 	@Override
 	public ItemStack slotClick(int slot, int clickType, int par3, EntityPlayer player){
 		int fake = clickType;
+		System.out.println(par3);
 		ItemStack originalStack = (slot < 45 && slot >= 0) ? tileEntity.getStackInSlot(slot) : null;
 		handleSlotClick(slot, fake, originalStack, player);
 		if((clickType == 1 || clickType == 2) && (slot < 27 && slot >= 0))
 			return null;
+		if(par3 == 6)
+			fake = 0;
 		ItemStack stack = super.slotClick(slot, fake, par3, player);		
 
 		return stack;

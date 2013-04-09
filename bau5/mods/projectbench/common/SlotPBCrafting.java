@@ -136,4 +136,8 @@ public class SlotPBCrafting extends SlotCrafting
         	}
         }
     }
+	@Override
+	public ItemStack decrStackSize(int amount) {
+		return this.inventory.getStackInSlot(this.slotNumber);
+	}
 }

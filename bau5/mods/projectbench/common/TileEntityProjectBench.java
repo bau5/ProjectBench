@@ -72,11 +72,35 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		setResult(recipe);
 		updateResultSlot();
 		
-//		System.out.println("Actually finding recipe. " +result);
-		if(!fromPacket && lastResult != result)
-			nextPacket = PBPacketHandler.prepPacketMkI(this);
+		System.out.println("Found recipe. " +worldObj.isRemote);
+		
 		return recipe;
 	}
+	
+	@Override
+	public void updateEntity()
+    {
+		super.updateEntity();
+		
+		++sync;
+		if(sync % 10 == 0){
+			if(shouldUpdate){
+				nextPacket = PBPacketHandler.prepPacketMkI(this);
+			}
+		}
+		if(sync % 40 == 0){
+			if(nextPacket != null){
+				PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 20,
+							   worldObj.getWorldInfo().getDimension(), nextPacket);
+				nextPacket = null;
+			}
+		}
+		if(sync > 6000){
+			PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(),
+					worldObj.getWorldInfo().getDimension());
+			sync = 0;
+		}
+    }
 	
 	public void markShouldUpdate(){
 		shouldUpdate = true;
@@ -259,25 +283,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 
 	@Override
 	public void closeChest() {}
-
-	public void updateEntity()
-    {
-		super.updateEntity();
-		
-		if(++sync % 40 == 0){
-			if(nextPacket != null){
-				PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 20,
-							   worldObj.getWorldInfo().getDimension(), nextPacket);
-//				System.out.println("Sent packet.");
-				nextPacket = null;
-			}
-		}
-		if(sync > 6000){
-			PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(),
-					worldObj.getWorldInfo().getDimension());
-			sync = 0;
-		}
-    }
 	
 	@Override
 	public void readFromNBT(NBTTagCompound tagCompound)
