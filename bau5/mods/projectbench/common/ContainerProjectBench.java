@@ -96,12 +96,12 @@ public class ContainerProjectBench extends Container
 	@Override
 	public ItemStack slotClick(int slot, int par2, int par3, EntityPlayer player)
 	{
-		System.out.println(slot);
-		if(slot <= 9){
+		if(slot <= 9 && slot > -1){
 			updateCrafting(true);
 		}
-		if(par3 == 6)
+		if(par3 == 6 && slot != -999)
 			containerChanged = true;
+		
 		ItemStack stack = super.slotClick(slot, par2, par3, player);
 		return stack;
 	}

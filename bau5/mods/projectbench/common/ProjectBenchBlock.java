@@ -149,7 +149,8 @@ public class ProjectBenchBlock extends BlockContainer {
     public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
     {
         par3List.add(new ItemStack(par1, 1, 0));
-        par3List.add(new ItemStack(par1, 1, 1));
+        if(ProjectBench.DEV_ENV)
+        	par3List.add(new ItemStack(par1, 1, 1));
     }
 	
 	@Override

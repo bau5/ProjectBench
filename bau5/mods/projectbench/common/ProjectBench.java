@@ -25,7 +25,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 	
 //1.5.1
-@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.7.2")
+@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "1.7.3")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false,
 			channels = {"bau5_PB"}, packetHandler = PBPacketHandler.class)
 public class ProjectBench 
@@ -42,8 +42,10 @@ public class ProjectBench
 	public static boolean RENDER_ALL = false;
 	public static boolean II_DO_RENDER = true;
 	public static boolean DEBUG_MODE_ENABLED = false;
-	public static boolean DEV_ENV = true;
 	public static int  SPEED_FACTOR = 5;
+	
+	//TODO 
+	public static boolean DEV_ENV = false;
 	
 	public Block projectBench;
 	public Item  projectBenchUpgrade;
