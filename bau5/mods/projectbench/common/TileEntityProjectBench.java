@@ -61,7 +61,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		shouldUpdate = false;
 		
 		ItemStack stack = null;
-		for (int i = 0; i < craftMatrix.getSizeInventory(); ++i) 
+		for(int i = 0; i < craftMatrix.getSizeInventory(); ++i) 
 		{
 			stack = getStackInSlot(i);
 			craftMatrix.setInventorySlotContents(i, stack);
@@ -70,10 +70,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		ItemStack recipe = CraftingManager.getInstance().findMatchingRecipe(craftMatrix, worldObj);
 		
 		setResult(recipe);
-		updateResultSlot();
-		
-		System.out.println("Found recipe. " +worldObj.isRemote);
-		
+				
 		return recipe;
 	}
 	
@@ -89,6 +86,9 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 			}
 		}
 		if(sync % 40 == 0){
+			if(shouldUpdate){
+				nextPacket = PBPacketHandler.prepPacketMkI(this);
+			}
 			if(nextPacket != null){
 				PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 20,
 							   worldObj.getWorldInfo().getDimension(), nextPacket);
@@ -124,7 +124,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		return (result == null) ? null : result.copy();
 	}
 	public void setResult(ItemStack stack)
-	{
+	{		
 		if(stack != null)
 			result = stack.copy();
 		else
