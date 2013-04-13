@@ -238,6 +238,31 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 			worldObj.playSoundEffect((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D, "random.click", 0.1F, 1.0F);
 		return flag;
 	}
+	public boolean consumeItemStack(ItemStack toConsume){
+		ItemStack stack = toConsume.copy();
+		ItemStack stackInInventory = null;
+		for(int i = 0; i < supplyMatrixSize; i++){
+			stackInInventory = inv[i + inventoryStart];
+			if(stackInInventory == null){
+				continue;
+			}else{
+				if(stackInInventory.getItem().equals(stack.getItem())){
+					if(stack.stackSize <= stackInInventory.stackSize){
+						decrStackSize(i + inventoryStart, stack.stackSize);
+						stack.stackSize = 0;
+						break;
+					}else{
+						decrStackSize(i + inventoryStart, stackInInventory.stackSize);
+						stack.stackSize -= stackInInventory.stackSize;
+					}
+				}
+			}
+		}
+		if(stack.stackSize == 0){
+			toConsume.stackSize = 0;
+		}
+		return (toConsume.stackSize == 0);
+	}
 	
 	public void sendListClientSide(){
 		PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 15D, worldObj.getWorldInfo().getDimension(), getDescriptionPacket());
@@ -274,31 +299,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		return true;
 	}
 
-	public boolean consumeItemStack(ItemStack toConsume){
-		ItemStack stack = toConsume.copy();
-		ItemStack stackInInventory = null;
-		for(int i = 0; i < supplyMatrixSize; i++){
-			stackInInventory = inv[i + inventoryStart];
-			if(stackInInventory == null){
-				continue;
-			}else{
-				if(stackInInventory.getItem().equals(stack.getItem())){
-					if(stack.stackSize <= stackInInventory.stackSize){
-						decrStackSize(i + inventoryStart, stack.stackSize);
-						stack.stackSize = 0;
-						break;
-					}else{
-						decrStackSize(i + inventoryStart, stackInInventory.stackSize);
-						stack.stackSize -= stackInInventory.stackSize;
-					}
-				}
-			}
-		}
-		if(stack.stackSize == 0){
-			toConsume.stackSize = 0;
-		}
-		return (toConsume.stackSize == 0);
-	}
 	
 	@Override
 	public Packet getDescriptionPacket() {

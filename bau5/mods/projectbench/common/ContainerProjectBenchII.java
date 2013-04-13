@@ -7,6 +7,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 
 public class ContainerProjectBenchII extends Container	
@@ -84,57 +85,77 @@ public class ContainerProjectBenchII extends Container
 	@Override
 	public ItemStack slotClick(int slot, int clickType, int par3, EntityPlayer player){
 		int fake = clickType;
-		ItemStack originalStack = (slot < 45 && slot >= 0) ? tileEntity.getStackInSlot(slot) : null;
-		handleSlotClick(slot, fake, originalStack, player);
 		if((clickType == 1 || clickType == 2) && (slot < 27 && slot >= 0))
 			return null;
 		if(par3 == 6)
 			fake = 0;
+		if(slot < 27 && slot >= 0){
+			ItemStack originalStack = (slot < 45 && slot >= 0) ? tileEntity.getStackInSlot(slot) : null;
+			if(originalStack == null)
+				return null;
+			ItemStack returnStack = handleSlotClick(slot, fake, originalStack, player);
+			if(returnStack != null){
+				ItemStack stackOnMouse = player.inventory.getItemStack();
+				if(stackOnMouse == null){
+					player.inventory.setItemStack(ItemStack.copyItemStack(returnStack));
+					System.out.println(player.inventory.getItemStack());
+				}
+				else{
+					if(stackOnMouse.isItemEqual(returnStack)){
+						if(stackOnMouse.stackSize + returnStack.stackSize <= stackOnMouse.getMaxStackSize())
+							stackOnMouse.stackSize += returnStack.stackSize;
+						else
+							return null;
+					}
+				}
+				return returnStack;
+			}else{
+				lookForOutputs();
+				return null;
+			}
+		}
 		ItemStack stack = super.slotClick(slot, fake, par3, player);		
-
 		return stack;
 		
 	}
-	private boolean handleSlotClick(int slot, int clickType, ItemStack stackInSlot, EntityPlayer player) {
-		if(slot < 0)
-			return false;
-
-		if(slot < 27){
-			if(clickType == 1){
-				tileEntity.removeResultFromDisplay(stackInSlot);
-				
-				return false;
-			}else if(clickType == 2){
-					tileEntity.scrambleMatrix();
-				
-				return false;
-			}else{
-				ItemStack stackOnMouse = player.inventory.getItemStack();
-				ItemStack[] items = null;
-				if(stackInSlot == null || stackInSlot.stackSize <= 0)
-					return false;
-				if(stackOnMouse != null){
-					if(ItemStack.areItemStacksEqual(stackOnMouse, stackInSlot))
-						if(stackOnMouse.stackSize + stackInSlot.stackSize <= stackOnMouse.getMaxStackSize())
-							items = RecipeManager.instance().getComponentsToConsume(stackInSlot);
-				}else
-					items = RecipeManager.instance().getComponentsToConsume(stackInSlot);
-				if(items == null)
-					return false;
-				boolean success = tileEntity.consumeItems(items);
-				if(success){
-					return true;
-				}else{
-					lookForOutputs();
-				}
-				return false;
-			}
+	private ItemStack handleSlotClick(int slot, int clickType, ItemStack stackInSlot, EntityPlayer player) {
+		if(clickType == 1){
+			tileEntity.removeResultFromDisplay(stackInSlot);
+			
+			return null;
+		}else if(clickType == 2){
+				tileEntity.scrambleMatrix();
+			
+			return null;
 		}else{
-			if(slot < 45){
-				slotClicked = true;
-				lookForOutputs();
+			ItemStack stackOnMouse = player.inventory.getItemStack();
+			ArrayList<ItemStack[]> items = null;
+			System.out.println(stackInSlot.stackSize);
+			if(stackInSlot == null || stackInSlot.stackSize <= 0)
+				return null;
+			if(stackOnMouse != null){
+				if(stackOnMouse.isItemEqual(stackInSlot)){
+					if(stackOnMouse.stackSize + stackInSlot.stackSize <= stackOnMouse.getMaxStackSize()){
+						items = RecipeManager.instance().getComponentsToConsume(stackInSlot);
+					}
+				}
+			}else
+				items = RecipeManager.instance().getComponentsToConsume(stackInSlot);
+			if(items == null){
+				return null;
 			}
-			return true;
+			boolean success = false;
+			for(ItemStack[] isa : items){
+				success = tileEntity.consumeItems(isa);
+				if(success)
+					break;
+			}
+			if(success){
+				return stackInSlot;
+			}else{
+				lookForOutputs();
+				return null;
+			}
 		}
 	}
 
