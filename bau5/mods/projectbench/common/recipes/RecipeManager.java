@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -50,12 +51,39 @@ public class RecipeManager {
 		for(IRecipe rec : defaultRecipes){
 			potentialRecipe = translateRecipe(rec);
 			if(potentialRecipe != null){
-				potentialRecipe.postInit();
-				orderedRecipes.add(potentialRecipe);
+				if(!checkForRecipe(potentialRecipe))
+					orderedRecipes.add(potentialRecipe);
 			}
 		}
 	}
 	
+	public boolean checkForRecipe(RecipeItem rec){
+		RecipeItem dup = null;
+		ItemStack result = rec.result();
+		int indexInList = 0;
+		for(; indexInList < orderedRecipes.size(); indexInList++){
+			if(orderedRecipes.get(indexInList) != null && ItemStack.areItemStacksEqual(orderedRecipes.get(indexInList).result, result)){
+				dup = orderedRecipes.get(indexInList);
+				break;
+			}
+		}
+		if(dup != null){
+			if(dup.alternatives == null)
+				dup.alternatives = new ArrayList<ItemStack[]>();
+			if(dup.items != null)
+				dup.alternatives.add(dup.items());
+			rec.consolidateStacks();
+			for(ItemStack[] isa : rec.alternatives)
+				dup.alternatives.add(isa);
+			rec.items = null;
+			return true;
+		}else{
+			rec.postInit();
+			return false;
+		}
+	}
+	
+	//TODO account for stack size differences.
 	/**
 	 * Uses the Java library binary search function to find 
 	 * recipes within the list. Since the list can be rather
@@ -73,8 +101,9 @@ public class RecipeManager {
 		RecipeItem ri = new RecipeItem();
 		ri.setResult(result);
 		int i = Collections.binarySearch(orderedRecipes, ri, new PBRecipeSorter());
-		if(i >= orderedRecipes.size() || i < 0){
+		if(i == -1 || i >= orderedRecipes.size() || i < 0){
 			print("Recipe not found for " +result);
+			return null;
 		}
 		return orderedRecipes.get(i);
 	}
@@ -92,21 +121,31 @@ public class RecipeManager {
 	}
 	
 	/**
-	 * This is called when the player clicks on an item that they
-	 * wish to craft. It returns the array of items that should
-	 * be consumed upon crafting. It uses the binary seach method
-	 * to find the Recipe Item
+	 * This is called when something wants to find the recipe for
+	 * a given ItemStack as input. It will return all the possible
+	 * ItemStack arrays that craft the provided stack. The list may
+	 * have only one recipe in it.
 	 * 
 	 * @param stack The ItemStack that a recipe is needed for
-	 * @return An array of ItemStacks that is the recipe items.
+	 * @return A List of ItemStack arrays that are the recipe items.
 	 * 
 	 */
-	public ItemStack[] getComponentsToConsume(ItemStack stack) {
-		ItemStack[] itemsToConsume = null;
+	public ArrayList<ItemStack[]> getComponentsToConsume(ItemStack stack) {
+		ArrayList<ItemStack[]> itemsToConsume = null;
 		RecipeItem ri = searchForRecipe(stack);
-		itemsToConsume = ri.items();
+		if(ri != null)
+			itemsToConsume = ri.alternatives();
 		return itemsToConsume;
 	}
+	/*
+	 	public ItemStack[] getComponentsToConsume(ItemStack stack) {
+		ItemStack[] itemsToConsume = null;
+		RecipeItem ri = searchForRecipe(stack);
+		if(ri != null)
+			itemsToConsume = ri.items().clone();
+		return itemsToConsume;
+		}
+	*/
 
 	/**
 	 * This method takes all of the items that are in the tile entity
@@ -119,33 +158,35 @@ public class RecipeManager {
 	 */
 	public ArrayList<ItemStack> getValidRecipesByStacks(ItemStack[] stacks){
 		ArrayList<ItemStack> validRecipes = new ArrayList<ItemStack>();
-		
-		ItemStack[] recItems;
+		ArrayList<ItemStack[]> stacksForRecipe = null;
 		boolean hasMeta = false;
+		boolean flag = true;
+		//TODO Did I do this right? Looping through multiple possibilities?
 		for(RecipeItem rec : orderedRecipes){
+			stacksForRecipe = rec.alternatives();
 			hasMeta = rec.hasMeta();
-			int i = 0;
-			recItems = rec.items().clone();
-			for(; i < recItems.length; i++){
-				for(ItemStack stackInInventory : stacks){
-					if(stackInInventory != null){
-						if(stackInInventory.getItem().equals(recItems[i].getItem())){
-							if(hasMeta){
-								if(recItems[i].getItemDamage() != stackInInventory.getItemDamage())
-	    							continue;
+			for(ItemStack[] recItems : stacksForRecipe){
+				for(int i = 0; i < recItems.length; i++){
+					for(ItemStack stackInInventory : stacks){
+						if(stackInInventory != null){
+							if(recItems[i] == null){
+								System.out.println("This guy is null.");
 							}
-							if(recItems[i].stackSize <= stackInInventory.stackSize){
-								recItems[i].stackSize = 0;
+							if(stackInInventory.getItem().equals(recItems[i].getItem())){
+								if(hasMeta){
+									if(recItems[i].getItemDamage() != stackInInventory.getItemDamage())
+		    							continue;
+								}
+								if(recItems[i].stackSize <= stackInInventory.stackSize){
+									recItems[i].stackSize = 0;
+								}
 							}
 						}
 					}
-				}
-			}
-			boolean flag = true;
-			for(i = 0; i < recItems.length; i++){
-				if(recItems[i].stackSize != 0){
-					flag = false;
-					break;
+					if(recItems[i].stackSize != 0){
+						flag = false;
+						break;
+					}
 				}
 			}
 			if(flag)
@@ -153,16 +194,42 @@ public class RecipeManager {
 		}
 		return validRecipes;
 	}
-
-	public void displayRecipeForStack(ItemStack stack) {
-		for(RecipeItem rec : orderedRecipes){
-			if(ItemStack.areItemStacksEqual(stack, rec.result())){
-				print(" - Recipe for " +rec.result() +" -");
-				for(ItemStack is : rec.items()){
-					print("\t" +is);
+	
+	public ItemStack[] consolidateItemStacks(ItemStack[] stacks){
+		ArrayList<ItemStack> items = new ArrayList();
+		ItemStack stack = null;
+		for(int i = 0; i < stacks.length; i++){
+			if(stacks[i] != null)
+				stack = stacks[i].copy();
+			if(stack != null){
+				items.add(stack);
+			}
+		}
+		List<ItemStack> consolidatedItems = new ArrayList();
+		main : for(ItemStack stackInArray : items){
+			if(stackInArray == null)
+				continue main;
+			if(consolidatedItems.size() == 0)
+				consolidatedItems.add(stackInArray.copy());
+			else{
+				int counter = 0;
+				for(ItemStack stackInList : consolidatedItems){
+					counter++;
+					if(stackInList.getItem().equals(stackInArray.getItem())){
+						stackInList.stackSize++;
+						continue main;
+					}else if(counter == consolidatedItems.size()){
+						consolidatedItems.add(stackInArray.copy());
+						continue main;
+					}
 				}
 			}
 		}
+		ItemStack[] stacks2 = new ItemStack[consolidatedItems.size()];
+		for(int i = 0; i < stacks2.length; i++){
+			stacks2[i] = consolidatedItems.get(i);
+		}
+		return stacks2;
 	}
 	
 	/**
@@ -229,6 +296,8 @@ public class RecipeManager {
 				print("Recipe type not accounted for: " +rec.getRecipeOutput());
 			}
 			
+			newRecItem.type = type;
+			
 			if(newRecItem.items == null){
 				print("Recipe for " +newRecItem.result +" has no components.");
 				newRecItem = null;
@@ -238,15 +307,14 @@ public class RecipeManager {
 			}
 			return newRecItem;
 		}catch(Exception ex){
-			
 			System.err.println("Project Bench: Error encountered while translating recipe.");
 			System.err.println("\t Recipe for: " +rec.getRecipeOutput());
-			System.err.println("\tRecipe type: " +type);
+			System.err.println("\t Recipe type: " +type);
 			System.err.println("Please report this on the forums or GitHub.");
 			return null;
 		}
 	}
-		
+		//TODO seperate into its own class.
 	/**
 	 * A custom class to interface with the recipes in Minecraft.
 	 * Provides for much easier access of required items, output,
@@ -255,13 +323,15 @@ public class RecipeManager {
 	 * @author bau5
 	 *
 	 */
-	class RecipeItem{
+	public class RecipeItem{
 		private ItemStack[] items;
+		private ArrayList<ItemStack[]> alternatives = new ArrayList<ItemStack[]>();
 		private Object[] input;
 		private IRecipe recipe;
 		private ItemStack result;
 		private int indexInList;
 		private boolean isMetadataSensitive = false;
+		private String type = "[null]";
 				
 		public RecipeItem(){
 			
@@ -316,17 +386,25 @@ public class RecipeManager {
 			}
 			int counter = 0;
 			items = new ItemStack[consolidatedItems.size()];
-			for(ItemStack is3 : consolidatedItems){
-				items[counter++] = is3;
-			}
+			for(int i = 0; i < items.length; i++)
+				items[i] = consolidatedItems.get(i);
+			alternatives.add(items);
+			items = null;
 		}
-		
+		public ArrayList<ItemStack[]> alternatives(){
+			ArrayList<ItemStack[]> temp = new ArrayList<ItemStack[]>();
+			temp.addAll(alternatives);
+			return alternatives;
+		}
 		public ItemStack[] items(){
 			ItemStack[] temp = new ItemStack[items.length];
 			for(int i = 0; i < temp.length; i++){
 				temp[i] = ItemStack.copyItemStack(items[i]);
 			}
 			return temp;
+		}
+		public boolean hasAlternatives(){
+			return (alternatives != null && alternatives.size() > 1);
 		}
 		public Object[] components(){
 			return input.clone();
@@ -361,6 +439,12 @@ public class RecipeManager {
 		private void setResult(ItemStack theResult){
 			result = theResult.copy();
 		}
+		
+		public String toString()
+	    {
+	        return result + ":" + type +"x" + ((alternatives != null) ? alternatives.size() : 0);
+	    }
+		
 	}
 	public static RecipeManager instance(){
 		return instance;
