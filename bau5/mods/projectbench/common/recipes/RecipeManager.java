@@ -68,8 +68,6 @@ public class RecipeManager {
 			}
 		}
 		if(dup != null){
-			if(dup.alternatives == null)
-				dup.alternatives = new ArrayList<ItemStack[]>();
 			if(dup.items != null)
 				dup.alternatives.add(dup.items());
 			rec.consolidateStacks();
@@ -163,15 +161,13 @@ public class RecipeManager {
 		boolean flag = true;
 		//TODO Did I do this right? Looping through multiple possibilities?
 		for(RecipeItem rec : orderedRecipes){
+			flag = true;
 			stacksForRecipe = rec.alternatives();
 			hasMeta = rec.hasMeta();
 			for(ItemStack[] recItems : stacksForRecipe){
 				for(int i = 0; i < recItems.length; i++){
 					for(ItemStack stackInInventory : stacks){
 						if(stackInInventory != null){
-							if(recItems[i] == null){
-								System.out.println("This guy is null.");
-							}
 							if(stackInInventory.getItem().equals(recItems[i].getItem())){
 								if(hasMeta){
 									if(recItems[i].getItemDamage() != stackInInventory.getItemDamage())
@@ -393,8 +389,15 @@ public class RecipeManager {
 		}
 		public ArrayList<ItemStack[]> alternatives(){
 			ArrayList<ItemStack[]> temp = new ArrayList<ItemStack[]>();
-			temp.addAll(alternatives);
-			return alternatives;
+			ItemStack[] newisa = null;
+			for(ItemStack[] isa : alternatives){
+				newisa = new ItemStack[isa.length];
+				for(int i = 0; i < isa.length; i++){
+					newisa[i] = ItemStack.copyItemStack(isa[i]);
+				}
+				temp.add(newisa);
+			}
+			return temp;
 		}
 		public ItemStack[] items(){
 			ItemStack[] temp = new ItemStack[items.length];
