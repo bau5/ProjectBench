@@ -10,6 +10,8 @@ import static org.lwjgl.opengl.GL11.glTranslatef;
 
 import java.util.ArrayList;
 
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -17,6 +19,7 @@ import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import bau5.mods.projectbench.common.ProjectBench;
@@ -66,8 +69,6 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 		glTranslatef(0F, 1.1F, 0F);
 		glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		glScalef(0.4F, 0.4F, 0.4F);
-		
-
 		float xShift, yShift, zShift;
 		xShift = yShift = zShift = 0F;
 		zShift = 0.4F;
@@ -85,9 +86,6 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 			glPushMatrix();
 			glTranslatef(xShift, yShift, zShift);
 			glPushMatrix();
-//			if(newStack.itemID <= Block.blocksList.length &&
-//					Block.blocksList[newStack.itemID] != null)
-//				glScalef(0.1f, 0.1f, 0.1f);
 			renderItems.doRenderItem(ei, 0, 0, 0, 0, 0);
 			glPopMatrix();
 			glPopMatrix();

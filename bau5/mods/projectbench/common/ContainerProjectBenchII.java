@@ -14,7 +14,7 @@ public class ContainerProjectBenchII extends Container
 {
 	protected TEProjectBenchII tileEntity;
 	
-	private boolean slotClicked = false;
+	private boolean postSlotClick = false;
 	
 	public ContainerProjectBenchII(InventoryPlayer invPlayer, TEProjectBenchII tpbII){
 		tileEntity = tpbII;
@@ -83,22 +83,22 @@ public class ContainerProjectBenchII extends Container
 		return tileEntity.isUseableByPlayer(player);
 	}
 	@Override
-	public ItemStack slotClick(int slot, int clickType, int par3, EntityPlayer player){
+	public ItemStack slotClick(int slot, int clickType, int meta, EntityPlayer player){
 		int fake = clickType;
+		System.out.println(meta);
+		ItemStack originalStack = (slot < 45 && slot >= 0) ? tileEntity.getStackInSlot(slot) : null;
 		if((clickType == 1 || clickType == 2) && (slot < 27 && slot >= 0))
-			return null;
-		if(par3 == 6)
+			return handleSlotClick(slot, fake, meta, originalStack, player);
+		if(meta == 6)
 			fake = 0;
 		if(slot < 27 && slot >= 0){
-			ItemStack originalStack = (slot < 45 && slot >= 0) ? tileEntity.getStackInSlot(slot) : null;
 			if(originalStack == null)
 				return null;
-			ItemStack returnStack = handleSlotClick(slot, fake, originalStack, player);
+			ItemStack returnStack = handleSlotClick(slot, fake, meta, originalStack, player);
 			if(returnStack != null){
 				ItemStack stackOnMouse = player.inventory.getItemStack();
 				if(stackOnMouse == null){
 					player.inventory.setItemStack(ItemStack.copyItemStack(returnStack));
-					System.out.println(player.inventory.getItemStack());
 				}
 				else{
 					if(stackOnMouse.isItemEqual(returnStack)){
@@ -114,11 +114,14 @@ public class ContainerProjectBenchII extends Container
 				return null;
 			}
 		}
-		ItemStack stack = super.slotClick(slot, fake, par3, player);		
+		if(slot >= 27 && slot < 45)
+			lookForOutputs();
+		postSlotClick = true;
+		ItemStack stack = super.slotClick(slot, fake, meta, player);		
 		return stack;
 		
 	}
-	private ItemStack handleSlotClick(int slot, int clickType, ItemStack stackInSlot, EntityPlayer player) {
+	private ItemStack handleSlotClick(int slot, int clickType, int clickMeta, ItemStack stackInSlot, EntityPlayer player) {
 		if(clickType == 1){
 			tileEntity.removeResultFromDisplay(stackInSlot);
 			
@@ -130,7 +133,6 @@ public class ContainerProjectBenchII extends Container
 		}else{
 			ItemStack stackOnMouse = player.inventory.getItemStack();
 			ArrayList<ItemStack[]> items = null;
-			System.out.println(stackInSlot.stackSize);
 			if(stackInSlot == null || stackInSlot.stackSize <= 0)
 				return null;
 			if(stackOnMouse != null){
@@ -145,12 +147,20 @@ public class ContainerProjectBenchII extends Container
 				return null;
 			}
 			boolean success = false;
+			int numMade = 0;
 			for(ItemStack[] isa : items){
-				success = tileEntity.consumeItems(isa);
-				if(success)
+				numMade = tileEntity.consumeItems(isa, stackInSlot.stackSize, (clickMeta == 1));
+				success = (numMade != 0);
+				if(!success)
 					break;
 			}
+			//TODO account for max stack sizes; aka stack of 64 boats? what to do with excess. meh.
 			if(success){
+//				if(stackInSlot.stackSize * numMade < stackInSlot.getMaxStackSize())
+					stackInSlot.stackSize *= numMade;
+//				else{
+//					player.inventory.
+//				}
 				return stackInSlot;
 			}else{
 				lookForOutputs();
@@ -184,6 +194,7 @@ public class ContainerProjectBenchII extends Container
                 {
                     return null;
                 }
+                postSlotClick = true;
             }
             //Merge player inventory item with supply matrix
             else if (numSlot >= 45 && numSlot <= 80)
@@ -192,6 +203,7 @@ public class ContainerProjectBenchII extends Container
                 {
                     return null;
                 }
+                postSlotClick = true;
             }
 
             if (stack2.stackSize == 0)
@@ -216,5 +228,9 @@ public class ContainerProjectBenchII extends Container
 	@Override
 	public void detectAndSendChanges(){
 		super.detectAndSendChanges();
+		if(postSlotClick){
+			lookForOutputs();
+			postSlotClick = false;
+		}
 	}
 }

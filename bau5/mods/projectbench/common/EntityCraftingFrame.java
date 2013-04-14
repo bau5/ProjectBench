@@ -66,7 +66,6 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 		}
 		
 		ArrayList<ItemStack[]> stacks = RecipeManager.instance().getComponentsToConsume(getDisplayedItem());
-		System.out.println(stacks);
 		if(stacks != null){
 			for(ItemStack[] isa : stacks){
 				if(consumeItems(isa, player)){
@@ -132,7 +131,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 					stackOnPlayer = player.inventory.mainInventory[i];
 		            if (stackOnPlayer != null && OreDictionary.itemMatches(stackToConsume, stackOnPlayer, false))
 		            {
-		            	if(stackOnPlayer.stackSize >= stackToConsume.stackSize){
+		            	if(stackOnPlayer.stackSize > stackToConsume.stackSize){
 		            		stackOnPlayer.stackSize -= stackToConsume.stackSize;
 		            		stackToConsume.stackSize = 0;
 		            		continue main;

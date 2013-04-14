@@ -25,6 +25,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	private boolean init = true;
 	private int inventoryStart;
 	private int supplyMatrixSize;
+	private byte directionFacing = 0;
 	
 	private int sync =  0;
 	
@@ -51,7 +52,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 			disperseListAcrossMatrix();
 		}
 		if(sync == 20 && init && !worldObj.isRemote){
-			RecipeManager.print("Sending to client...");
 			sendListClientSide();
 		}
 		
@@ -208,35 +208,45 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		return stacks;
 	}
 
-	public boolean consumeItems(ItemStack[] items) {
+	public int consumeItems(ItemStack[] items, int numPer, boolean max) {
+		int numMade = 0;
 		if(!checkForItems(items.clone())){
-			return false;
+			return numMade;
 		}
+		int tries = (max) ? (64/numPer) : 1;
 		ItemStack[] consolidatedStacks = consolidateItemStacks(false);
 		boolean flag = true;
-		main : for(ItemStack is : items){
-			for(ItemStack stackInInventory : consolidatedStacks){
-				if(is != null){
-					if(is.getItem().equals(stackInInventory.getItem())){
-						boolean success = consumeItemStack(is);
-						if(!success){
-							flag = false;
-							break;
+		counterLoop : for(int i = 0; i < tries; i++){
+			main : for(ItemStack is : items){
+				for(ItemStack stackInInventory : consolidatedStacks){
+					if(is != null){
+						if(is.getItem().equals(stackInInventory.getItem())){
+							if(stackInInventory.stackSize < is.stackSize)
+								break counterLoop;
+							boolean success = consumeItemStack(is);
+							if(!success){
+								flag = false;
+								break counterLoop;
+							}
+							stackInInventory.stackSize -= is.stackSize;
+							continue main;
 						}
-						continue main;
 					}
 				}
 			}
-		}
-		flag = true;
-		for(ItemStack stack : items){
-			if(stack.stackSize != 0)
-				flag = false;
+//			flag = true;
+//			for(ItemStack stack : items){
+//				if(stack.stackSize != 0)
+//					flag = false;
+//			}
+			if(flag){
+				numMade++;
+			}
 		}
 		updateNeeded = true;
 		if(flag)
 			worldObj.playSoundEffect((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D, "random.click", 0.1F, 1.0F);
-		return flag;
+		return numMade;
 	}
 	public boolean consumeItemStack(ItemStack toConsume){
 		ItemStack stack = toConsume.copy();
@@ -258,10 +268,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 				}
 			}
 		}
-		if(stack.stackSize == 0){
-			toConsume.stackSize = 0;
-		}
-		return (toConsume.stackSize == 0);
+		return (stack.stackSize == 0);
 	}
 	
 	public void sendListClientSide(){
@@ -406,20 +413,15 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	}
 
 	@Override
-	public void setInventorySlotContents(int slot, ItemStack stack) {
-//		if(slot >= 0 && slot < 27){
-//			if(listToDisplay.size() > slot)
-//				inv[slot] = listToDisplay.get(slot);
-//		}
-//		else{
+	public void setInventorySlotContents(int slot, ItemStack stack) {		
 		shouldConsolidate = true;
-//			updateOutputRecipes();
 		inv[slot] = stack;
 		if(stack != null && stack.stackSize > getInventoryStackLimit())
 		{
 			stack.stackSize = getInventoryStackLimit();
 		}
-//		}
+		if(slot >= 27 && slot < 45)
+			updateOutputRecipes();
 	}
 
 	@Override
@@ -450,7 +452,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public void readFromNBT(NBTTagCompound tagCompound)
 	{
 		super.readFromNBT(tagCompound);
-		
+		setDirection(tagCompound.getByte("facing"));
 		NBTTagList tagList = tagCompound.getTagList("Inventory");
 		for(int i = 0; i < tagList.tagCount(); i++)
 		{
@@ -467,6 +469,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	{
 		super.writeToNBT(tagCompound);
 		
+		tagCompound.setByte("facing", directionFacing);
 		NBTTagList itemList = new NBTTagList();	
 		
 		for(int i = 0; i < inv.length; i++)
@@ -494,7 +497,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 
 	@Override
 	public boolean isInvNameLocalized() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -503,6 +505,13 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		if(i >= 27)
 			return true;
 		else return false;
+	}
+
+	public void setDirection(byte dir) {
+		directionFacing = dir;
+	}
+	public byte getDirection(){
+		return directionFacing;
 	}
 
 }

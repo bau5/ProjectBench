@@ -7,6 +7,7 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -14,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -127,6 +129,26 @@ public class ProjectBenchBlock extends BlockContainer {
 			}
 		}
 	}
+	@Override
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving el, ItemStack stack)
+    {
+        byte dir = 0;
+        int plyrFacing = MathHelper.floor_double((double) ((el.rotationYaw * 4F) / 360F) + 0.5D) & 3;
+        if (plyrFacing == 0)
+            dir = 2;
+        if (plyrFacing == 1)
+            dir = 5;
+        if (plyrFacing == 2)
+            dir = 3;
+        if (plyrFacing == 3)
+            dir = 4;
+        TileEntity tpb = world.getBlockTileEntity(x, y, z);
+        if (tpb != null && tpb instanceof TEProjectBenchII)
+        {
+            ((TEProjectBenchII)tpb).setDirection(dir);
+            world.markBlockForUpdate(x, y, z);
+        }
+    }
 	public TileEntity createTileEntity(World world, int metadata)
     {
 		switch(metadata){
