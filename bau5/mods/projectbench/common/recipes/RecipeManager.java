@@ -19,7 +19,10 @@ import bau5.mods.projectbench.common.ProjectBench;
  * Handles translating & reformatting recipes as well as
  * searching for recipes and providing stacks for crafting.
  * 
+ * RecipeManager
+ *
  * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
  * 
  */
 public class RecipeManager {
