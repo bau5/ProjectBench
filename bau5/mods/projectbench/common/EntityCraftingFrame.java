@@ -10,9 +10,14 @@ import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
+
+import org.lwjgl.input.Keyboard;
+
+import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
 
@@ -25,6 +30,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 
 	private int stackSize = -1;
 	private RecipeItem currentRecipe = null;
+	private RecipeCrafter theCrafter = new RecipeCrafter();
 	
 	public EntityCraftingFrame(World world, int x, int y, int z,
 			int dir) {
@@ -34,20 +40,29 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	public EntityCraftingFrame(World world){
 		super(world);
 	}
+	
 	@Override
 	public boolean interact(EntityPlayer player) {
 		if(player == null)
 			return true;
+		if(getDisplayedItem() != null && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)){
+			dispenseItem(getDisplayedItem());
+			reset();
+			return true;
+		}
+		if(getDisplayedItem() != null && Keyboard.isKeyDown(Keyboard.KEY_LMENU)){
+			this.setItemRotation(this.getRotation() + 1);
+		}
 		if(getDisplayedItem() == null){
             ItemStack itemStack = player.getHeldItem();
             if (itemStack != null && !this.worldObj.isRemote)
             {
         		currentRecipe = RecipeManager.instance().searchForRecipe(itemStack);
+                this.setDisplayedItem(currentRecipe.result().copy());
+                stackSize = currentRecipe.result().stackSize;
         		if(currentRecipe == null)
         			return true;
         		
-            	stackSize = currentRecipe.result().stackSize;
-                this.setDisplayedItem(currentRecipe.result().copy());
                 if (!player.capabilities.isCreativeMode && --itemStack.stackSize <= 0)
                 {
                     player.inventory.setInventorySlotContents(player.inventory.currentItem, (ItemStack)null);
@@ -59,26 +74,37 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	        }
 	        return true;	
 		}
-		if(player.isSneaking()){
-			dispenseItem(getDisplayedItem());
-			reset();
-			return false;
+		
+		if(this.getDisplayedItem() != null && currentRecipe == null || OreDictionary.itemMatches(currentRecipe.result(), getDisplayedItem(), false)){
+			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem());
 		}
 		
-		ArrayList<ItemStack[]> stacks = RecipeManager.instance().getComponentsToConsume(getDisplayedItem());
+		ArrayList<ItemStack[]> stacks = RecipeManager.instance().getComponentsToConsume(currentRecipe.result());
 		if(stacks != null){
+			ItemStack[] consolidatedInventory = null;
 			for(ItemStack[] isa : stacks){
-				if(consumeItems(isa, player)){
-					ItemStack stack = getDisplayedItem().copy();
-					stack.stackSize = stackSize;
-					dispenseItem(stack);
-					return true;
+				theCrafter.addInventoryReference(player.inventory.mainInventory);
+				consolidatedInventory = theCrafter.consolidateItemStacks(player.inventory.mainInventory);
+				int numMade = theCrafter.consumeItems(isa, consolidatedInventory, currentRecipe.result().stackSize, player.isSneaking());
+				if(numMade != 0){
+					ItemStack toDispense = currentRecipe.result();
+					toDispense.stackSize *= numMade;
+					if(!worldObj.isRemote)
+						dispenseItem(toDispense);	
+					break;
 				}
+//				if(consumeItems(isa, player)){
+//					ItemStack stack = getDisplayedItem().copy();
+//					stack.stackSize = stackSize;
+//					dispenseItem(stack);
+//					return true;
+//				}
 			}
 		}
 		return false;
 	}
-	private void dispenseItem(ItemStack stack){
+	
+	protected void dispenseItem(ItemStack stack){
 		// 2  0  3  1
 		//10 11 12 13
 		// N  S  E  W
@@ -96,58 +122,36 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
         double d1 = bsi.getY() + 0.5D * (double)enumFacing.getFrontOffsetY();
         double d2 = bsi.getZ() + 0.7D * (double)enumFacing.getFrontOffsetZ();
         PositionImpl iPos = new PositionImpl(d0, d1, d2);
-		BehaviorDefaultDispenseItem.doDispense(worldObj, stack, 1, enumFacing, iPos);
+        if(stack.stackSize > stack.getMaxStackSize()){
+        	int maxSize = stack.getMaxStackSize();
+        	int leftOver = 0;
+        	int count = 0;
+        	while(stack.stackSize > stack.getMaxStackSize()){
+        		count++;
+        		stack.stackSize -= stack.getMaxStackSize();
+        	}
+        	leftOver = stack.stackSize;
+        	ItemStack temp = ItemStack.copyItemStack(stack);
+        	temp.stackSize = temp.getMaxStackSize();
+        	for(int i = 0; i < count; i++){
+        		BehaviorDefaultDispenseItem.doDispense(worldObj, temp, 1, enumFacing, iPos);
+        	}
+        	if(leftOver > 0){
+        		temp.stackSize = leftOver;
+        		BehaviorDefaultDispenseItem.doDispense(worldObj, temp, 1, enumFacing, iPos);
+        	}
+        }else
+    		BehaviorDefaultDispenseItem.doDispense(worldObj, stack, 1, enumFacing, iPos);
 	}
 	
-	public boolean consumeItems(ItemStack[] items, EntityPlayer player) {
-		ItemStack[] check = new ItemStack[items.length];
-		for(int i = 0; i < items.length; i++)
-			check[i] = ItemStack.copyItemStack(items[i]);
-		ItemStack stackOnPlayer = null;
-		boolean haveAll = true;
-		boolean wild = false;
-		main:for(ItemStack stackToConsume : check){
-			for(int i = 0; i < player.inventory.mainInventory.length; i++){
-				stackOnPlayer = player.inventory.mainInventory[i];
-				
-				if(stackOnPlayer != null && OreDictionary.itemMatches(stackToConsume, stackOnPlayer, false)){
-					if(stackOnPlayer.stackSize >= stackToConsume.stackSize){
-						stackToConsume.stackSize = 0;
-						continue main;
-					}else{
-						stackToConsume.stackSize -= stackOnPlayer.stackSize;
-					}
-				}
-			}
-			if(stackToConsume.stackSize != 0){
-				haveAll = false;
-				break;
-			}
-		}
-		if(haveAll){
-			main:for(ItemStack stackToConsume : items){
-				for (int i = 0; i < player.inventory.mainInventory.length; ++i)
-		        {
-					stackOnPlayer = player.inventory.mainInventory[i];
-		            if (stackOnPlayer != null && OreDictionary.itemMatches(stackToConsume, stackOnPlayer, false))
-		            {
-		            	if(stackOnPlayer.stackSize > stackToConsume.stackSize){
-		            		stackOnPlayer.stackSize -= stackToConsume.stackSize;
-		            		stackToConsume.stackSize = 0;
-		            		continue main;
-		            	}
-		            	else{
-		            		stackToConsume.stackSize -= stackOnPlayer.stackSize;
-		            		stackOnPlayer.stackSize = 0;
-		            		player.inventory.mainInventory[i] = null;
-		            	}
-		            }
-		        }
-			}
-		}
-		return haveAll;
-	}
-	
+	@Override
+	public void setDisplayedItem(ItemStack par1ItemStack)
+    {
+        par1ItemStack = par1ItemStack.copy();
+        par1ItemStack.setItemFrame(this);
+        this.getDataWatcher().updateObject(2, par1ItemStack);
+        this.getDataWatcher().setObjectWatched(2);
+    }
 	@Override
 	public void dropItemStack()
     {
@@ -161,6 +165,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
             this.entityDropItem(itemstack, 0.0F);
         }
     }
+	
 	public void reset(){
 		dataWatcher = new DataWatcher();
         this.dataWatcher.addObject(0, Byte.valueOf((byte)0));
@@ -170,7 +175,9 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	}
 	@Override
 	public void writeEntityToNBT(NBTTagCompound mainTag) {
-		if(this.getDisplayedItem() != null){
+		System.out.println("Saving...");
+		if(getDisplayedItem() != null){
+			System.out.println("Set as " +stackSize);
 			mainTag.setInteger("stackSize", stackSize);
 		}
 		super.writeEntityToNBT(mainTag);
@@ -179,19 +186,29 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	public void readEntityFromNBT(NBTTagCompound mainTag) {
 		NBTTagCompound itemTag = mainTag.getCompoundTag("Item");
 		if(itemTag != null && !itemTag.hasNoTags()){
-			if(mainTag.hasKey("stackSize"));
+			if(mainTag.hasKey("stackSize")){
 				stackSize = mainTag.getInteger("stackSize");
+				System.out.println("Loaded stackSize " +stackSize);
+			}
 		}
 		super.readEntityFromNBT(mainTag);
 	}
 
 	@Override
 	public void writeSpawnData(ByteArrayDataOutput data) {
+		data.writeInt(xPosition);
+		data.writeInt(yPosition);
+		data.writeInt(zPosition);
 		data.writeInt(hangingDirection);
+		data.writeInt(stackSize);
 	}
 
 	@Override
 	public void readSpawnData(ByteArrayDataInput data) {
+		xPosition = data.readInt();
+		yPosition = data.readInt();
+		zPosition = data.readInt();
 		hangingDirection = data.readInt();
+		stackSize = data.readInt();
 	}
 }

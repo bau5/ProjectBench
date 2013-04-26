@@ -1,7 +1,6 @@
 package bau5.mods.projectbench.common;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -13,8 +12,19 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
+import net.minecraftforge.oredict.OreDictionary;
+import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import cpw.mods.fml.common.network.PacketDispatcher;
+
+/**
+ * 
+ * TEProjectBenchII
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
 
 public class TEProjectBenchII extends TileEntity implements IInventory, ISidedInventory
 {
@@ -22,17 +32,19 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	private ItemStack[] inv;
 	private boolean updateNeeded = false;
 	private boolean shouldConsolidate = true;
-	private boolean init = true;
-	private int inventoryStart;
-	private int supplyMatrixSize;
+	public boolean initSlots = false;
+	public int inventoryStart;
+	public int supplyMatrixSize;
 	private byte directionFacing = 0;
 	
 	private int sync =  0;
 	
 	private ItemStack[] consolidatedStacks = null;
 	private ArrayList<ItemStack> listToDisplay = new ArrayList();
+	private RecipeCrafter theCrafter = new RecipeCrafter();
 	
 	public TEProjectBenchII(){
+		theCrafter.addTPBReference(this);
 		craftSupplyMatrix = new InventoryBasic("pbIICraftingSupply", true, 18);
 		inv = new ItemStack[45];
 		inventoryStart = 27;
@@ -51,7 +63,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		if(updateNeeded){
 			disperseListAcrossMatrix();
 		}
-		if(sync == 20 && init && !worldObj.isRemote){
+		if(sync == 20 && initSlots && !worldObj.isRemote){
 			sendListClientSide();
 		}
 		
@@ -103,20 +115,15 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public void removeResultFromDisplay(ItemStack resultToRemove){
 		if(resultToRemove == null)	
 				return;
-//		RecipeManager.print(resultToRemove +" " +worldObj.isRemote +" " +listToDisplay.size());
 		for(int i = 0; i < listToDisplay.size(); i++){
 			if(listToDisplay.get(i).getItem().equals(resultToRemove.getItem()))
 				listToDisplay.remove(i);
 		}
-//		RecipeManager.print(" " +worldObj.isRemote +listToDisplay.size());
 		updateNeeded = true;
 		ItemStack stack;
-//		RecipeManager.print("--List");
 		for(int i = 0; i < inventoryStart; i++){
 			stack = (i < listToDisplay.size()) ? listToDisplay.get(i) : null;
 			inv[i] = stack;
-//			if(inv[i] != null)
-//				RecipeManager.print("\t" +inv[i]);
 		}
 	}
 	
@@ -129,7 +136,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public void setListForDisplay(ArrayList<ItemStack> list){
 		listToDisplay = list;
 		updateNeeded = true;
-		RecipeManager.print("List is being set. " +((list == null) ? "null" : list.size()) +" " +((worldObj == null) ? "unknown" : worldObj.isRemote));
+		System.out.println("List is being set. " +list.size());
 	}
 	
 	public ArrayList<ItemStack> getDisplayList(){
@@ -139,7 +146,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public void updateOutputRecipes(){
 		setListForDisplay(RecipeManager.instance().getValidRecipesByStacks(consolidateItemStacks(true)));
 		updateNeeded = true;
-		RecipeManager.print(listToDisplay.size());
 	}
 	
 	public void checkListAndInventory(ItemStack stack){
@@ -166,146 +172,34 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		else
 			RecipeManager.print("" +stack +" isn't in " +str +" list.");
 	}
+
+	public int consumeItems(ItemStack[] items, int numPer, boolean max) {
+		theCrafter.addInventoryReference(createInventoryReference());
+		return theCrafter.consumeItems(items, consolidateItemStacks(false), numPer, max);
+	}
 	
 	public ItemStack[] consolidateItemStacks(boolean override){
 		if(!override && !shouldConsolidate){
 			return consolidatedStacks;
-		}
-		ArrayList<ItemStack> items = new ArrayList();
-		ItemStack stack = null;
-		for(int i = 0; i < supplyMatrixSize; i++){
-			stack = getStackInSlot(i + inventoryStart);
-			if(stack!= null){
-				items.add(stack);
+		}else{
+			ItemStack[] stackArr = new ItemStack[supplyMatrixSize];
+			for(int i = 0; i < supplyMatrixSize; i++){
+				stackArr[i] = ItemStack.copyItemStack(getStackInSlot(i + inventoryStart));
 			}
+			return theCrafter.consolidateItemStacks(stackArr);
 		}
-		List<ItemStack> consolidatedItems = new ArrayList();
-		main : for(ItemStack stackInArray : items){
-			if(stackInArray == null)
-				continue main;
-			if(consolidatedItems.size() == 0)
-				consolidatedItems.add(stackInArray.copy());
-			else{
-				int counter = 0;
-				for(ItemStack stackInList : consolidatedItems){
-					counter++;
-					if(stackInList.getItem().equals(stackInArray.getItem())){
-						stackInList.stackSize++;
-						continue main;
-					}else if(counter == consolidatedItems.size()){
-						consolidatedItems.add(stackInArray.copy());
-						continue main;
-					}
-				}
-			}
-		}
-		ItemStack[] stacks = new ItemStack[consolidatedItems.size()];
-		for(int i = 0; i < stacks.length; i++){
-			stacks[i] = consolidatedItems.get(i);
-		}
-		consolidatedStacks = stacks;
-		shouldConsolidate = false;
-		return stacks;
-	}
-
-	public int consumeItems(ItemStack[] items, int numPer, boolean max) {
-		int numMade = 0;
-		if(!checkForItems(items.clone())){
-			return numMade;
-		}
-		int tries = (max) ? (64/numPer) : 1;
-		ItemStack[] consolidatedStacks = consolidateItemStacks(false);
-		boolean flag = true;
-		counterLoop : for(int i = 0; i < tries; i++){
-			main : for(ItemStack is : items){
-				for(ItemStack stackInInventory : consolidatedStacks){
-					if(is != null){
-						if(is.getItem().equals(stackInInventory.getItem())){
-							if(stackInInventory.stackSize < is.stackSize)
-								break counterLoop;
-							boolean success = consumeItemStack(is);
-							if(!success){
-								flag = false;
-								break counterLoop;
-							}
-							stackInInventory.stackSize -= is.stackSize;
-							continue main;
-						}
-					}
-				}
-			}
-//			flag = true;
-//			for(ItemStack stack : items){
-//				if(stack.stackSize != 0)
-//					flag = false;
-//			}
-			if(flag){
-				numMade++;
-			}
-		}
-		updateNeeded = true;
-		if(flag)
-			worldObj.playSoundEffect((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D, "random.click", 0.1F, 1.0F);
-		return numMade;
-	}
-	public boolean consumeItemStack(ItemStack toConsume){
-		ItemStack stack = toConsume.copy();
-		ItemStack stackInInventory = null;
-		for(int i = 0; i < supplyMatrixSize; i++){
-			stackInInventory = inv[i + inventoryStart];
-			if(stackInInventory == null){
-				continue;
-			}else{
-				if(stackInInventory.getItem().equals(stack.getItem())){
-					if(stack.stackSize <= stackInInventory.stackSize){
-						decrStackSize(i + inventoryStart, stack.stackSize);
-						stack.stackSize = 0;
-						break;
-					}else{
-						decrStackSize(i + inventoryStart, stackInInventory.stackSize);
-						stack.stackSize -= stackInInventory.stackSize;
-					}
-				}
-			}
-		}
-		return (stack.stackSize == 0);
 	}
 	
+	public ItemStack[] createInventoryReference(){
+		ItemStack[]	newArr = new ItemStack[supplyMatrixSize];
+		for(int i = 0; i < supplyMatrixSize; i++){
+			newArr[i] = inv[i + inventoryStart];
+		}
+		return newArr;
+	}
 	public void sendListClientSide(){
 		PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 15D, worldObj.getWorldInfo().getDimension(), getDescriptionPacket());
 	}
-	
-	private boolean checkForItems(ItemStack[] items) {
-		ItemStack[] consolidatedStacks = consolidateItemStacks(false);
-		ItemStack[] clonedItems = new ItemStack[items.length];
-		for(int i = 0; i < clonedItems.length; i++){
-			clonedItems[i] = ItemStack.copyItemStack(items[i]);
-		}
-		ItemStack stack = null;
-		for(int i = 0; i < items.length; i++){
-			stack = clonedItems[i];
-//			RecipeManager.print(stack);
-			for(ItemStack sin : consolidatedStacks){
-				if(sin.getItem().equals(stack.getItem())){
-					if(sin.stackSize >= stack.stackSize){
-						stack.stackSize = 0;
-//						RecipeManager.print("Found bigger stack: " +sin.stackSize);
-						break;
-					}else{
-						stack.stackSize -= sin.stackSize;
-//						RecipeManager.print("Found smaller stack " +sin.stackSize +" : " +stack.stackSize); 
-					}
-				}
-			}
-		}
-		for(ItemStack toCheck : clonedItems){
-			if(toCheck.stackSize != 0)
-				return false;
-		}
-		
-		return true;
-	}
-
 	
 	@Override
 	public Packet getDescriptionPacket() {
@@ -420,10 +314,10 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		{
 			stack.stackSize = getInventoryStackLimit();
 		}
-		if(slot >= 27 && slot < 45)
+		if(slot >= 27 && slot < 45 && !initSlots)
 			updateOutputRecipes();
 	}
-
+	
 	@Override
 	public String getInvName() {
 		return "Project Bench Mk. II";
@@ -463,6 +357,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 				inv[slot] = ItemStack.loadItemStackFromNBT(tag);
 			}
 		}
+		System.out.println("TE Loaded: " +directionFacing +((worldObj != null) ? worldObj.isRemote : "null"));
 	}
 	@Override
 	public void writeToNBT(NBTTagCompound tagCompound)
@@ -470,6 +365,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		super.writeToNBT(tagCompound);
 		
 		tagCompound.setByte("facing", directionFacing);
+		System.out.println("TE Saved: " +directionFacing +((worldObj != null) ? worldObj.isRemote : "null"));
 		NBTTagList itemList = new NBTTagList();	
 		
 		for(int i = 0; i < inv.length; i++)
@@ -509,6 +405,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 
 	public void setDirection(byte dir) {
 		directionFacing = dir;
+		System.out.println("Direction: " +dir +((worldObj != null) ? worldObj.isRemote : "null"));
 	}
 	public byte getDirection(){
 		return directionFacing;

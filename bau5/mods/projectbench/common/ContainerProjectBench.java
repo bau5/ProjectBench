@@ -7,6 +7,15 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+/**
+ * 
+ * ContainerProjectBench
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
+
 public class ContainerProjectBench extends Container
 {
 	protected TileEntityProjectBench tileEntity;
@@ -20,7 +29,7 @@ public class ContainerProjectBench extends Container
 		tileEntity = tpb;
 		craftSupplyMatrix = tileEntity.craftSupplyMatrix;
 		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, tileEntity, tileEntity.craftResult, 
-										 tileEntity, craftResultSlot, 124, 35));
+										 tileEntity, craftResultSlot, 124, 37));
 		layoutContainer(invPlayer, tileEntity);
 		bindPlayerInventory(invPlayer);
 		containerChanged = true;
@@ -38,7 +47,7 @@ public class ContainerProjectBench extends Container
 		{
 			for(col = 0; col < 3; col++)
 			{
-				slot = new Slot(tileEntity, ++index, 30 + col * 18, 17 + row * 18);
+				slot = new Slot(tileEntity, ++index, 30 + col * 18, 19 + row * 18);
 				addSlotToContainer(slot);
 				counter++;
 			}
@@ -51,12 +60,12 @@ public class ContainerProjectBench extends Container
 				if(row == 1)
 				{
 					slot = new Slot(tileEntity, 18 + col, 8 + col * 18, 
-									(row * 2 - 1) + 77 + row * 18);
+									(row * 2 - 1) + 79 + row * 18);
 					addSlotToContainer(slot);
 				} else
 				{
 					slot = new Slot(tileEntity, 9 + col, 8 + col * 18,
-							77 + row * 18);
+							79 + row * 18);
 					addSlotToContainer(slot);
 				}
 				counter++;
@@ -70,45 +79,37 @@ public class ContainerProjectBench extends Container
 			for(int j = 0; j < 9; j++)
 			{
 				addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9,
-											8 + j * 18, 84 + i * 18 +37));
+											8 + j * 18, 84 + i * 18 + 39));
 			}
 		}
 		for(int i = 0; i < 9; i++)
 		{
-			addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 142 + 37));
+			addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 142 + 39));
 		}
 	}
-	@Override
-	public void detectAndSendChanges()
-	{
-		if(containerChanged){
-			updateCrafting(true);
-			containerChanged = false;
-		}
-		super.detectAndSendChanges();
+	public void updateCrafting(boolean flag){
+		tileEntity.markShouldUpdate();
 	}
 	
-	public void updateCrafting(boolean forceUpdate){
-		if(forceUpdate)
-			tileEntity.markShouldUpdate();
-		tileEntity.onInventoryChanged();
-	}
 	@Override
-	public ItemStack slotClick(int slot, int par2, int par3, EntityPlayer player)
+	public ItemStack slotClick(int slot, int clickType, int clickMeta, EntityPlayer player)
 	{
-		if(slot <= 9 && slot > -1){
+		if(slot <= 9 && slot > -1)
 			updateCrafting(true);
-		}
-		if(par3 == 6 && slot != -999)
-			containerChanged = true;
-		
-		ItemStack stack = super.slotClick(slot, par2, par3, player);
+		ItemStack stack = super.slotClick(slot, clickType, clickMeta, player);
 		return stack;
 	}
 	@Override
 	public boolean canInteractWith(EntityPlayer player) 
 	{
 		return tileEntity.isUseableByPlayer(player);
+	}
+	@Override
+	public void putStacksInSlots(ItemStack[] par1ArrayOfItemStack) {
+		tileEntity.containerInit = true;
+		super.putStacksInSlots(par1ArrayOfItemStack);
+		tileEntity.containerInit = false;
+		tileEntity.onInventoryChanged();
 	}
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int numSlot)
