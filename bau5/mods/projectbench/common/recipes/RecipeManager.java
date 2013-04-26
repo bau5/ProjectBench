@@ -11,18 +11,17 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import bau5.mods.projectbench.common.ProjectBench;
+import cpw.mods.ironchest.ItemChestChanger;
 
 /**
  * Handles translating & reformatting recipes as well as
  * searching for recipes and providing stacks for crafting.
  * 
- * RecipeManager
- *
  * @author _bau5
- * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
  * 
  */
 public class RecipeManager {
@@ -48,7 +47,7 @@ public class RecipeManager {
 	 * recipes and translating them into something easier to
 	 * work with (Recipe Items) 
 	 */
-	public void associateRecipes(){
+	private void associateRecipes(){
 		orderedRecipes = new ArrayList<RecipeItem>();
 		RecipeItem potentialRecipe = null;
 		for(IRecipe rec : defaultRecipes){
@@ -75,7 +74,10 @@ public class RecipeManager {
 				dup.alternatives.add(dup.items());
 			rec.consolidateStacks();
 			for(ItemStack[] isa : rec.alternatives)
-				dup.alternatives.add(isa);
+				if(isa.length > 0)
+					dup.alternatives.add(isa);
+				else
+					print("Recipe " +rec.result() +" has a recipe with no components. Removing.");
 			rec.items = null;
 			return true;
 		}else{
@@ -133,20 +135,13 @@ public class RecipeManager {
 	 */
 	public ArrayList<ItemStack[]> getComponentsToConsume(ItemStack stack) {
 		ArrayList<ItemStack[]> itemsToConsume = null;
+		if(stack == null)
+			return null;
 		RecipeItem ri = searchForRecipe(stack);
 		if(ri != null)
 			itemsToConsume = ri.alternatives();
 		return itemsToConsume;
 	}
-	/*
-	 	public ItemStack[] getComponentsToConsume(ItemStack stack) {
-		ItemStack[] itemsToConsume = null;
-		RecipeItem ri = searchForRecipe(stack);
-		if(ri != null)
-			itemsToConsume = ri.items().clone();
-		return itemsToConsume;
-		}
-	*/
 
 	/**
 	 * This method takes all of the items that are in the tile entity
@@ -158,26 +153,45 @@ public class RecipeManager {
 	 * 
 	 */
 	public ArrayList<ItemStack> getValidRecipesByStacks(ItemStack[] stacks){
+//		if(stacks.length == 0)
+//			return new ArrayList<ItemStack>();
 		ArrayList<ItemStack> validRecipes = new ArrayList<ItemStack>();
 		ArrayList<ItemStack[]> stacksForRecipe = null;
 		boolean hasMeta = false;
 		boolean flag = true;
 		//TODO Did I do this right? Looping through multiple possibilities?
-		for(RecipeItem rec : orderedRecipes){
+		recLoop : for(RecipeItem rec : orderedRecipes){
 			flag = true;
 			stacksForRecipe = rec.alternatives();
 			hasMeta = rec.hasMeta();
-			for(ItemStack[] recItems : stacksForRecipe){
+			multiRecipeLoop : for(ItemStack[] recItems : stacksForRecipe){
 				for(int i = 0; i < recItems.length; i++){
 					for(ItemStack stackInInventory : stacks){
 						if(stackInInventory != null){
 							if(stackInInventory.getItem().equals(recItems[i].getItem())){
 								if(hasMeta){
-									if(recItems[i].getItemDamage() != stackInInventory.getItemDamage())
+									if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
 		    							continue;
 								}
-								if(recItems[i].stackSize <= stackInInventory.stackSize){
+								if(recItems[i].getItem().hasContainerItem()){
+									continue recLoop;
+									// Disabling container recipes for now.
+//									ItemStack contItem = recItems[i].getItem().getContainerItemStack(recItems[i]);
+//									if(contItem.isItemStackDamageable()){
+//										if(contItem.getItemDamage() + 1 <= contItem.getMaxDamage())
+//											recItems[i].stackSize = 0;
+//										else{
+//											recItems[i].setItemDamage(recItems[i].getItemDamage() + 1);
+//										}
+//									}else{
+//										if(contItem.stackSize <= stackInInventory.stackSize){
+//											recItems[i].stackSize -= contItem.stackSize;
+//										}
+//									}
+								}else if(recItems[i].stackSize <= stackInInventory.stackSize){
 									recItems[i].stackSize = 0;
+								}else if(recItems[i].stackSize > stackInInventory.stackSize){
+									continue multiRecipeLoop;
 								}
 							}
 						}
@@ -187,9 +201,9 @@ public class RecipeManager {
 						break;
 					}
 				}
+				if(flag)
+					validRecipes.add(rec.result());
 			}
-			if(flag)
-				validRecipes.add(rec.result());
 		}
 		return validRecipes;
 	}
@@ -259,20 +273,32 @@ public class RecipeManager {
 					}
 				}
 			}else if(rec instanceof ShapedOreRecipe){
+				if(rec.getRecipeOutput().getItem().itemID >= 19501 +256 || rec.getRecipeOutput().getItem().itemID == 975)
+					System.out.println("Check");
 				type = "ShapedOreRecipe";
 				Object[] objArray = ((ShapedOreRecipe) rec).getInput();
 				newRecItem.items = new ItemStack[objArray.length];
 				for(int i = 0; i < objArray.length; i++){
 					if(objArray[i] instanceof ArrayList){
-						if(((List)objArray[i]) != null && ((List)objArray[i]).size() > 0)
-							newRecItem.items[i] = (ItemStack)((List)objArray[i]).get(0);
-						else
-							newRecItem.items[i] = null;
+						List theList = ((List)objArray[i]);
+						if(((List)objArray[i]) != null && theList.size() > 0){
+							newRecItem.items[i] = (ItemStack)theList.get(0);
+						}else{
+							//Recipe is missing nonexistant ore types
+							return null;
+						}
 					}
 					else if(objArray[i] instanceof ItemStack){
 						newRecItem.items[i] = (ItemStack)objArray[i];
 					}
 				}
+				boolean flag = false;
+				for(ItemStack is : newRecItem.items){
+					if(is != null)
+						flag = true;
+				}
+				if(!flag)
+					return null;
 			}else if(rec instanceof ShapelessOreRecipe){
 				type = "ShapelessOreRecipe";
 				List inputList = ((ShapelessOreRecipe) rec).getInput();
@@ -294,13 +320,15 @@ public class RecipeManager {
 			else{
 				print("Recipe type not accounted for: " +rec.getRecipeOutput());
 			}
-			
 			newRecItem.type = type;
 			
 			if(newRecItem.items == null){
 				print("Recipe for " +newRecItem.result +" has no components.");
 				newRecItem = null;
-			}else{
+			}else if (newRecItem.items.length == 0){
+				print("Recipe for " +newRecItem.result +" has an empty recipe array.");
+				newRecItem = null;
+			}else {
 				newRecItem.result = rec.getRecipeOutput();
 				newRecItem.recipe = rec;
 			}
@@ -308,7 +336,7 @@ public class RecipeManager {
 		}catch(Exception ex){
 			System.err.println("Project Bench: Error encountered while translating recipe.");
 			System.err.println("\t Recipe for: " +rec.getRecipeOutput());
-			System.err.println("\t Recipe type: " +type);
+			System.err.println("\t Recipe type: "+type);
 			System.err.println("Please report this on the forums or GitHub.");
 			return null;
 		}
@@ -362,8 +390,10 @@ public class RecipeManager {
 		 */
 		private void consolidateStacks(){
 			List<ItemStack> consolidatedItems = new ArrayList();
+			if(items == null)
+				return;
 			main : for(ItemStack stackInArray : items){
-				if(stackInArray == null)
+				if(stackInArray == null || stackInArray.getItem() == null)
 					continue main;
 				if(result.getHasSubtypes())
 					isMetadataSensitive = true;
@@ -371,7 +401,9 @@ public class RecipeManager {
 					consolidatedItems.add(stackInArray.copy());
 				else{
 					int counter = 0;
-					for(ItemStack stackInList : consolidatedItems){
+					list : for(ItemStack stackInList : consolidatedItems){
+						if(stackInList == null || stackInArray.getItem() == null)
+							continue list;
 						counter++;
 						if(stackInList.getItem().equals(stackInArray.getItem())){
 							stackInList.stackSize++;
@@ -421,7 +453,7 @@ public class RecipeManager {
 		public ItemStack result(){
 			if(result == null)
 				return null;
-			return result.copy();
+			return ItemStack.copyItemStack(result);
 		}
 		public boolean hasMeta(){
 			return isMetadataSensitive;
@@ -456,7 +488,7 @@ public class RecipeManager {
 		return instance;
 	}
 	public static void print(String message){
-		if(DEBUG_MODE)
+		if(DEBUG_MODE || ProjectBench.DEV_ENV)
 			System.out.println(message);
 	}
 	public static void print(ItemStack stack){

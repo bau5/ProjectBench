@@ -38,8 +38,7 @@ public class ContainerProjectBenchII extends Container
 		{
 			for(col = 0; col < 9; col++)
 			{	
-				addSlotToContainer(new SlotPBII(tileEntity, ++index, 8 + col * 18, 14 + row * 18));
-				
+				addSlotToContainer(new SlotPBII(tileEntity, ++index, 8 + col * 18, 16 + row * 18));
 			}
 		}
 		
@@ -51,12 +50,12 @@ public class ContainerProjectBenchII extends Container
 				if(row == 1)
 				{
 					slot = new Slot(tileEntity, ++index, 8 + col * 18, 
-									(row * 2 - 1) + 74 + row * 18);
+									(row * 2 - 1) + 76 + row * 18);
 					addSlotToContainer(slot);
 				} else
 				{
 					slot = new Slot(tileEntity, ++index, 8 + col * 18,
-							74 + row * 18);
+							76 + row * 18);
 					addSlotToContainer(slot);
 				}
 			}
@@ -69,12 +68,12 @@ public class ContainerProjectBenchII extends Container
 			for(int j = 0; j < 9; j++)
 			{
 				addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9,
-											8 + j * 18, 84 + i * 18 + 34));
+											8 + j * 18, 84 + i * 18 + 36));
 			}
 		}
 		for(int i = 0; i < 9; i++)
 		{
-			addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 142 + 34));
+			addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 142 + 36));
 		}
 	}
 	@Override
@@ -85,7 +84,6 @@ public class ContainerProjectBenchII extends Container
 	@Override
 	public ItemStack slotClick(int slot, int clickType, int meta, EntityPlayer player){
 		int fake = clickType;
-		System.out.println(meta);
 		ItemStack originalStack = (slot < 45 && slot >= 0) ? tileEntity.getStackInSlot(slot) : null;
 		if((clickType == 1 || clickType == 2) && (slot < 27 && slot >= 0))
 			return handleSlotClick(slot, fake, meta, originalStack, player);
@@ -116,7 +114,8 @@ public class ContainerProjectBenchII extends Container
 		}
 		if(slot >= 27 && slot < 45)
 			lookForOutputs();
-		postSlotClick = true;
+		if(slot != -999) 
+			postSlotClick = true;
 		ItemStack stack = super.slotClick(slot, fake, meta, player);		
 		return stack;
 		
@@ -151,8 +150,10 @@ public class ContainerProjectBenchII extends Container
 			for(ItemStack[] isa : items){
 				numMade = tileEntity.consumeItems(isa, stackInSlot.stackSize, (clickMeta == 1));
 				success = (numMade != 0);
-				if(!success)
+				if(success)
 					break;
+				else
+					continue;
 			}
 			//TODO account for max stack sizes; aka stack of 64 boats? what to do with excess. meh.
 			if(success){
@@ -225,6 +226,12 @@ public class ContainerProjectBenchII extends Container
 
         return stack;
     }
+	@Override
+	public void putStacksInSlots(ItemStack[] par1ArrayOfItemStack) {
+		tileEntity.initSlots = true;
+		super.putStacksInSlots(par1ArrayOfItemStack);
+		tileEntity.initSlots = false;
+	}
 	@Override
 	public void detectAndSendChanges(){
 		super.detectAndSendChanges();

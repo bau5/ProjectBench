@@ -25,8 +25,8 @@ public class PBUpgradeItem extends Item
 	}
 	
 	@Override
-	public void updateIcons(IconRegister register) {
-		iconIndex = register.registerIcon("projectbench:pbup");
+	public void registerIcons(IconRegister register) {
+		itemIcon = register.registerIcon("projectbench:pbup");
 	}
 	
 	@Override

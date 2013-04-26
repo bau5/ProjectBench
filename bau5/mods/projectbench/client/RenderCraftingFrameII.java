@@ -2,10 +2,10 @@ package bau5.mods.projectbench.client;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.client.renderer.tileentity.RenderItemFrame;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityItemFrame;
@@ -15,22 +15,18 @@ import net.minecraft.util.Icon;
 
 import org.lwjgl.opengl.GL11;
 
-import bau5.mods.projectbench.common.EntityCraftingFrame;
 import bau5.mods.projectbench.common.EntityCraftingFrameII;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class RenderCraftingFrame extends RenderItemFrame
-{
+public class RenderCraftingFrameII extends Render {
 	private final RenderBlocks renderBlocks = new RenderBlocks();
 	private Icon icon;
 	
 	@Override
-	public void updateIcons(IconRegister ir){
-		icon = ir.registerIcon("projectbench:craftingFrame_back");
+	public void updateIcons(IconRegister ir) {
+		icon = Block.workbench.getBlockTextureFromSide(1);
 	}
-
-	private void render(EntityCraftingFrame entity, double x, double y,
+	
+	private void render(EntityCraftingFrameII entity, double x, double y,
 			double z, float par8, float par9) {
 		if(renderBlocks.blockAccess == null)
 			renderBlocks.blockAccess = entity.worldObj;
@@ -50,13 +46,12 @@ public class RenderCraftingFrame extends RenderItemFrame
         GL11.glPopMatrix();
 	}
 	
-	private void renderItemInFrame(EntityCraftingFrame entity) {
+	private void renderItemInFrame(EntityCraftingFrameII entity) {
 		ItemStack itemstack = entity.getDisplayedItem();
 
         if (itemstack != null)
         {
             EntityItem entityitem = new EntityItem(entity.worldObj, 0.0D, 0.0D, 0.0D, itemstack);
-            entityitem.getEntityItem().stackSize = 1;
             entityitem.hoverStart = 0.0F;
             GL11.glPushMatrix();
             GL11.glTranslatef(-0.453125F * (float)Direction.offsetX[entity.hangingDirection], -0.18F, -0.453125F * (float)Direction.offsetZ[entity.hangingDirection]);
@@ -119,12 +114,10 @@ public class RenderCraftingFrame extends RenderItemFrame
         this.renderBlocks.clearOverrideBlockTexture();
         GL11.glPopMatrix();
     }
-
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void doRender(Entity entity, double x, double y,
-			double z, float par8, float par9) {
-		render((EntityCraftingFrame)entity, x, y, z, par8, par9);
+	public void doRender(Entity entity, double d0, double d1, double d2,
+			float f, float f1) {
+		render((EntityCraftingFrameII)entity, d0, d1, d2, f, f1);
 	}
 
 }

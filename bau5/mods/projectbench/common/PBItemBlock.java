@@ -37,7 +37,6 @@ public class PBItemBlock extends ItemBlock{
 	
 	@Override
 	public String getUnlocalizedName(ItemStack par1ItemStack) {
-		// TODO Auto-generated method stub
 		return this.getUnlocalizedName() + blockNames[par1ItemStack.getItemDamage()];
 	}
 }

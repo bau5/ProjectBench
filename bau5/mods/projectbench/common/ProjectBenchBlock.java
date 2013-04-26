@@ -32,7 +32,7 @@ public class ProjectBenchBlock extends BlockContainer {
 		setUnlocalizedName("bau5ProjectBench");
 	}
 	@Override
-	public Icon getBlockTextureFromSideAndMetadata(int i, int j){
+	public Icon getIcon(int i, int j){
 		switch(j){
 		case 0:
 			switch(i){
@@ -132,6 +132,7 @@ public class ProjectBenchBlock extends BlockContainer {
 	@Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving el, ItemStack stack)
     {
+		super.onBlockPlacedBy(world, x, y, z, el, stack);
         byte dir = 0;
         int plyrFacing = MathHelper.floor_double((double) ((el.rotationYaw * 4F) / 360F) + 0.5D) & 3;
         if (plyrFacing == 0)

@@ -58,16 +58,26 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 		ItemStack newStack = null;
 		if(itemList == null || itemList.size() == 0)
 			return;
+		int rotation = tpb.getDirection();
 		EntityItem ei = new EntityItem(tpb.worldObj);
 		ei.hoverStart = 0f;
-		
 		glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		glPushMatrix();
-		glEnable(32826 /* rescale */);
+		glEnable(32826);
 		glTranslatef((float) x, (float) y, (float) z);
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 170F, 170F);
 		glTranslatef(0F, 1.1F, 0F);
 		glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		if(rotation == 5){
+			GL11.glRotatef(-90, 0f, 1.0f, 0f);
+			glTranslatef(0f, 0f, -1.0f);
+		}else if(rotation == 3){
+			GL11.glRotatef(180, 0f, 1f, 0f);
+			glTranslatef(-1.0f, 0f, -1.0f);
+		}else if(rotation == 4){
+			GL11.glRotatef(90, 0f, 1.0f, 0f);
+			glTranslatef(-1.0f, 0f, 0f);
+		}
 		glScalef(0.4F, 0.4F, 0.4F);
 		float xShift, yShift, zShift;
 		xShift = yShift = zShift = 0F;
@@ -82,6 +92,9 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 				zShift += 0.4F;
 				xShift = 0.2F;
 			}
+			if(newStack.itemID > Block.blocksList.length || Block.blocksList[newStack.itemID] == null){
+				glScalef(0.5f, 0.5f, 0.5f);
+			}
 			ei.setEntityItemStack(newStack);
 			glPushMatrix();
 			glTranslatef(xShift, yShift, zShift);
@@ -91,7 +104,7 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 			glPopMatrix();
 		}
 
-		glDisable(32826 /* scale */);
+		glDisable(32826);
 		glPopMatrix();
 		glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	}

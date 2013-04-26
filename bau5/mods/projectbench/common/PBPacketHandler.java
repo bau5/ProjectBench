@@ -20,6 +20,14 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 
+/**
+ * 
+ * PBPacketHandler
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
 
 public class PBPacketHandler implements IPacketHandler
 {
@@ -32,11 +40,12 @@ public class PBPacketHandler implements IPacketHandler
 		int i = bis.readInt();
 		int j = bis.readInt();
 		int k = bis.readInt();
+		byte d = bis.readByte();
 		boolean hasStacks = bis.readByte() != 0;
 		int[] result = null;
 		if(hasStacks)
 		{
-			result = (id == 0) ? new int[27] : new int[54];
+			result = (id == 0) ? new int[3] : new int[54];
 			for(int u = 0; u < result.length; u++)
 			{
 				result[u] = bis.readInt();
@@ -56,8 +65,11 @@ public class PBPacketHandler implements IPacketHandler
 				tpb.buildResultFromPacket(result);
 			else
 				tpb.setResult(null);
+//			else
+//				tpb.setResult(null);
 		}else if(te instanceof TEProjectBenchII){
 			TEProjectBenchII tpb = (TEProjectBenchII)te;
+			tpb.setDirection(d);
 //			System.out.println("Got one for II " +hasStacks +" " +tpb.worldObj.isRemote);
 			if(hasStacks)
 				tpb.buildResultFromPacket(result);
@@ -74,9 +86,17 @@ public class PBPacketHandler implements IPacketHandler
 		int i = tpb.xCoord;
 		int j = tpb.yCoord;
 		int k = tpb.zCoord;
-		int[] crafting = tpb.getRecipeStacksForPacket();
+		int d = 6;
+//		int[] crafting = tpb.getRecipeStacksForPacket();
+		int[] result = new int[3];
+		if(tpb.getResult() != null){
+			result[0] = tpb.getResult().itemID;
+			result[1] = tpb.getResult().stackSize;
+			result[2] = tpb.getResult().getItemDamage();
+		}
+			
 		boolean hasStacks = false;
-		if(crafting != null)
+		if(result != null)
 		{
 			 hasStacks = true;
 		}
@@ -86,13 +106,16 @@ public class PBPacketHandler implements IPacketHandler
 			dos.writeInt(i);
 			dos.writeInt(j);
 			dos.writeInt(k);
+			dos.writeByte(d);
 			dos.writeByte(hasStacks ? 1 : 0);
 			if(hasStacks)
 			{
-				for(int u = 0; u < 27; u++)
-				{
-					dos.writeInt(crafting[u]);
-				}
+//				for(int u = 0; u < 27; u++)
+//				{
+//					dos.writeInt(crafting[u]);
+//				}
+				for(int u = 0; u < 3; u++)
+					dos.writeInt(result[u]);
 			}
 		} catch(IOException ex)
 		{
@@ -114,6 +137,7 @@ public class PBPacketHandler implements IPacketHandler
 		int i = tpb.xCoord;
 		int j = tpb.yCoord;
 		int k = tpb.zCoord;
+		int d = tpb.getDirection();
 		int[] crafting = tpb.getInputStacksForPacket();
 		boolean hasStacks = false;
 		if(crafting != null)
@@ -126,6 +150,7 @@ public class PBPacketHandler implements IPacketHandler
 			dos.writeInt(i);
 			dos.writeInt(j);
 			dos.writeInt(k);
+			dos.writeByte(d);
 			dos.writeByte(hasStacks ? 1 : 0);
 			if(hasStacks)
 			{
@@ -145,5 +170,5 @@ public class PBPacketHandler implements IPacketHandler
 		packet.isChunkDataPacket = true;
 		
 		return packet;
-	}
+	}	
 }
