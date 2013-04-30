@@ -8,9 +8,9 @@ import net.minecraft.dispenser.PositionImpl;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
@@ -25,6 +25,14 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 
 import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
+
+/**
+ * EntityCraftingFrame
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
 
 public class EntityCraftingFrame extends EntityItemFrame implements IEntityAdditionalSpawnData{
 
@@ -50,18 +58,18 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 			reset();
 			return true;
 		}
-		if(getDisplayedItem() != null && Keyboard.isKeyDown(Keyboard.KEY_LMENU)){
-			this.setItemRotation(this.getRotation() + 1);
-		}
+//		if(getDisplayedItem() != null && Keyboard.isKeyDown(Keyboard.KEY_LMENU)){
+//			this.setItemRotation(this.getRotation() + 1);
+//		}
 		if(getDisplayedItem() == null){
             ItemStack itemStack = player.getHeldItem();
             if (itemStack != null && !this.worldObj.isRemote)
             {
         		currentRecipe = RecipeManager.instance().searchForRecipe(itemStack);
-                this.setDisplayedItem(currentRecipe.result().copy());
-                stackSize = currentRecipe.result().stackSize;
         		if(currentRecipe == null)
         			return true;
+                this.setDisplayedItem(currentRecipe.result().copy());
+                stackSize = currentRecipe.result().stackSize;
         		
                 if (!player.capabilities.isCreativeMode && --itemStack.stackSize <= 0)
                 {
@@ -93,12 +101,6 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 						dispenseItem(toDispense);	
 					break;
 				}
-//				if(consumeItems(isa, player)){
-//					ItemStack stack = getDisplayedItem().copy();
-//					stack.stackSize = stackSize;
-//					dispenseItem(stack);
-//					return true;
-//				}
 			}
 		}
 		return false;
@@ -118,9 +120,9 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 		dir = dir & 7;
 		BlockSourceImpl bsi = new BlockSourceImpl(worldObj, xPosition, yPosition, zPosition);
 		EnumFacing enumFacing = EnumFacing.getFront(dir);
-        double d0 = bsi.getX() + 0.7D * (double)enumFacing.getFrontOffsetX();
-        double d1 = bsi.getY() + 0.5D * (double)enumFacing.getFrontOffsetY();
-        double d2 = bsi.getZ() + 0.7D * (double)enumFacing.getFrontOffsetZ();
+        double d0 = bsi.getX() + 0.7D * enumFacing.getFrontOffsetX();
+        double d1 = bsi.getY() + 0.5D * enumFacing.getFrontOffsetY();
+        double d2 = bsi.getZ() + 0.7D * enumFacing.getFrontOffsetZ();
         PositionImpl iPos = new PositionImpl(d0, d1, d2);
         if(stack.stackSize > stack.getMaxStackSize()){
         	int maxSize = stack.getMaxStackSize();
@@ -175,9 +177,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	}
 	@Override
 	public void writeEntityToNBT(NBTTagCompound mainTag) {
-		System.out.println("Saving...");
 		if(getDisplayedItem() != null){
-			System.out.println("Set as " +stackSize);
 			mainTag.setInteger("stackSize", stackSize);
 		}
 		super.writeEntityToNBT(mainTag);
@@ -188,7 +188,6 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 		if(itemTag != null && !itemTag.hasNoTags()){
 			if(mainTag.hasKey("stackSize")){
 				stackSize = mainTag.getInteger("stackSize");
-				System.out.println("Loaded stackSize " +stackSize);
 			}
 		}
 		super.readEntityFromNBT(mainTag);

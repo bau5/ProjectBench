@@ -4,6 +4,14 @@ import java.util.Comparator;
 
 import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
 
+/**
+ * PBRecipeSorter
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
+
 public class PBRecipeSorter implements Comparator{
 	
 	public int compare(RecipeItem item1, RecipeItem item2){

@@ -2,7 +2,10 @@ package bau5.mods.projectbench.common.recipes;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+
+import extrabiomes.lib.BlockSettings;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -14,14 +17,17 @@ import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
+import bau5.mods.projectbench.common.OreRegistrationHandler;
 import bau5.mods.projectbench.common.ProjectBench;
-import cpw.mods.ironchest.ItemChestChanger;
 
 /**
+ * RecipeManager
+ * 
  * Handles translating & reformatting recipes as well as
  * searching for recipes and providing stacks for crafting.
  * 
  * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
  * 
  */
 public class RecipeManager {
@@ -29,16 +35,19 @@ public class RecipeManager {
 	private List<RecipeItem> orderedRecipes;
 	private static RecipeManager instance;
 	private static boolean DEBUG_MODE = ProjectBench.DEBUG_MODE_ENABLED;
+	private HashMap<Integer, ArrayList<ItemStack>> oreAlts = null;
 	
 	public RecipeManager(){
 		defaultRecipes = CraftingManager.getInstance().getRecipeList();
 		associateRecipes();
 		Collections.sort(orderedRecipes, new PBRecipeSorter());
+		verifyList();
 		indexList();
 		displayList();
 		defaultRecipes = null;
 		instance = this;
-
+		oreAlts = OreRegistrationHandler.getOreAlternatives();
+		
 		System.out.println("\tRecipe Manager active.");
 	}
 		
@@ -57,6 +66,48 @@ public class RecipeManager {
 					orderedRecipes.add(potentialRecipe);
 			}
 		}
+	}
+	
+	/**
+	 * Multi-level verification of a RecipeItem. Builds a new 
+	 * list of RecipeItems, eliminating items with null recipes,
+	 * invalid recipes, invalid results, and eliminating invalid
+	 * alternatives.
+	 */
+	private void verifyList(){
+		ArrayList<RecipeItem> goodList = new ArrayList<RecipeItem>();
+		
+		for(RecipeItem recipe : orderedRecipes){
+			if(recipe.result == null)
+				continue;
+			if(!verifyAlternatives(recipe))
+				continue;
+			goodList.add(recipe);
+		}
+		orderedRecipes = new ArrayList<RecipeItem>();
+		orderedRecipes.addAll(goodList);
+	}
+	
+	private boolean verifyAlternatives(RecipeItem recipe){
+		if(recipe.alternatives.size() == 0)
+			return false;
+		ArrayList<ItemStack[]> goodStacks = new ArrayList<ItemStack[]>();
+		arrays : for(ItemStack[] isa : recipe.alternatives){
+			if(isa == null || isa.length == 0)
+				continue;
+			for(ItemStack is : isa){
+				if(is == null)
+					continue arrays;
+			}
+			goodStacks.add(isa);
+		}
+		if(goodStacks.size() > 0){
+			recipe.alternatives = new ArrayList<ItemStack[]>();
+			for(ItemStack[] isa : goodStacks)
+				recipe.alternatives.add(isa);
+			return true;
+		}else
+			return false;
 	}
 	
 	public boolean checkForRecipe(RecipeItem rec){
@@ -153,14 +204,13 @@ public class RecipeManager {
 	 * 
 	 */
 	public ArrayList<ItemStack> getValidRecipesByStacks(ItemStack[] stacks){
-//		if(stacks.length == 0)
-//			return new ArrayList<ItemStack>();
 		ArrayList<ItemStack> validRecipes = new ArrayList<ItemStack>();
 		ArrayList<ItemStack[]> stacksForRecipe = null;
 		boolean hasMeta = false;
 		boolean flag = true;
-		//TODO Did I do this right? Looping through multiple possibilities?
 		recLoop : for(RecipeItem rec : orderedRecipes){
+			if(rec.result().getItem().equals(Item.itemsList[24+256]))
+				System.out.println("check");
 			flag = true;
 			stacksForRecipe = rec.alternatives();
 			hasMeta = rec.hasMeta();
@@ -168,7 +218,21 @@ public class RecipeManager {
 				for(int i = 0; i < recItems.length; i++){
 					for(ItemStack stackInInventory : stacks){
 						if(stackInInventory != null){
-							if(stackInInventory.getItem().equals(recItems[i].getItem())){
+							if(rec.recipe() instanceof ShapedOreRecipe || rec.recipe() instanceof ShapelessOreRecipe){
+								ArrayList<ItemStack> list = oreAlts.get(OreDictionary.getOreID(recItems[i]));
+								if(list != null){
+									for(ItemStack is : list){
+										if(is != null && OreDictionary.itemMatches(is, stackInInventory, false)){
+											if(recItems[i].stackSize <= stackInInventory.stackSize){
+												recItems[i].stackSize = 0;
+												break;
+											}else if(recItems[i].stackSize > stackInInventory.stackSize){
+												continue multiRecipeLoop;
+											}
+										}
+									}
+								}
+							}else if(stackInInventory.getItem().equals(recItems[i].getItem())){
 								if(hasMeta){
 									if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
 		    							continue;
@@ -264,7 +328,8 @@ public class RecipeManager {
 			}else if(rec instanceof ShapelessRecipes){
 				type = "ShapelessRecipes";
 				List ls = ((ShapelessRecipes) rec).recipeItems;
-				
+				if(rec.getRecipeOutput().getItem().itemID == 2215)
+					System.out.println("Check");
 				if(ls.size() > 0 && ls.get(0) instanceof ItemStack){
 					List<ItemStack> ls2 = ls;
 					newRecItem.items = new ItemStack[ls2.size()];
@@ -273,6 +338,7 @@ public class RecipeManager {
 					}
 				}
 			}else if(rec instanceof ShapedOreRecipe){
+				//TODO add support for OreDictionary Recipes. Bleh
 				if(rec.getRecipeOutput().getItem().itemID >= 19501 +256 || rec.getRecipeOutput().getItem().itemID == 975)
 					System.out.println("Check");
 				type = "ShapedOreRecipe";
@@ -283,6 +349,15 @@ public class RecipeManager {
 						List theList = ((List)objArray[i]);
 						if(((List)objArray[i]) != null && theList.size() > 0){
 							newRecItem.items[i] = (ItemStack)theList.get(0);
+							if(theList.size() > 1 && !newRecItem.oreDictItems.containsKey(theList.get(0))){
+								ItemStack[] others = new ItemStack[theList.size() - 1];
+								for(int j = 1; j < theList.size(); j++){
+									if(theList.get(j) != null && theList.get(j) instanceof ItemStack){
+										others[j-1] = (ItemStack)theList.get(j);
+									}	
+								}
+								newRecItem.oreDictItems.put((ItemStack)theList.get(0), others);
+							}
 						}else{
 							//Recipe is missing nonexistant ore types
 							return null;
@@ -302,7 +377,7 @@ public class RecipeManager {
 			}else if(rec instanceof ShapelessOreRecipe){
 				type = "ShapelessOreRecipe";
 				List inputList = ((ShapelessOreRecipe) rec).getInput();
-				newRecItem.items = new ItemStack[inputList.size()];
+				newRecItem.items = new ItemStack[inputList.size()];				
 				for(int i = 0; i < inputList.size(); i++){
 					if(inputList.get(i) instanceof ArrayList){
 						if(inputList.get(0) instanceof ArrayList){
@@ -341,7 +416,6 @@ public class RecipeManager {
 			return null;
 		}
 	}
-		//TODO seperate into its own class.
 	/**
 	 * A custom class to interface with the recipes in Minecraft.
 	 * Provides for much easier access of required items, output,
@@ -352,6 +426,7 @@ public class RecipeManager {
 	 */
 	public class RecipeItem{
 		private ItemStack[] items;
+		private HashMap<ItemStack, ItemStack[]> oreDictItems = new HashMap<ItemStack, ItemStack[]>();
 		private ArrayList<ItemStack[]> alternatives = new ArrayList<ItemStack[]>();
 		private Object[] input;
 		private IRecipe recipe;
@@ -478,6 +553,7 @@ public class RecipeManager {
 			result = theResult.copy();
 		}
 		
+		@Override
 		public String toString()
 	    {
 	        return result + ":" + type +"x" + ((alternatives != null) ? alternatives.size() : 0);

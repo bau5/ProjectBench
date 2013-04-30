@@ -19,12 +19,19 @@ import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.TEProjectBenchII;
 import cpw.mods.fml.client.FMLClientHandler;
+
+/**
+ * TEProjectBenchIIRenderer
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
 
 public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 	
@@ -41,7 +48,9 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 		renderItems  = new RenderItem() {
 			public byte getMiniItemCountForItemStack(ItemStack stack) { return 1; }
 			public byte getMiniBlockCountForItemStack(ItemStack stack){ return 1; }
+			@Override
 			public boolean shouldBob() { return false; }
+			@Override
 			public boolean shouldSpreadItems() { return false; }
 		};
 		renderItems.setRenderManager(RenderManager.instance);	

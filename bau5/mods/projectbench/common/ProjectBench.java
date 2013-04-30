@@ -4,12 +4,11 @@ import java.util.logging.Level;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.src.ModLoader;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.MinecraftForge;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -26,15 +25,24 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 	
+/**
+ * ProjectBench
+ * 
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
 //1.5.1 - Forge 656
 //Development Environment
-@Mod (modid = "bau5_ProjectBench", name = "Project Bench", version = "2.0.dev")
+@Mod (modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.DEV_VERSION)
 @NetworkMod(clientSideRequired = true, serverSideRequired = false,
 			channels = {"bau5_PB"}, packetHandler = PBPacketHandler.class)
 public class ProjectBench 
 {
-	@Instance("bau5_ProjectBench")
+	@Instance(Reference.MOD_ID)
 	public static ProjectBench instance;
 	@SidedProxy(clientSide = "bau5.mods.projectbench.client.ClientProxy",
 				serverSide = "bau5.mods.projectbench.common.CommonProxy")
@@ -52,6 +60,7 @@ public class ProjectBench
 	public static boolean II_DO_RENDER = true;
 	public static boolean DEBUG_MODE_ENABLED = false;
 	public static int  SPEED_FACTOR = 5;
+	public static boolean VERSION_CHECK = true;
 	
 	private int[] entityID = new int[2];
 	
@@ -68,6 +77,7 @@ public class ProjectBench
 	@PreInit
 	public void preInit(FMLPreInitializationEvent ev)
 	{
+		MinecraftForge.EVENT_BUS.register(new OreRegistrationHandler());
 		Configuration config = new Configuration(ev.getSuggestedConfigurationFile());
 		try
 		{
@@ -79,6 +89,7 @@ public class ProjectBench
 			DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldRenderItem", true).getBoolean(true);
 			II_DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldIIRenderItems", true).getBoolean(true);
 			RENDER_ALL = config.get(Configuration.CATEGORY_GENERAL, "shouldRenerStackSize", false).getBoolean(false);
+			VERSION_CHECK = config.get(Configuration.CATEGORY_GENERAL, "versionCheckEnabled", true).getBoolean(true);
 			SPEED_FACTOR = config.get(Configuration.CATEGORY_GENERAL, "speedFactor", 5).getInt(5);
 			if(!DEBUG_MODE_ENABLED)
 				DEBUG_MODE_ENABLED = config.get(Configuration.CATEGORY_GENERAL, "debugMode", false).getBoolean(false);
@@ -95,6 +106,8 @@ public class ProjectBench
 		{ 
 			config.save(); 
 		}
+		if(VERSION_CHECK)
+			VersionChecker.go();
 	}
 	
 	@Init
@@ -138,6 +151,9 @@ public class ProjectBench
 				"GSG", "RCR", "SSS", 'G', Item.silk, 'S', Item.stick, 'R', Item.redstone, 'C', Block.workbench
 			});
 		}
+		if(!Reference.UP_TO_DATE)
+			TickRegistry.registerTickHandler(new VersionCheckTicker(), Side.CLIENT);
+		
 	}
 	@PostInit
 	public void postInit(FMLPostInitializationEvent ev){

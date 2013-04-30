@@ -7,6 +7,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
+/**
+ * PBItemBlock
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
+
 public class PBItemBlock extends ItemBlock{
 
 	private final static String blockNames[] = {

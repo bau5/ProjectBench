@@ -52,7 +52,7 @@ public class PBPacketHandler implements IPacketHandler
 			}
 		}
 		
-		World w = ProjectBench.instance.proxy.getClientSideWorld();			
+		World w = ProjectBench.proxy.getClientSideWorld();			
 //		System.out.println(w);
 		if(w == null)
 			return;

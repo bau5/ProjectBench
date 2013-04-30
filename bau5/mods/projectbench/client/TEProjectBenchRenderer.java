@@ -24,6 +24,14 @@ import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.TileEntityProjectBench;
 import cpw.mods.fml.client.FMLClientHandler;
 
+/**
+ * TEProjectBenchRenderer
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
+
 public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 	private RenderBlocks renderBlocks;
 	private RenderItem   renderItems;
@@ -43,7 +51,9 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 		renderItems  = new RenderItem() {
 			public byte getMiniItemCountForItemStack(ItemStack stack) { return 1; }
 			public byte getMiniBlockCountForItemStack(ItemStack stack){ return 1; }
+			@Override
 			public boolean shouldBob() { return false; }
+			@Override
 			public boolean shouldSpreadItems() { return false; }
 		};
 		renderItems.setRenderManager(RenderManager.instance);	
@@ -79,7 +89,7 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 170F, 170F);
 			glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			
-			float rotational = (float) (Minecraft.getSystemTime()) / (3000.0F) * 300.0F;
+			float rotational = (Minecraft.getSystemTime()) / (3000.0F) * 300.0F;
 
 			if(!ei.getEntityItem().equals(stack))
 				return;

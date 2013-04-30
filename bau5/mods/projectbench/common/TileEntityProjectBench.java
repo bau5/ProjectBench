@@ -31,6 +31,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	{
 		public LocalInventoryCrafting() {
 			super(new Container(){
+				@Override
 				public boolean canInteractWith(EntityPlayer var1) {
 					return false;
 				}
@@ -50,6 +51,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	private ItemStack lastResult;
 	private int sync = 0;
 	
+	@Override
 	public void onInventoryChanged()
 	{
 		if(!containerInit && shouldUpdate){
@@ -68,6 +70,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	}
 	public ItemStack findRecipe(boolean fromPacket) 
 	{
+		if(worldObj == null)
+			return null;
 		lastResult = result;
 		
 		ItemStack stack = null;

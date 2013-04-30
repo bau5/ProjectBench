@@ -7,8 +7,15 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
+
+/**
+ * ContainerProjectBenchII
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
 
 public class ContainerProjectBenchII extends Container	
 {
@@ -26,7 +33,7 @@ public class ContainerProjectBenchII extends Container
 
 	public void lookForOutputs(){
 		ItemStack[] stacks = tileEntity.consolidateItemStacks(true);
-		tileEntity.setListForDisplay((ArrayList)RecipeManager.instance().getValidRecipesByStacks(stacks));
+		tileEntity.setListForDisplay(RecipeManager.instance().getValidRecipesByStacks(stacks));
 	}
 	
 	private void layoutContainer(){
@@ -114,8 +121,8 @@ public class ContainerProjectBenchII extends Container
 		}
 		if(slot >= 27 && slot < 45)
 			lookForOutputs();
-		if(slot != -999) 
-			postSlotClick = true;
+//		if(slot != -999) 
+//			postSlotClick = true;
 		ItemStack stack = super.slotClick(slot, fake, meta, player);		
 		return stack;
 		
