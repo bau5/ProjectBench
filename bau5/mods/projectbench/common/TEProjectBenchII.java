@@ -12,7 +12,6 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
-import net.minecraftforge.oredict.OreDictionary;
 import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -43,6 +42,10 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	private ArrayList<ItemStack> listToDisplay = new ArrayList();
 	private RecipeCrafter theCrafter = new RecipeCrafter();
 	
+	@Override
+	public void onInventoryChanged() {
+		super.onInventoryChanged();
+	}
 	public TEProjectBenchII(){
 		theCrafter.addTPBReference(this);
 		craftSupplyMatrix = new InventoryBasic("pbIICraftingSupply", true, 18);
@@ -136,7 +139,8 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public void setListForDisplay(ArrayList<ItemStack> list){
 		listToDisplay = list;
 		updateNeeded = true;
-		System.out.println("List is being set. " +list.size());
+		if(worldObj != null)
+			System.out.printf("List is being set for %s with %d entries.\n", worldObj.getClass().getSimpleName(), list.size());
 	}
 	
 	public ArrayList<ItemStack> getDisplayList(){
@@ -357,7 +361,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 				inv[slot] = ItemStack.loadItemStackFromNBT(tag);
 			}
 		}
-		System.out.println("TE Loaded: " +directionFacing +((worldObj != null) ? worldObj.isRemote : "null"));
 	}
 	@Override
 	public void writeToNBT(NBTTagCompound tagCompound)
@@ -365,7 +368,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		super.writeToNBT(tagCompound);
 		
 		tagCompound.setByte("facing", directionFacing);
-		System.out.println("TE Saved: " +directionFacing +((worldObj != null) ? worldObj.isRemote : "null"));
 		NBTTagList itemList = new NBTTagList();	
 		
 		for(int i = 0; i < inv.length; i++)

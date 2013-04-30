@@ -5,12 +5,9 @@ import java.util.List;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import bau5.mods.projectbench.common.TEProjectBenchII;
-import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
 
 /**
- * 
  * RecipeCrafter
  *
  * @author _bau5
@@ -110,8 +107,9 @@ public class RecipeCrafter {
 						stack.stackSize = 0;
 						break;
 					}else{
-						decreaseStackSize(i, stackInInventory.stackSize);
-						stack.stackSize -= stackInInventory.stackSize;
+						int stackSize = stackInInventory.stackSize;
+						decreaseStackSize(i, stackSize);
+						stack.stackSize -= stackSize;
 					}
 				}
 			}

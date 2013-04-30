@@ -11,6 +11,14 @@ import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
 
+/**
+ * EntityCraftingFrameII
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
+
 public class EntityCraftingFrameII extends EntityCraftingFrame
 {
 	private RecipeItem lastRecipe = null;
@@ -59,6 +67,20 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 		return false;
 	}
 
+	@Override
+	public void dropItemStack()
+	{
+	    this.entityDropItem(new ItemStack(ProjectBench.instance.craftingFrameII), 0.0F);
+	    ItemStack itemstack = this.getDisplayedItem();
+	
+	    if (itemstack != null)
+	    {
+	        itemstack = itemstack.copy();
+	        itemstack.setItemFrame((EntityItemFrame)null);
+	        this.entityDropItem(itemstack, 0.0F);
+	    }
+	}
+	
 	private void updateDisplay(ItemStack theStack) {
 		timer = 0;
 		if(toDisplay == null || !OreDictionary.itemMatches(toDisplay, theStack, false)){

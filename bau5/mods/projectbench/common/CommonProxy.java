@@ -6,6 +6,14 @@ import net.minecraft.world.World;
 import bau5.mods.projectbench.client.ProjectBenchGui;
 import cpw.mods.fml.common.network.IGuiHandler;
 
+/**
+ * CommonProxy
+ * 
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
+
 public class CommonProxy implements IGuiHandler
 {
 	public void registerRenderInformation()	{ }

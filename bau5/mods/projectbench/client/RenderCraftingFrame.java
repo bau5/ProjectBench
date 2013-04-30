@@ -16,9 +16,16 @@ import net.minecraft.util.Icon;
 import org.lwjgl.opengl.GL11;
 
 import bau5.mods.projectbench.common.EntityCraftingFrame;
-import bau5.mods.projectbench.common.EntityCraftingFrameII;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+/**
+ * RenderCraftingFrame
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
 
 public class RenderCraftingFrame extends RenderItemFrame
 {
@@ -38,13 +45,13 @@ public class RenderCraftingFrame extends RenderItemFrame
         float f2 = (float)(entity.posX - x) - 0.5F;
         float f3 = (float)(entity.posY - y) - 0.5F;
         float f4 = (float)(entity.posZ - z) - 0.5F;
-        int i = (int)entity.xPosition + Direction.offsetX[entity.hangingDirection];
-        int j = (int)entity.yPosition;
-        int k = (int)entity.zPosition + Direction.offsetZ[entity.hangingDirection];
-        float f5 = (float)i - f2; 
-        float f6 = (float)j - f3;
-        float f7 = (float)k - f4;
-        GL11.glTranslatef((float)i - f2, (float)j - f3, (float)k - f4);
+        int i = entity.xPosition + Direction.offsetX[entity.hangingDirection];
+        int j = entity.yPosition;
+        int k = entity.zPosition + Direction.offsetZ[entity.hangingDirection];
+        float f5 = i - f2; 
+        float f6 = j - f3;
+        float f7 = k - f4;
+        GL11.glTranslatef(i - f2, j - f3, k - f4);
         renderFrameItemAsBlock(entity);
         renderItemInFrame(entity);
         GL11.glPopMatrix();
@@ -59,9 +66,9 @@ public class RenderCraftingFrame extends RenderItemFrame
             entityitem.getEntityItem().stackSize = 1;
             entityitem.hoverStart = 0.0F;
             GL11.glPushMatrix();
-            GL11.glTranslatef(-0.453125F * (float)Direction.offsetX[entity.hangingDirection], -0.18F, -0.453125F * (float)Direction.offsetZ[entity.hangingDirection]);
+            GL11.glTranslatef(-0.453125F * Direction.offsetX[entity.hangingDirection], -0.18F, -0.453125F * Direction.offsetZ[entity.hangingDirection]);
             GL11.glRotatef(180.0F + entity.rotationYaw, 0.0F, 1.0F, 0.0F);
-            GL11.glRotatef((float)(-90 * entity.getRotation()), 0.0F, 0.0F, 1.0F);
+            GL11.glRotatef((-90 * entity.getRotation()), 0.0F, 0.0F, 1.0F);
 
             switch (entity.getRotation())
             {
@@ -92,7 +99,7 @@ public class RenderCraftingFrame extends RenderItemFrame
         float f1 = 0.75F;
         float f2 = f1 / 2.0F;
         GL11.glPushMatrix();
-        this.renderBlocks.overrideBlockBounds(0.0D, (double)(0.5F - f2 + 0.0625F), (double)(0.5F - f2 + 0.0625F), (double)(f * 0.5F), (double)(0.5F + f2 - 0.0625F), (double)(0.5F + f2 - 0.0625F));
+        this.renderBlocks.overrideBlockBounds(0.0D, (0.5F - f2 + 0.0625F), (0.5F - f2 + 0.0625F), (f * 0.5F), (0.5F + f2 - 0.0625F), (0.5F + f2 - 0.0625F));
         this.renderBlocks.setOverrideBlockTexture(icon);
         this.renderBlocks.renderBlockAsItem(block, 0, 1.0F);
         this.renderBlocks.clearOverrideBlockTexture();
@@ -100,19 +107,19 @@ public class RenderCraftingFrame extends RenderItemFrame
         GL11.glPopMatrix();
         this.renderBlocks.setOverrideBlockTexture(Block.planks.getIcon(1, 1));
         GL11.glPushMatrix();
-        this.renderBlocks.overrideBlockBounds(0.0D, (double)(0.5F - f2), (double)(0.5F - f2), (double)(f + 1.0E-4F), (double)(f + 0.5F - f2), (double)(0.5F + f2));
+        this.renderBlocks.overrideBlockBounds(0.0D, (0.5F - f2), (0.5F - f2), (f + 1.0E-4F), (f + 0.5F - f2), (0.5F + f2));
         this.renderBlocks.renderBlockAsItem(block, 0, 1.0F);
         GL11.glPopMatrix();
         GL11.glPushMatrix();
-        this.renderBlocks.overrideBlockBounds(0.0D, (double)(0.5F + f2 - f), (double)(0.5F - f2), (double)(f + 1.0E-4F), (double)(0.5F + f2), (double)(0.5F + f2));
+        this.renderBlocks.overrideBlockBounds(0.0D, (0.5F + f2 - f), (0.5F - f2), (f + 1.0E-4F), (0.5F + f2), (0.5F + f2));
         this.renderBlocks.renderBlockAsItem(block, 0, 1.0F);
         GL11.glPopMatrix();
         GL11.glPushMatrix();
-        this.renderBlocks.overrideBlockBounds(0.0D, (double)(0.5F - f2), (double)(0.5F - f2), (double)f, (double)(0.5F + f2), (double)(f + 0.5F - f2));
+        this.renderBlocks.overrideBlockBounds(0.0D, (0.5F - f2), (0.5F - f2), f, (0.5F + f2), (f + 0.5F - f2));
         this.renderBlocks.renderBlockAsItem(block, 0, 1.0F);
         GL11.glPopMatrix();
         GL11.glPushMatrix();
-        this.renderBlocks.overrideBlockBounds(0.0D, (double)(0.5F - f2), (double)(0.5F + f2 - f), (double)f, (double)(0.5F + f2), (double)(0.5F + f2));
+        this.renderBlocks.overrideBlockBounds(0.0D, (0.5F - f2), (0.5F + f2 - f), f, (0.5F + f2), (0.5F + f2));
         this.renderBlocks.renderBlockAsItem(block, 0, 1.0F);
         GL11.glPopMatrix();
         this.renderBlocks.unlockBlockBounds();

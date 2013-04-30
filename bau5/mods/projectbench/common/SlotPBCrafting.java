@@ -10,6 +10,14 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 
+/**
+ * SlotPBCrafting
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
+
 public class SlotPBCrafting extends SlotCrafting
 {
 	private EntityPlayer thePlayer;

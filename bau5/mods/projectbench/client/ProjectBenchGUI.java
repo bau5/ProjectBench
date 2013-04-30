@@ -9,7 +9,6 @@ import java.util.Map;
 
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.tileentity.TileEntity;
 
@@ -22,7 +21,6 @@ import bau5.mods.projectbench.common.TEProjectBenchII;
 import bau5.mods.projectbench.common.TileEntityProjectBench;
 
 /**
- * 
  * ProjectBenchGui
  *
  * @author _bau5

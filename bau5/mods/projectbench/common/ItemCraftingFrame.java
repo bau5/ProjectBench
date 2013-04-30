@@ -1,15 +1,20 @@
 package bau5.mods.projectbench.common;
 
-import java.util.List;
-
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemHangingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Icon;
 import net.minecraft.world.World;
+
+/**
+ * ItemCraftingFrame
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
 
 public class ItemCraftingFrame extends ItemHangingEntity {
 	
@@ -20,6 +25,7 @@ public class ItemCraftingFrame extends ItemHangingEntity {
 		hanging = clas;
 	}
 	
+	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int par4, int par5, int par6, int par7, float par8, float par9, float par10)
     {
         if (par7 == 1)

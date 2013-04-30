@@ -20,6 +20,14 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+/**
+ * ProjectBenchBlock
+ *
+ * @author _bau5
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
+
 public class ProjectBenchBlock extends BlockContainer {
 	@SideOnly(Side.CLIENT)
 	private Icon[] icons;
@@ -90,6 +98,7 @@ public class ProjectBenchBlock extends BlockContainer {
 		}
 		return true;
     }
+	@Override
 	public void breakBlock(World world, int x, int y, int z, int par5, int par6)
 	{
 		dropItems(world, x, y, z);
@@ -134,7 +143,7 @@ public class ProjectBenchBlock extends BlockContainer {
     {
 		super.onBlockPlacedBy(world, x, y, z, el, stack);
         byte dir = 0;
-        int plyrFacing = MathHelper.floor_double((double) ((el.rotationYaw * 4F) / 360F) + 0.5D) & 3;
+        int plyrFacing = MathHelper.floor_double(((el.rotationYaw * 4F) / 360F) + 0.5D) & 3;
         if (plyrFacing == 0)
             dir = 2;
         if (plyrFacing == 1)
@@ -150,6 +159,7 @@ public class ProjectBenchBlock extends BlockContainer {
             world.markBlockForUpdate(x, y, z);
         }
     }
+	@Override
 	public TileEntity createTileEntity(World world, int metadata)
     {
 		switch(metadata){
@@ -168,6 +178,7 @@ public class ProjectBenchBlock extends BlockContainer {
 	{
 		return true;
 	}
+	@Override
 	@SideOnly(Side.CLIENT)
     public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
     {
