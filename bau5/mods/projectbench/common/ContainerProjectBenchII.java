@@ -155,14 +155,13 @@ public class ContainerProjectBenchII extends Container
 			boolean success = false;
 			int numMade = 0;
 			for(ItemStack[] isa : items){
-				numMade = tileEntity.consumeItems(isa, stackInSlot.stackSize, (clickMeta == 1));
+				numMade = tileEntity.consumeItems(isa, stackInSlot, (clickMeta == 1));
 				success = (numMade != 0);
 				if(success)
 					break;
 				else
 					continue;
 			}
-			//TODO account for max stack sizes; aka stack of 64 boats? what to do with excess. meh.
 			if(success){
 //				if(stackInSlot.stackSize * numMade < stackInSlot.getMaxStackSize())
 					stackInSlot.stackSize *= numMade;

@@ -189,7 +189,6 @@ public class ProjectBenchBlock extends BlockContainer {
 	
 	@Override
 	public int damageDropped(int meta) {
-		// TODO Auto-generated method stub
 		return meta;
 	}
 }

@@ -15,6 +15,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * 
@@ -41,9 +43,11 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	};
 	
 	private ItemStack[] inv;
-	private Packet nextPacket;
-	private boolean shouldUpdate = false; 
+	private boolean shouldUpdate = false;
+	public boolean teInit = false;
 	public boolean containerInit = false;
+	private boolean recentSync = true;
+	
 	public IInventory craftResult;
 	public IInventory craftSupplyMatrix;
 	public LocalInventoryCrafting craftMatrix;
@@ -84,9 +88,10 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		ItemStack recipe = CraftingManager.getInstance().findMatchingRecipe(craftMatrix, worldObj);
 		setResult(recipe);
 		
-		if(!ItemStack.areItemStacksEqual(lastResult, result) && !fromPacket && !worldObj.isRemote)
-			PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(),
-					worldObj.getWorldInfo().getDimension());			
+		if(!ItemStack.areItemStacksEqual(lastResult, result) && !fromPacket && !worldObj.isRemote){
+			if(!teInit) recentSync = false;
+			sendPacketByType(0);
+		}
 		
 		System.out.println("Found");
 		return recipe;
@@ -96,29 +101,30 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	public void updateEntity()
     {
 		super.updateEntity();
-//		
-//		++sync;
-//		if(sync % 10 == 0){
-//			if(shouldUpdate){
-//				nextPacket = PBPacketHandler.prepPacketMkI(this);
-//			}
-//		}
-//		if(sync % 40 == 0){
-//			if(shouldUpdate){
-//				nextPacket = PBPacketHandler.prepPacketMkI(this);
-//			}
-//			if(nextPacket != null){
-//				PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 20,
-//							   worldObj.getWorldInfo().getDimension(), nextPacket);
-//				nextPacket = null;
-//			}
-//		}
+		sync++;
+		if(teInit){
+			findRecipe(false);
+			teInit = false;
+		}
+		if(sync > 200 && !recentSync){
+			recentSync = true;
+			sendPacketByType(0);
+		}
 		if(sync > 6000){
-			PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(),
-					worldObj.getWorldInfo().getDimension());
+			sendPacketByType(1);
 			sync = 0;
 		}
     }
+	public void sendPacketByType(int id){
+		switch(id){
+		case 0: PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 20,
+				    worldObj.getWorldInfo().getDimension(), getDescriptionPacket());
+				break;
+		case 1: PacketDispatcher.sendPacketToAllInDimension(getDescriptionPacket(),
+					worldObj.getWorldInfo().getDimension());
+				break;
+		}
+	}
 	
 	public void markShouldUpdate(){
 		shouldUpdate = true;
@@ -300,6 +306,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	@Override
 	public void closeChest() {}
 	
+	//Don't put function calls in here! Crashes = tile entity
+	//not loading = inventory lost.
 	@Override
 	public void readFromNBT(NBTTagCompound tagCompound)
 	{
@@ -315,7 +323,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 				inv[slot] = ItemStack.loadItemStackFromNBT(tag);
 			}
 		}
-		findRecipe(false);
+		if(worldObj == null)
+			teInit = true;
 	}
 	@Override
 	public void writeToNBT(NBTTagCompound tagCompound)
@@ -377,12 +386,10 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	}
 	@Override
 	public boolean isInvNameLocalized() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	@Override
 	public boolean isStackValidForSlot(int i, ItemStack itemstack) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

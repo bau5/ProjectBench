@@ -64,7 +64,7 @@ public class ProjectBench
 	
 	private int[] entityID = new int[2];
 	
-	//TODO 
+	//FIXME dev version!
 	public static boolean DEV_ENV = true;
 
 	public Block projectBench;

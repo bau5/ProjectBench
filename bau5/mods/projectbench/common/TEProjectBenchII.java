@@ -177,9 +177,9 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 			RecipeManager.print("" +stack +" isn't in " +str +" list.");
 	}
 
-	public int consumeItems(ItemStack[] items, int numPer, boolean max) {
+	public int consumeItems(ItemStack[] items, ItemStack resultStack, boolean max) {
 		theCrafter.addInventoryReference(createInventoryReference());
-		return theCrafter.consumeItems(items, consolidateItemStacks(false), numPer, max);
+		return theCrafter.consumeItems(items, consolidateItemStacks(false), resultStack, max);
 	}
 	
 	public ItemStack[] consolidateItemStacks(boolean override){

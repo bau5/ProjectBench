@@ -25,8 +25,9 @@ public class RecipeCrafter {
 		ItemStack stack = null;
 		for(int i = 0; i < stacks.length; i++){
 			stack = null;
-			if(stacks[i] != null)
+			if(stacks[i] != null){
 				stack = stacks[i];
+			}
 			if(stack != null){
 				items.add(stack);
 			}
@@ -61,19 +62,34 @@ public class RecipeCrafter {
 		return stacks2;
 	}
 
-	public int consumeItems(ItemStack[] items, ItemStack[] arrToConsume, int numPer, boolean max) {
+	public int consumeItems(ItemStack[] toConsume, ItemStack[] supplies, ItemStack result, boolean max) {
 		int numMade = 0;
-		if(!checkForItems(items.clone(), arrToConsume)){
+		ItemStack resultStack = ItemStack.copyItemStack(result);
+		if(!checkForItems(toConsume.clone(), supplies)){
 			return numMade;
 		}
-		int tries = (max) ? (64/numPer) : 1;
-		ItemStack[] consolidatedStacks = arrToConsume;
+		int tries = (max) ? (resultStack.getMaxStackSize()/resultStack.stackSize) : 1;
+		while(tries * resultStack.stackSize > resultStack.getMaxStackSize())
+			tries--;
+		ItemStack[] consolidatedStacks = supplies;
 		boolean flag = true;
 		counterLoop : for(int i = 0; i < tries; i++){
-			main : for(ItemStack is : items){
+			main : for(ItemStack is : toConsume){
 				for(ItemStack stackInInventory : consolidatedStacks){
 					if(is != null){
 						if(is.getItem().equals(stackInInventory.getItem())){
+							//TODO container item
+							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null)
+								continue;
+							boolean success = consumeItemStack(is);
+							if(!success){
+								flag = false;
+								continue;
+							}
+							if(stackInInventory.getItem().getContainerItem() == null)
+								stackInInventory.stackSize -= is.stackSize;
+							continue main;
+						}else if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE && OreDictionary.getOreID(stackInInventory) == OreDictionary.getOreID(is)){
 							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null)
 								break counterLoop;
 							boolean success = consumeItemStack(is);
@@ -102,6 +118,16 @@ public class RecipeCrafter {
 				continue;
 			}else{
 				if(stackInInventory.getItem().equals(stack.getItem()) && OreDictionary.itemMatches(stack, stackInInventory, false)){
+					if(stack.stackSize <= stackInInventory.stackSize){
+						decreaseStackSize(i, stack.stackSize);
+						stack.stackSize = 0;
+						break;
+					}else{
+						int stackSize = stackInInventory.stackSize;
+						decreaseStackSize(i, stackSize);
+						stack.stackSize -= stackSize;
+					}
+				}else if(stack.getItemDamage() == OreDictionary.WILDCARD_VALUE && OreDictionary.getOreID(stack) == OreDictionary.getOreID(stackInInventory)){
 					if(stack.stackSize <= stackInInventory.stackSize){
 						decreaseStackSize(i, stack.stackSize);
 						stack.stackSize = 0;
@@ -168,7 +194,9 @@ public class RecipeCrafter {
 		for(int i = 0; i < items.length; i++){
 			stack = clonedItems[i];
 			for(ItemStack sin : consolidatedStacks){
-				if(sin.getItem().equals(stack.getItem())){
+				if(sin.getItem().equals(stack.getItem()) 
+						|| (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE 
+						&& OreDictionary.getOreID(sin) == OreDictionary.getOreID(stack))){
 					if(sin.stackSize >= stack.stackSize){
 						stack.stackSize = 0;
 						break;

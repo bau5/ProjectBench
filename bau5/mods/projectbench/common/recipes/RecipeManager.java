@@ -35,7 +35,7 @@ public class RecipeManager {
 	private List<RecipeItem> orderedRecipes;
 	private static RecipeManager instance;
 	private static boolean DEBUG_MODE = ProjectBench.DEBUG_MODE_ENABLED;
-	private HashMap<Integer, ArrayList<ItemStack>> oreAlts = null;
+	public HashMap<Integer, ArrayList<ItemStack>> oreAlts = null;
 	
 	public RecipeManager(){
 		defaultRecipes = CraftingManager.getInstance().getRecipeList();
@@ -209,8 +209,6 @@ public class RecipeManager {
 		boolean hasMeta = false;
 		boolean flag = true;
 		recLoop : for(RecipeItem rec : orderedRecipes){
-			if(rec.result().getItem().equals(Item.itemsList[24+256]))
-				System.out.println("check");
 			flag = true;
 			stacksForRecipe = rec.alternatives();
 			hasMeta = rec.hasMeta();
@@ -218,25 +216,12 @@ public class RecipeManager {
 				for(int i = 0; i < recItems.length; i++){
 					for(ItemStack stackInInventory : stacks){
 						if(stackInInventory != null){
-							if(rec.recipe() instanceof ShapedOreRecipe || rec.recipe() instanceof ShapelessOreRecipe){
-								ArrayList<ItemStack> list = oreAlts.get(OreDictionary.getOreID(recItems[i]));
-								if(list != null){
-									for(ItemStack is : list){
-										if(is != null && OreDictionary.itemMatches(is, stackInInventory, false)){
-											if(recItems[i].stackSize <= stackInInventory.stackSize){
-												recItems[i].stackSize = 0;
-												break;
-											}else if(recItems[i].stackSize > stackInInventory.stackSize){
-												continue multiRecipeLoop;
-											}
-										}
-									}
-								}
-							}else if(stackInInventory.getItem().equals(recItems[i].getItem())){
+							if(stackInInventory.getItem().equals(recItems[i].getItem())){
 								if(hasMeta){
 									if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
 		    							continue;
 								}
+								//TODO container item
 								if(recItems[i].getItem().hasContainerItem()){
 									continue recLoop;
 									// Disabling container recipes for now.
@@ -256,6 +241,16 @@ public class RecipeManager {
 									recItems[i].stackSize = 0;
 								}else if(recItems[i].stackSize > stackInInventory.stackSize){
 									continue multiRecipeLoop;
+								}
+							}else if(recItems[i].getItemDamage() == OreDictionary.WILDCARD_VALUE){
+								int id = OreDictionary.getOreID(recItems[i]);
+								int id2 = OreDictionary.getOreID(stackInInventory);
+								if(!(id == -1 || id != id2)){
+									if(recItems[i].stackSize <= stackInInventory.stackSize){
+										recItems[i].stackSize = 0;
+									}else if(recItems[i].stackSize > stackInInventory.stackSize){
+										continue multiRecipeLoop;
+									}
 								}
 							}
 						}
@@ -338,9 +333,6 @@ public class RecipeManager {
 					}
 				}
 			}else if(rec instanceof ShapedOreRecipe){
-				//TODO add support for OreDictionary Recipes. Bleh
-				if(rec.getRecipeOutput().getItem().itemID >= 19501 +256 || rec.getRecipeOutput().getItem().itemID == 975)
-					System.out.println("Check");
 				type = "ShapedOreRecipe";
 				Object[] objArray = ((ShapedOreRecipe) rec).getInput();
 				newRecItem.items = new ItemStack[objArray.length];
