@@ -93,7 +93,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 			for(ItemStack[] isa : stacks){
 				theCrafter.addInventoryReference(player.inventory.mainInventory);
 				consolidatedInventory = theCrafter.consolidateItemStacks(player.inventory.mainInventory);
-				int numMade = theCrafter.consumeItems(isa, consolidatedInventory, currentRecipe.result().stackSize, player.isSneaking());
+				int numMade = theCrafter.consumeItems(isa, consolidatedInventory, currentRecipe.result(), player.isSneaking());
 				if(numMade != 0){
 					ItemStack toDispense = currentRecipe.result();
 					toDispense.stackSize *= numMade;

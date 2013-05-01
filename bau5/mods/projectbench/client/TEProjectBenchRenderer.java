@@ -69,7 +69,6 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 		int count = 0;
 		TileEntityProjectBench tpb = (TileEntityProjectBench) te;
 		renderBlocks.renderStandardBlock(block, (int) x, (int) y, (int) z);
-
 		if (RENDER_ITEM && tpb.worldObj.getBlockId(tpb.xCoord, tpb.yCoord + 1, tpb.zCoord) == 0
 						&& tpb.worldObj.getClosestPlayer(tpb.xCoord, tpb.yCoord, tpb.zCoord, 15) != null
 						&& !mc.isGamePaused) {
