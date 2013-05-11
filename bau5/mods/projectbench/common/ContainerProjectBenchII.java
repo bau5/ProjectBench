@@ -8,6 +8,8 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * ContainerProjectBenchII
@@ -29,11 +31,22 @@ public class ContainerProjectBenchII extends Container
 		bindPlayerInventory(invPlayer);
 		detectAndSendChanges();
 		lookForOutputs();
+		if(tileEntity.worldObj.isRemote)
+			tileEntity.setRecipeMap(RecipeManager.instance().getPossibleRecipesMap(tileEntity.consolidateItemStacks(false)));
 	}
 
 	public void lookForOutputs(){
 		ItemStack[] stacks = tileEntity.consolidateItemStacks(true);
+//		tileEntity.setRecipeMap(RecipeManager.instance().getPossibleRecipesMap(stacks));
 		tileEntity.setListForDisplay(RecipeManager.instance().getValidRecipesByStacks(stacks));
+	}
+	@SideOnly(Side.CLIENT)
+	public void updateToolTipMap(){
+		ItemStack[] stacks = tileEntity.consolidateItemStacks(false);
+		tileEntity.setRecipeMap(RecipeManager.instance().getPossibleRecipesMap(stacks));	
+	}
+	public ItemStack[] getStacksToConsumeForSlot(int slotIndex){
+		return tileEntity.getStacksForResult(tileEntity.getStackInSlot(slotIndex));
 	}
 	
 	private void layoutContainer(){
@@ -95,7 +108,7 @@ public class ContainerProjectBenchII extends Container
 		if((clickType == 1 || clickType == 2) && (slot < 27 && slot >= 0))
 			return handleSlotClick(slot, fake, meta, originalStack, player);
 		if(meta == 6)
-			fake = 0;
+			return null;
 		if(slot < 27 && slot >= 0){
 			if(originalStack == null)
 				return null;
@@ -119,10 +132,8 @@ public class ContainerProjectBenchII extends Container
 				return null;
 			}
 		}
-		if(slot >= 27 && slot < 45)
-			lookForOutputs();
-//		if(slot != -999) 
-//			postSlotClick = true;
+//		else if(!tileEntity.worldObj.isRemote)
+//			lookForOutputs();
 		ItemStack stack = super.slotClick(slot, fake, meta, player);		
 		return stack;
 		
@@ -130,11 +141,9 @@ public class ContainerProjectBenchII extends Container
 	private ItemStack handleSlotClick(int slot, int clickType, int clickMeta, ItemStack stackInSlot, EntityPlayer player) {
 		if(clickType == 1){
 			tileEntity.removeResultFromDisplay(stackInSlot);
-			
 			return null;
 		}else if(clickType == 2){
-				tileEntity.scrambleMatrix();
-			
+			tileEntity.scrambleMatrix();
 			return null;
 		}else{
 			ItemStack stackOnMouse = player.inventory.getItemStack();
@@ -163,11 +172,7 @@ public class ContainerProjectBenchII extends Container
 					continue;
 			}
 			if(success){
-//				if(stackInSlot.stackSize * numMade < stackInSlot.getMaxStackSize())
-					stackInSlot.stackSize *= numMade;
-//				else{
-//					player.inventory.
-//				}
+				stackInSlot.stackSize *= numMade;
 				return stackInSlot;
 			}else{
 				lookForOutputs();
@@ -202,6 +207,8 @@ public class ContainerProjectBenchII extends Container
                     return null;
                 }
                 postSlotClick = true;
+                if(tileEntity.worldObj.isRemote)
+                	lookForOutputs();
             }
             //Merge player inventory item with supply matrix
             else if (numSlot >= 45 && numSlot <= 80)
@@ -211,6 +218,8 @@ public class ContainerProjectBenchII extends Container
                     return null;
                 }
                 postSlotClick = true;
+                if(tileEntity.worldObj.isRemote)
+                	lookForOutputs();
             }
 
             if (stack2.stackSize == 0)

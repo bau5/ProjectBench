@@ -22,10 +22,13 @@ public class ContainerProjectBench extends Container
 	
 	public IInventory craftSupplyMatrix;
 	public int craftResultSlot = 0;
+	public EntityPlayer activePlayer = null;
 	private boolean containerChanged;
+	private boolean netEditingContainer = false;
 		
 	public ContainerProjectBench(InventoryPlayer invPlayer, TileEntityProjectBench tpb)
 	{
+		activePlayer = invPlayer.player;
 		tileEntity = tpb;
 		craftSupplyMatrix = tileEntity.craftSupplyMatrix;
 		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, tileEntity, tileEntity.craftResult, 
@@ -112,6 +115,12 @@ public class ContainerProjectBench extends Container
 		tileEntity.onInventoryChanged();
 	}
 	@Override
+	public void putStackInSlot(int slot, ItemStack itemStack) {
+		tileEntity.containerInit = true;
+		super.putStackInSlot(slot, itemStack);
+		tileEntity.containerInit = false;
+	}
+	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int numSlot)
     {
         ItemStack stack = null;
@@ -178,5 +187,10 @@ public class ContainerProjectBench extends Container
 
         return stack;
     }
+	@Override
+	public void onCraftGuiClosed(EntityPlayer par1EntityPlayer) {
+		super.onCraftGuiClosed(par1EntityPlayer);
+		activePlayer = null;
+	}
 }
 

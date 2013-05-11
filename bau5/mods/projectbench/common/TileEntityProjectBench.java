@@ -1,5 +1,8 @@
 package bau5.mods.projectbench.common;
 
+import java.util.Random;
+
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
@@ -15,8 +18,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
 import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * 
@@ -46,6 +47,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	private boolean shouldUpdate = false;
 	public boolean teInit = false;
 	public boolean containerInit = false;
+	public boolean initSlots = false;
 	private boolean recentSync = true;
 	
 	public IInventory craftResult;
@@ -54,6 +56,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	private ItemStack result = null;
 	private ItemStack lastResult;
 	private int sync = 0;
+	private int supplyMatrixStart = 9;
+	private int supplyMatrixSize  = 18;
 	
 	@Override
 	public void onInventoryChanged()
@@ -210,9 +214,31 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		{
 			stack.stackSize = getInventoryStackLimit();
 		}
-		if(slot < 9)
+		if(slot < 9 && !initSlots)
 			markShouldUpdate();
 		onInventoryChanged();
+	}
+
+	public void emptyCraftingMatrix() {
+		Random rand = new Random();
+		for(int i = 0; i < 8; i++){
+			if(inv[i] != null){
+				float rx = rand.nextFloat() * 0.8F + 0.1F;
+				float ry = rand.nextFloat() * 0.8F + 0.1F;
+				float rz = rand.nextFloat() * 0.8F + 0.1F;
+				EntityItem ei = new EntityItem(worldObj, xCoord + rx, yCoord + ry, zCoord + rz,
+						new ItemStack(inv[i].itemID, inv[i].stackSize, inv[i].getItemDamage()));
+				if(inv[i].hasTagCompound())
+					ei.getEntityItem().setTagCompound((NBTTagCompound) inv[i].getTagCompound().copy());
+				float factor = 0.05f;
+				ei.motionX = rand.nextGaussian() * factor;
+				ei.motionY = rand.nextGaussian() * factor + 0.2F;
+				ei.motionZ = rand.nextGaussian() * factor;
+				if(!worldObj.isRemote)
+					worldObj.spawnEntityInWorld(ei);
+				inv[i].stackSize = 0;
+			}
+		}
 	}
 
 	@Override
@@ -391,5 +417,11 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	@Override
 	public boolean isStackValidForSlot(int i, ItemStack itemstack) {
 		return false;
+	}
+	public int getSupplyMatrixSize(){
+		return supplyMatrixSize;
+	}
+	public int getSupplyMatrixStart(){
+		return supplyMatrixStart;
 	}
 }

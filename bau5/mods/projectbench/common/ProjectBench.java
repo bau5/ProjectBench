@@ -53,7 +53,7 @@ public class ProjectBench
 	 * Index 1 is {@link ItemCraftingFrame} for Mk I. 
 	 * Index 2 is {@link ItemCraftingFrame} for Mk II. 
 	 */
-	private static int[] pbItemsID = new int[3];
+	private static int[] pbItemsID = new int[4];
 	private static int pbID;
 	public static boolean DO_RENDER = true;
 	public static boolean RENDER_ALL = false;
@@ -69,6 +69,7 @@ public class ProjectBench
 
 	public Block projectBench;
 	public Item  projectBenchUpgrade;
+	public Item  projectBenchUpgradeII;
 	public Item  craftingFrame;
 	public Item  craftingFrameII;
 	public static String baseTexFile = "/mods/projectbench/textures";
@@ -83,9 +84,10 @@ public class ProjectBench
 		{
 			config.load(); 
 			pbID = config.getBlock("Project Bench", 700).getInt(700);
-			pbItemsID[0] = config.getItem(Configuration.CATEGORY_ITEM, "Upgrade Item", 13070).getInt(13070);
-			pbItemsID[1] = config.getItem(Configuration.CATEGORY_ITEM, "Crafting Frame I", 13071).getInt(13071);
-			pbItemsID[2] = config.getItem(Configuration.CATEGORY_ITEM, "Crafting Frame II", 13072).getInt(13071);
+			pbItemsID[0] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. I Upgrade Item", 13070).getInt(13070);
+			pbItemsID[1] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. II Upgrade Item", 13071).getInt(13071);
+			pbItemsID[2] = config.getItem(Configuration.CATEGORY_ITEM, "Crafting Frame I", 13072).getInt(13072);
+			pbItemsID[3] = config.getItem(Configuration.CATEGORY_ITEM, "Auto-Crafting Frame", 13073).getInt(13073);
 			DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldRenderItem", true).getBoolean(true);
 			II_DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldIIRenderItems", true).getBoolean(true);
 			RENDER_ALL = config.get(Configuration.CATEGORY_GENERAL, "shouldRenerStackSize", false).getBoolean(false);
@@ -98,6 +100,9 @@ public class ProjectBench
 			{
 				SPEED_FACTOR = 5;
 				FMLLog.severe("Project Bench: Config registered a negative number.\n\t Using default of " +SPEED_FACTOR);
+			}
+			for(int i = 0; i < pbItemsID.length; i++){
+				pbItemsID[i] -= 256;
 			}
 		} catch(Exception ex)
 		{
@@ -114,9 +119,10 @@ public class ProjectBench
 	public void initMain(FMLInitializationEvent ev)
 	{
 		projectBench = new ProjectBenchBlock(pbID, Material.wood).setCreativeTab(CreativeTabs.tabDecorations);
-		craftingFrame = new ItemCraftingFrame(pbItemsID[1], EntityCraftingFrame.class).setUnlocalizedName("craftingframe");
-		craftingFrameII = new ItemCraftingFrame(pbItemsID[2], EntityCraftingFrameII.class).setUnlocalizedName("craftingframeii");
-		projectBenchUpgrade = new PBUpgradeItem(pbItemsID[0]).setCreativeTab(CreativeTabs.tabMisc);
+		projectBenchUpgrade = new PBUpgradeItem(pbItemsID[0], 0).setUnlocalizedName("pbupi").setCreativeTab(CreativeTabs.tabMisc);
+		projectBenchUpgradeII = new PBUpgradeItem(pbItemsID[1], 1).setUnlocalizedName("pbupii").setCreativeTab(CreativeTabs.tabMisc);
+		craftingFrame = new ItemCraftingFrame(pbItemsID[2], EntityCraftingFrame.class).setUnlocalizedName("craftingframe");
+		craftingFrameII = new ItemCraftingFrame(pbItemsID[3], EntityCraftingFrameII.class).setUnlocalizedName("craftingframeii");
 		GameRegistry.registerBlock(projectBench, PBItemBlock.class, "pb_block");
 		System.out.println("ProjectBench: Registered block id @ " +pbID +". Rendering: " +DO_RENDER +" @: " +SPEED_FACTOR);
 		GameRegistry.registerTileEntity(TileEntityProjectBench.class, "bau5pbTileEntity");
@@ -125,12 +131,11 @@ public class ProjectBench
 		EntityRegistry.registerModEntity(EntityCraftingFrame.class, "craftingFrame", entityID[0], this, 15, Integer.MAX_VALUE, false);
 		entityID[1] = EntityRegistry.findGlobalUniqueEntityId();
 		if(entityID[1] == entityID[0]){
-			System.out.println("ProjectBench: Entity ID issue detected, fixing.");
+			System.out.println("ProjectBench: Entity ID issue detected, resolving.");
 			entityID[1] = entityID[0] + 1;
 		}
 		EntityRegistry.registerModEntity(EntityCraftingFrameII.class, "craftingFrameII", entityID[1] +1, this, 15, Integer.MAX_VALUE, false);
 		proxy.registerRenderInformation();
-		LanguageRegistry.addName(projectBenchUpgrade, "Project Bench Upgrade");
 		LanguageRegistry.addName(craftingFrame, "Crafting Frame");
 		LanguageRegistry.addName(craftingFrameII, "Auto-Crafting Frame");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
@@ -142,13 +147,16 @@ public class ProjectBench
 		});
 		if(DEV_ENV){
 			GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 1), new Object[]{
-				"IPI", "WDW", "IBI", 'P', new ItemStack(this.projectBench, 1, 0), 'I', Item.ingotIron, 'B', Block.blockIron, 'D', Item.diamond, 'W', Block.planks
+				"IPI", "WDW", "IWI", 'P', new ItemStack(this.projectBench, 1, 0), 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
 			});
+//			GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgradeII, 1, 0), new Object[]{
+//				"IWI", "WDW", "IWI", 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
+//			});
 			GameRegistry.addRecipe(new ItemStack(this.craftingFrame), new Object[]{
-				"SFS", "SCS", "SIS", 'C', Block.workbench, 'F', Item.itemFrame, 'I', Item.ingotIron, 'S', Item.stick
+				"SIS", "SCS", "SIS", 'C', Block.workbench, 'I', Item.ingotIron, 'S', Item.stick
 			});
 			GameRegistry.addRecipe(new ItemStack(this.craftingFrameII), new Object[]{
-				"GSG", "RCR", "SSS", 'G', Item.silk, 'S', Item.stick, 'R', Item.redstone, 'C', Block.workbench
+				"SGS", "RCR", "SSS", 'G', Item.silk, 'S', Item.stick, 'R', Item.redstone, 'C', Block.workbench
 			});
 		}
 		if(!Reference.UP_TO_DATE)
