@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
@@ -35,6 +37,10 @@ public class PBPacketHandler implements IPacketHandler
 	@Override
 	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) 
 	{
+		if(packet.data[0] == 1 && packet.data.length == 1){
+			completeEmptyOfMatrix((EntityPlayerMP)player);
+			return;
+		}
 		ByteArrayDataInput bis = ByteStreams.newDataInput(packet.data);
 		int id = bis.readInt();
 		int i = bis.readInt();
@@ -76,6 +82,21 @@ public class PBPacketHandler implements IPacketHandler
 			else
 				tpb.setListForDisplay(new ArrayList<ItemStack>());
 		}
+	}
+
+	public void completeEmptyOfMatrix(EntityPlayerMP thePlayer) {
+        ArrayList itemListToSend = new ArrayList();
+        ((ContainerProjectBench)thePlayer.openContainer).tileEntity.containerInit = true;
+        for(int i = 0; i < 9; i++){
+        	thePlayer.openContainer.transferStackInSlot(thePlayer, i + 1);
+        }
+        ((ContainerProjectBench)thePlayer.openContainer).tileEntity.containerInit = false;
+        for (int i = 0; i < thePlayer.openContainer.inventorySlots.size(); ++i) {
+            itemListToSend.add(((Slot) thePlayer.openContainer.inventorySlots.get(i)).getStack());
+        }
+
+        thePlayer.sendContainerAndContentsToPlayer(thePlayer.openContainer, itemListToSend);
+        ((ContainerProjectBench)thePlayer.openContainer).tileEntity.findRecipe(false);
 	}
 
 	public static Packet prepPacketMkI(TileEntityProjectBench tpb)

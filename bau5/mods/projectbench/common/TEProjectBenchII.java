@@ -1,6 +1,11 @@
 package bau5.mods.projectbench.common;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -12,8 +17,11 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
+import net.minecraftforge.oredict.OreDictionary;
+import bau5.mods.projectbench.common.recipes.PBRecipeSorter;
 import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
+import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
 /**
@@ -40,7 +48,9 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	
 	private ItemStack[] consolidatedStacks = null;
 	private ArrayList<ItemStack> listToDisplay = new ArrayList();
+	private ArrayList<RecipeItem> recipeList = new ArrayList<RecipeItem>();
 	private RecipeCrafter theCrafter = new RecipeCrafter();
+	private HashMap<ItemStack, ItemStack[]> recipeMap = null;
 	
 	@Override
 	public void onInventoryChanged() {
@@ -69,7 +79,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		if(sync == 20 && initSlots && !worldObj.isRemote){
 			sendListClientSide();
 		}
-		
 	}
 
 	public void disperseListAcrossMatrix(){
@@ -83,12 +92,9 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		}else{
 			str = "client";
 		}
-//		RecipeManager.print("Disperse for " +str +worldObj.isRemote);
 		for(int i = 0; i < inventoryStart; i++){
 			stack = (i < listToDisplay.size()) ? listToDisplay.get(i) : null;
 			inv[i] = stack;
-//			if(inv[i] != null)
-//				RecipeManager.print("\t" +inv[i]);
 		}
 	}
 	
@@ -113,6 +119,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		}
 		temp.add(listToDisplay.get(0));
 		setListForDisplay(temp);
+		updateRecipeMap();
 	}
 	
 	public void removeResultFromDisplay(ItemStack resultToRemove){
@@ -128,6 +135,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 			stack = (i < listToDisplay.size()) ? listToDisplay.get(i) : null;
 			inv[i] = stack;
 		}
+		updateRecipeMap();
 	}
 	
 	public void clearMatrix(){
@@ -142,13 +150,55 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		if(worldObj != null)
 			System.out.printf("List is being set for %s with %d entries.\n", worldObj.getClass().getSimpleName(), list.size());
 	}
+
+	public void setRecipeMap(HashMap<ItemStack, ItemStack[]> possibleRecipesMap) {
+		recipeMap  = possibleRecipesMap;
+	}
+	public void updateRecipeMap(){
+		if(!worldObj.isRemote)
+			return;
+		if(recipeMap == null)
+			recipeMap = new HashMap<ItemStack, ItemStack[]>();
+		HashMap<ItemStack, ItemStack[]> tempMap = new HashMap<ItemStack, ItemStack[]>();
+		Set<Map.Entry<ItemStack, ItemStack[]>> entrySet = recipeMap.entrySet();
+		for(ItemStack stack : listToDisplay){
+			for(Entry ent : entrySet){
+				if(OreDictionary.itemMatches((ItemStack)ent.getKey(), stack, false)){
+					tempMap.put(stack, (ItemStack[])ent.getValue());
+				}
+			}
+		}
+		recipeMap = tempMap;
+	}
+
+	public ItemStack[] getStacksForResult(ItemStack stackInSlot) {
+		if(recipeMap == null)
+			return null;
+		Set<Map.Entry<ItemStack, ItemStack[]>> entrySet = recipeMap.entrySet();
+		for(Entry ent : entrySet){
+			if(OreDictionary.itemMatches((ItemStack)ent.getKey(), stackInSlot, false)){
+				return (ItemStack[]) ent.getValue();
+			}
+		}
+		return null;
+	}
+
 	
 	public ArrayList<ItemStack> getDisplayList(){
 		return listToDisplay;
 	}
 	
 	public void updateOutputRecipes(){
-		setListForDisplay(RecipeManager.instance().getValidRecipesByStacks(consolidateItemStacks(true)));
+		recipeMap = RecipeManager.instance().getPossibleRecipesMap(consolidateItemStacks(true));
+		if(recipeMap.size() == 0)
+			return;
+		ArrayList<ItemStack> tempList = new ArrayList<ItemStack>();
+		for(Entry ent : recipeMap.entrySet()){
+			if(ent != null && ent.getKey() instanceof ItemStack)
+				tempList.add((ItemStack)ent.getKey());
+		}
+		Collections.sort(tempList, new PBRecipeSorter());
+		setListForDisplay(tempList);
 		updateNeeded = true;
 	}
 	
@@ -319,6 +369,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 			stack.stackSize = getInventoryStackLimit();
 		}
 		if(slot >= 27 && slot < 45 && !initSlots)
+//			updateRecipeMap();
 			updateOutputRecipes();
 	}
 	
@@ -412,5 +463,4 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public byte getDirection(){
 		return directionFacing;
 	}
-
 }

@@ -1,0 +1,27 @@
+2.0dev8-9
+- Added tool-tip while mousing over an item in a Mk. II
+ to see what it will consume if crafted.
+- Tweaked Mk. II behavior.
+- Added upgrade item from Mk. I to Mk. II
+    Render will orient towards the face right clicked on.
+- Control right click on a Mk. II to rotate the direction of the block (for render)
+- cleaned up button in Mk. I 
+- Changed recipes: 
+    no more iron block in Mk. II recipe
+    No item frame in Crafting Frame recipe (iron)
+    No Iron block in Auto-Crafting frame (sticks and string)
+- Changed the item ID of Crafting frames + 1
+
+2.0dev7-8
+- Re-re-refixed ProjectBench Mk. I render result on load. (Removed findRecipe() from NBT reading method)
+- Ore Dictionary recipes have been implemented (needs extensive testing).
+- Fixed shift clicking a result giving more than the max stack size of the result.
+- Added a button in the Mk. I to clear the crafting matrix to the supply matrix
+
+2.0dev General Changes
+- Added version checking
+- Added ore dictionary recipes
+- added config option to turn off version checking.
+- Fixed incorrect consumption of items in different stacks.
+- Crafting Frames
+    control click!

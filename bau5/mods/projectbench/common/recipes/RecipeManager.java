@@ -5,10 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import extrabiomes.lib.BlockSettings;
-
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -217,10 +214,8 @@ public class RecipeManager {
 					for(ItemStack stackInInventory : stacks){
 						if(stackInInventory != null){
 							if(stackInInventory.getItem().equals(recItems[i].getItem())){
-								if(hasMeta){
-									if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
-		    							continue;
-								}
+								if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
+	    							continue;
 								//TODO container item
 								if(recItems[i].getItem().hasContainerItem()){
 									continue recLoop;
@@ -265,6 +260,138 @@ public class RecipeManager {
 			}
 		}
 		return validRecipes;
+	}
+	public HashMap<ItemStack, ItemStack[]> getPossibleRecipesMap(ItemStack[] stacks){
+		HashMap<ItemStack, ItemStack[]> outputInputMap = new HashMap();
+		ArrayList<ItemStack> validRecipes = new ArrayList<ItemStack>();
+		ArrayList<ItemStack[]> stacksForRecipe = null;
+		boolean hasMeta = false;
+		boolean flag = true;
+		recLoop : for(RecipeItem rec : orderedRecipes){
+			flag = true;
+			stacksForRecipe = rec.alternatives();
+			hasMeta = rec.hasMeta();
+//			multiRecipeLoop : for(ItemStack[] recItems : stacksForRecipe){
+			multiRecipeLoop : for(int index = 0; index < stacksForRecipe.size(); index++){
+				ItemStack[] recItems = stacksForRecipe.get(index);
+				for(int i = 0; i < recItems.length; i++){
+					for(ItemStack stackInInventory : stacks){
+						if(stackInInventory != null){
+							if(stackInInventory.getItem().equals(recItems[i].getItem())){
+								if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
+	    							continue;
+								//TODO container item
+								if(recItems[i].getItem().hasContainerItem()){
+									continue recLoop;
+									// Disabling container recipes for now.
+//									ItemStack contItem = recItems[i].getItem().getContainerItemStack(recItems[i]);
+//									if(contItem.isItemStackDamageable()){
+//										if(contItem.getItemDamage() + 1 <= contItem.getMaxDamage())
+//											recItems[i].stackSize = 0;
+//										else{
+//											recItems[i].setItemDamage(recItems[i].getItemDamage() + 1);
+//										}
+//									}else{
+//										if(contItem.stackSize <= stackInInventory.stackSize){
+//											recItems[i].stackSize -= contItem.stackSize;
+//										}
+//									}
+								}else if(recItems[i].stackSize <= stackInInventory.stackSize){
+									recItems[i].stackSize = 0;
+								}else if(recItems[i].stackSize > stackInInventory.stackSize){
+									continue multiRecipeLoop;
+								}
+							}else if(recItems[i].getItemDamage() == OreDictionary.WILDCARD_VALUE){
+								int id = OreDictionary.getOreID(recItems[i]);
+								int id2 = OreDictionary.getOreID(stackInInventory);
+								if(!(id == -1 || id != id2)){
+									if(recItems[i].stackSize <= stackInInventory.stackSize){
+										recItems[i].stackSize = 0;
+									}else if(recItems[i].stackSize > stackInInventory.stackSize){
+										continue multiRecipeLoop;
+									}
+								}
+							}
+						}
+					}
+					if(recItems[i].stackSize != 0){
+						flag = false;
+						break;
+					}
+				}
+				if(flag){
+//					validRecipes.add(rec.result());
+					outputInputMap.put(rec.result(), rec.alternatives.get(index));
+				}
+				
+				
+			}
+		}
+		return outputInputMap;
+		
+	}
+	public ArrayList<RecipeItem> getValidRecipes(ItemStack[] stacks) {
+		ArrayList<RecipeItem> validRecipes = new ArrayList<RecipeItem>();
+		ArrayList<ItemStack[]> stacksForRecipe = null;
+		boolean hasMeta = false;
+		boolean flag = true;
+		recLoop : for(RecipeItem rec : orderedRecipes){
+			flag = true;
+			stacksForRecipe = rec.alternatives();
+			hasMeta = rec.hasMeta();
+			multiRecipeLoop : for(ItemStack[] recItems : stacksForRecipe){
+				for(int i = 0; i < recItems.length; i++){
+					for(ItemStack stackInInventory : stacks){
+						if(stackInInventory != null){
+							if(stackInInventory.getItem().equals(recItems[i].getItem())){
+								if(hasMeta){
+									if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
+		    							continue;
+								}
+								//TODO container item
+								if(recItems[i].getItem().hasContainerItem()){
+									continue recLoop;
+									// Disabling container recipes for now.
+//									ItemStack contItem = recItems[i].getItem().getContainerItemStack(recItems[i]);
+//									if(contItem.isItemStackDamageable()){
+//										if(contItem.getItemDamage() + 1 <= contItem.getMaxDamage())
+//											recItems[i].stackSize = 0;
+//										else{
+//											recItems[i].setItemDamage(recItems[i].getItemDamage() + 1);
+//										}
+//									}else{
+//										if(contItem.stackSize <= stackInInventory.stackSize){
+//											recItems[i].stackSize -= contItem.stackSize;
+//										}
+//									}
+								}else if(recItems[i].stackSize <= stackInInventory.stackSize){
+									recItems[i].stackSize = 0;
+								}else if(recItems[i].stackSize > stackInInventory.stackSize){
+									continue multiRecipeLoop;
+								}
+							}else if(recItems[i].getItemDamage() == OreDictionary.WILDCARD_VALUE){
+								int id = OreDictionary.getOreID(recItems[i]);
+								int id2 = OreDictionary.getOreID(stackInInventory);
+								if(!(id == -1 || id != id2)){
+									if(recItems[i].stackSize <= stackInInventory.stackSize){
+										recItems[i].stackSize = 0;
+									}else if(recItems[i].stackSize > stackInInventory.stackSize){
+										continue multiRecipeLoop;
+									}
+								}
+							}
+						}
+					}
+					if(recItems[i].stackSize != 0){
+						flag = false;
+						break;
+					}
+				}
+				if(flag)
+					validRecipes.add(rec);
+			}
+		}
+		return validRecipes;		
 	}
 	
 	public ItemStack[] consolidateItemStacks(ItemStack[] stacks){
@@ -315,6 +442,11 @@ public class RecipeManager {
 	 */
 	private RecipeItem translateRecipe(IRecipe rec){
 		String type = "[null]";
+		if(rec.getRecipeOutput() != null
+				&& rec.getRecipeOutput().getItem().itemID < Block.blocksList.length
+				&& Block.blocksList[rec.getRecipeOutput().getItem().itemID] != null
+				&& Block.blocksList[rec.getRecipeOutput().getItem().itemID] == Block.blockIron)
+			System.out.println("True!");
 		try{
 			RecipeItem newRecItem = new RecipeItem();
 			if(rec instanceof ShapedRecipes){
@@ -464,8 +596,11 @@ public class RecipeManager {
 					continue main;
 				if(result.getHasSubtypes())
 					isMetadataSensitive = true;
-				if(consolidatedItems.size() == 0)
-					consolidatedItems.add(stackInArray.copy());
+				if(consolidatedItems.size() == 0){
+					ItemStack temp = stackInArray.copy();
+					temp.stackSize = 1;
+					consolidatedItems.add(temp);
+				}
 				else{
 					int counter = 0;
 					list : for(ItemStack stackInList : consolidatedItems){

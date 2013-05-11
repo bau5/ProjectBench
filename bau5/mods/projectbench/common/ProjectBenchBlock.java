@@ -17,6 +17,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+
+import org.lwjgl.input.Keyboard;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -82,11 +85,24 @@ public class ProjectBenchBlock extends BlockContainer {
 			 int par6, float par7, float par8, float par9)
     {
 		TileEntity te = world.getBlockTileEntity(x, y, z);
-		if(te == null || player.isSneaking())
+		if(te == null || player.isSneaking() || (player.getHeldItem() != null && player.getHeldItem().getItem() == ProjectBench.instance.projectBenchUpgradeII))
 		{	
 			return false;
 		}
 		int meta = world.getBlockMetadata(x, y, z);
+		if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && te instanceof TEProjectBenchII){
+			byte dir = ((TEProjectBenchII)te).getDirection();
+			if(dir == 5)
+				dir = 3;
+			else if(dir == 4)
+				dir = 2;
+			else if(dir == 2)
+				dir = 5;
+			else 
+				dir++;
+			((TEProjectBenchII)te).setDirection(dir);
+			return false;
+		}
 
 		switch(meta){
 			case 0:
@@ -104,7 +120,7 @@ public class ProjectBenchBlock extends BlockContainer {
 		dropItems(world, x, y, z);
 		super.breakBlock(world, x, y, z, par5, par6);
 	}
-	private void dropItems(World world, int x, int y, int z) 
+	public void dropItems(World world, int x, int y, int z) 
 	{
 		Random rand = new Random();
 		

@@ -8,7 +8,6 @@ import net.minecraft.dispenser.PositionImpl;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;

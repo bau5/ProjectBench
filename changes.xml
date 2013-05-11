@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties version="1.0">  
+<<<<<<< HEAD
   <entry key = "1.7.5">Updated for 1.5.2</entry>
   <entry key = "2.0dev8">OreDictionary recipes implemented.</entry>
+=======
+  <entry key = "1.7.4">Fixed inventory wipe.</entry>
+  <entry key = "2.0dev9">Recipe tooltips in Mk. II. Recipe changes.</entry>
+>>>>>>> Update to dev9. Recipe tool tips in Mk II
 </properties>

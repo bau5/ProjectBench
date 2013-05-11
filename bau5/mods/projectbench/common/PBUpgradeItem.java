@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 /**
@@ -19,22 +20,47 @@ import net.minecraft.world.World;
 
 public class PBUpgradeItem extends Item	
 {
-	public PBUpgradeItem(int id) 
+	private int type;
+	private final String[] itemNames = { "Mk. I", "Mk. II" };
+	public PBUpgradeItem(int id, int meta) 
 	{
 		super(id);
-		setUnlocalizedName("pbUpgrade");
+		type = meta;
+		setMaxDamage(0);
 		setMaxStackSize(16);
 	}
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean bool) {
 		super.addInformation(stack, player, list, bool);
-		list.add("\u00A77" + "Used to upgrade a Crafting Bench.");
+		switch(type){
+		case 0: list.add("\u00A77" + "Used to upgrade a Crafting Bench."); 
+			break;
+		case 1: list.add("\u00A77" + "Used to upgrade a Project Bench."); 
+			break;
+		}
+	}
+	
+	@Override
+	public String getItemDisplayName(ItemStack stack) {
+		return "Project Bench Upgrade " + itemNames[type];
 	}
 	
 	@Override
 	public void registerIcons(IconRegister register) {
-		itemIcon = register.registerIcon("projectbench:pbup");
+		switch(type){
+		case 0: itemIcon = register.registerIcon("projectbench:pbup");
+			break;
+		case 1: itemIcon = register.registerIcon("projectbench:pbupii");
+		}
+	}
+	@Override
+	public boolean onItemUse(ItemStack par1ItemStack,
+			EntityPlayer par2EntityPlayer, World par3World, int par4, int par5,
+			int par6, int par7, float par8, float par9, float par10) {
+		// TODO Auto-generated method stub
+		return super.onItemUse(par1ItemStack, par2EntityPlayer, par3World, par4, par5,
+				par6, par7, par8, par9, par10);
 	}
 	
 	@Override
@@ -42,7 +68,7 @@ public class PBUpgradeItem extends Item
     {
 		if(world.isRemote)
 			return false;
-		if(world.getBlockId(x,y,z) == Block.workbench.blockID && world.getBlockTileEntity(x, y, z) == null)
+		if(type == 0 && world.getBlockId(x,y,z) == Block.workbench.blockID && world.getBlockTileEntity(x, y, z) == null)
 		{
 			if(!player.capabilities.isCreativeMode)
 				player.inventory.consumeInventoryItem(ProjectBench.instance.projectBenchUpgrade.itemID);
@@ -52,7 +78,55 @@ public class PBUpgradeItem extends Item
 			world.markBlockForUpdate(x, y, z);
 			
 			return true;
+		}else if(type == 1 && world.getBlockId(x,y,z) == ProjectBench.instance.projectBench.blockID && world.getBlockMetadata(x,y,z) == 0){
+			if(world.getBlockTileEntity(x,y,z) == null)
+				return false;
+			if(!player.capabilities.isCreativeMode)
+				player.inventory.consumeInventoryItem(ProjectBench.instance.projectBenchUpgrade.itemID);
+			TileEntityProjectBench tpb = (TileEntityProjectBench)world.getBlockTileEntity(x , y, z);
+			tpb.emptyCraftingMatrix();
+			TEProjectBenchII tpbII = new TEProjectBenchII();
+			ItemStack stack1 = null;
+			ItemStack stack2 = null;
+			tpbII.initSlots = true;
+			tpb.initSlots = true;
+			for(int i = 0; i < tpbII.supplyMatrixSize; i++){
+				stack2 = null;
+				stack1 = tpb.getStackInSlot(i + tpb.getSupplyMatrixStart());
+				if(stack1 != null)
+					stack2 = ItemStack.copyItemStack(stack1);
+				tpbII.setInventorySlotContents(i +tpbII.inventoryStart, stack2);
+				tpb.setInventorySlotContents(i, null);
+			}
+			tpbII.initSlots = false;
+			tpb.initSlots = false;
+			tpbII.setDirection((byte)getPlayerFacing(player));
+			world.setBlock(x, y, z, 0);
+			world.setBlock(x, y, z, ProjectBench.instance.projectBench.blockID, 1, 3);
+			world.setBlockTileEntity(x, y, z, tpbII);
+			world.setBlock(x, y, z, ProjectBench.instance.projectBench.blockID, 1, 3);
+			world.markBlockForUpdate(x, y, z);
+			return true;
 		}
 		return false;
     }
+	
+	public int getPlayerFacing(EntityPlayer player){
+        byte dir = 0;
+        int plyrFacing = MathHelper.floor_double(((player.rotationYaw * 4F) / 360F) + 0.5D) & 3;
+        if (plyrFacing == 0)
+            dir = 2;
+        if (plyrFacing == 1)
+            dir = 5;
+        if (plyrFacing == 2)
+            dir = 3;
+        if (plyrFacing == 3)
+            dir = 4;
+        return dir;
+	}
+	
+	@Override
+	public String getUnlocalizedName(ItemStack par1ItemStack) {
+		return this.getUnlocalizedName() + itemNames[type];
+	}
 }

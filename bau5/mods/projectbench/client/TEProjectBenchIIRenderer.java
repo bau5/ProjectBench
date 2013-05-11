@@ -10,8 +10,6 @@ import static org.lwjgl.opengl.GL11.glTranslatef;
 
 import java.util.ArrayList;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -21,6 +19,9 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+
+import org.lwjgl.opengl.GL11;
+
 import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.TEProjectBenchII;
 import cpw.mods.fml.client.FMLClientHandler;
