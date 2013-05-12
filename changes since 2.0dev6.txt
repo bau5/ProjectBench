@@ -1,3 +1,7 @@
+2.0dev9-10
+- Tweaked version checker
+- Removed Item rotating for the frames.
+
 2.0dev8-9
 - Added tool-tip while mousing over an item in a Mk. II
  to see what it will consume if crafted.
@@ -19,9 +23,17 @@
 - Added a button in the Mk. I to clear the crafting matrix to the supply matrix
 
 2.0dev General Changes
-- Added version checking
-- Added ore dictionary recipes
-- added config option to turn off version checking.
-- Fixed incorrect consumption of items in different stacks.
-- Crafting Frames
-    control click!
+- Added Project Bench Mk.II
+    Fill the inventory with crafting components and sift through the possibilities.
+    Middle click in the result area to scramble the display to see more results
+    Right click on an item to temporarily remove it from the display to free up room for other items
+- Added Crafting Frame
+    Hang it on the wall!
+    Place an item in the frame. Right click on the frame to try to craft it from components in your inventory.
+    Control right click to remove the currently displayed item from the frame
+    Shift right click to craft a full stack (or as many as possible)
+- Added Auto-Crafting Frame
+    Hang it on the wall!
+    Right click on the frame to craft what you are currently holding in your hand from your inventory
+- Performance enhancements for the Mk. I
+- Added Version Checking (disable in config)
