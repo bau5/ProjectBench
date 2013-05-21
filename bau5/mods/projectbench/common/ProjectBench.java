@@ -35,7 +35,7 @@ import cpw.mods.fml.relauncher.Side;
  * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
  * 
  */
-//1.5.1 - Forge 656
+//1.5.2 - Forge 656
 //Development Environment
 @Mod (modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.DEV_VERSION)
 @NetworkMod(clientSideRequired = true, serverSideRequired = false,
@@ -136,8 +136,8 @@ public class ProjectBench
 		}
 		EntityRegistry.registerModEntity(EntityCraftingFrameII.class, "craftingFrameII", entityID[1] +1, this, 15, Integer.MAX_VALUE, false);
 		proxy.registerRenderInformation();
-		LanguageRegistry.addName(craftingFrame, "Crafting Frame");
-		LanguageRegistry.addName(craftingFrameII, "Auto-Crafting Frame");
+		LanguageRegistry.addName(craftingFrame, "Advanced Crafting Frame");
+		LanguageRegistry.addName(craftingFrameII, "Crafting Frame");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
 		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 0), new Object[]{
 			" G ", "ICI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'C', Block.workbench, 'W', Block.planks, 'H', Block.chest
@@ -149,19 +149,16 @@ public class ProjectBench
 			GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 1), new Object[]{
 				"IPI", "WDW", "IWI", 'P', new ItemStack(this.projectBench, 1, 0), 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
 			});
-//			GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgradeII, 1, 0), new Object[]{
-//				"IWI", "WDW", "IWI", 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
-//			});
+			GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgradeII, 1, 0), new Object[]{
+				"IWI", "WDW", "IWI", 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
+			});
 			GameRegistry.addRecipe(new ItemStack(this.craftingFrame), new Object[]{
 				"SIS", "SCS", "SIS", 'C', Block.workbench, 'I', Item.ingotIron, 'S', Item.stick
 			});
 			GameRegistry.addRecipe(new ItemStack(this.craftingFrameII), new Object[]{
 				"SGS", "RCR", "SSS", 'G', Item.silk, 'S', Item.stick, 'R', Item.redstone, 'C', Block.workbench
 			});
-		}
-		if(!Reference.UP_TO_DATE)
-			TickRegistry.registerTickHandler(new VersionCheckTicker(), Side.CLIENT);
-		
+		}		
 	}
 	@PostInit
 	public void postInit(FMLPostInitializationEvent ev){

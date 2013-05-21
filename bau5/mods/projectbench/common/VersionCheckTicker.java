@@ -24,7 +24,7 @@ public class VersionCheckTicker implements ITickHandler {
 						init = false;
 						if(!Reference.UP_TO_DATE){
 							FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage("A new version of Project Bench is available.\n    Version: " +Reference.LATEST_VERSION +": " +Reference.LATEST_CHANGES);
-							FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage("The importance is " +Reference.UPDATE_IMPORTANCE +" - " +Reference.UPDATE_URL);
+							FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage("This update is " +Reference.UPDATE_IMPORTANCE +" - " +Reference.UPDATE_URL);
 						}
 						
 					}

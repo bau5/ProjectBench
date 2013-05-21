@@ -1,6 +1,7 @@
 package bau5.mods.projectbench.client;
 
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import bau5.mods.projectbench.common.CommonProxy;
 import bau5.mods.projectbench.common.EntityCraftingFrame;
 import bau5.mods.projectbench.common.EntityCraftingFrameII;

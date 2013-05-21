@@ -38,6 +38,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	private int stackSize = -1;
 	private RecipeItem currentRecipe = null;
 	private RecipeCrafter theCrafter = new RecipeCrafter();
+	public int id = -1;
 	
 	public EntityCraftingFrame(World world, int x, int y, int z,
 			int dir) {
@@ -57,9 +58,6 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 			reset();
 			return true;
 		}
-//		if(getDisplayedItem() != null && Keyboard.isKeyDown(Keyboard.KEY_LMENU)){
-//			this.setItemRotation(this.getRotation() + 1);
-//		}
 		if(getDisplayedItem() == null){
             ItemStack itemStack = player.getHeldItem();
             if (itemStack != null && !this.worldObj.isRemote)
@@ -75,10 +73,6 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
                     player.inventory.setInventorySlotContents(player.inventory.currentItem, (ItemStack)null);
                 }
             }
-	        else if (!this.worldObj.isRemote)
-	        {
-	            this.setItemRotation(this.getRotation() + 1);
-	        }
 	        return true;	
 		}
 		
@@ -144,6 +138,12 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
         }else
     		BehaviorDefaultDispenseItem.doDispense(worldObj, stack, 1, enumFacing, iPos);
 	}
+	@Override
+	public void onUpdate() {
+		super.onUpdate();
+		if(currentRecipe == null && getDisplayedItem() != null)
+			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem());
+	}
 	
 	@Override
 	public void setDisplayedItem(ItemStack par1ItemStack)
@@ -168,6 +168,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
     }
 	
 	public void reset(){
+		currentRecipe = null;
 		dataWatcher = new DataWatcher();
         this.dataWatcher.addObject(0, Byte.valueOf((byte)0));
         this.dataWatcher.addObject(1, Short.valueOf((short)300));
@@ -208,5 +209,9 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 		zPosition = data.readInt();
 		hangingDirection = data.readInt();
 		stackSize = data.readInt();
+	}
+
+	public RecipeItem getCurrentRecipe() {
+		return currentRecipe;
 	}
 }
