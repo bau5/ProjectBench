@@ -5,6 +5,8 @@ import java.net.URL;
 import java.util.Properties;
 
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 public class VersionChecker implements Runnable{
 
@@ -111,6 +113,7 @@ public class VersionChecker implements Runnable{
 					Reference.UP_TO_DATE = false;
 					Reference.UPDATE_IMPORTANCE = remoteVersionImportance;
 					checkLatestChanges();
+					TickRegistry.registerTickHandler(new VersionCheckTicker(), Side.CLIENT);
 				}
 				if(result == UP_TO_DATE)
 					System.out.println("ProjectBench: Project Bench is up to date.");

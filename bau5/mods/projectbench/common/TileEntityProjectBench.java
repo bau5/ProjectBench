@@ -97,7 +97,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 			sendPacketByType(0);
 		}
 		
-		System.out.println("Found");
 		return recipe;
 	}
 	

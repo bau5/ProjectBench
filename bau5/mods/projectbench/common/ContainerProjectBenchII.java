@@ -37,7 +37,6 @@ public class ContainerProjectBenchII extends Container
 
 	public void lookForOutputs(){
 		ItemStack[] stacks = tileEntity.consolidateItemStacks(true);
-//		tileEntity.setRecipeMap(RecipeManager.instance().getPossibleRecipesMap(stacks));
 		tileEntity.setListForDisplay(RecipeManager.instance().getValidRecipesByStacks(stacks));
 	}
 	@SideOnly(Side.CLIENT)

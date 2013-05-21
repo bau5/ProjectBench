@@ -79,8 +79,10 @@ public class RecipeCrafter {
 					if(is != null){
 						if(is.getItem().equals(stackInInventory.getItem())){
 							//TODO container item
-							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null)
+							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null){
+								flag = false;
 								continue;
+							}
 							boolean success = consumeItemStack(is);
 							if(!success){
 								flag = false;
@@ -89,18 +91,36 @@ public class RecipeCrafter {
 							if(stackInInventory.getItem().getContainerItem() == null)
 								stackInInventory.stackSize -= is.stackSize;
 							continue main;
-						}else if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE && OreDictionary.getOreID(stackInInventory) == OreDictionary.getOreID(is)){
-							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null)
-								break counterLoop;
-							boolean success = consumeItemStack(is);
-							if(!success){
-								flag = false;
-								break counterLoop;
+						}else if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE){
+							int id = OreDictionary.getOreID(is);
+							int id2 = OreDictionary.getOreID(stackInInventory);
+							if(!(id == -1 || id != id2)){
+								if(stackInInventory.stackSize <= is.stackSize){
+									boolean success = consumeItemStack(is);
+									if(!success){
+										flag = false;
+										continue;
+									}
+									if(stackInInventory.getItem().getContainerItem() == null)
+										stackInInventory.stackSize -= is.stackSize;
+									continue main;
+								}else if(stackInInventory.stackSize > is.stackSize){
+									break counterLoop;
+								}
 							}
-							if(stackInInventory.getItem().getContainerItem() == null)
-								stackInInventory.stackSize -= is.stackSize;
-							continue main;
 						}
+							/*else if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE && OreDictionary.getOreID(stackInInventory) == OreDictionary.getOreID(is))
+							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null)
+								break counterLoop;
+							boolean success = consumeItemStack(is);
+							if(!success){
+								flag = false;
+								break counterLoop;
+							}
+							if(stackInInventory.getItem().getContainerItem() == null)
+								stackInInventory.stackSize -= is.stackSize;
+							continue main;
+						}*/
 					}
 				}
 			}
@@ -117,40 +137,44 @@ public class RecipeCrafter {
 			if(stackInInventory == null){
 				continue;
 			}else{
-				if(stackInInventory.getItem().equals(stack.getItem()) && OreDictionary.itemMatches(stack, stackInInventory, false)){
+				if(OreDictionary.itemMatches(stack, stackInInventory, false)){
 					if(stack.stackSize <= stackInInventory.stackSize){
 						decreaseStackSize(i, stack.stackSize);
 						stack.stackSize = 0;
-						break;
 					}else{
 						int stackSize = stackInInventory.stackSize;
 						decreaseStackSize(i, stackSize);
 						stack.stackSize -= stackSize;
 					}
-				}else if(stack.getItemDamage() == OreDictionary.WILDCARD_VALUE && OreDictionary.getOreID(stack) == OreDictionary.getOreID(stackInInventory)){
-					if(stack.stackSize <= stackInInventory.stackSize){
-						decreaseStackSize(i, stack.stackSize);
-						stack.stackSize = 0;
-						break;
-					}else{
-						int stackSize = stackInInventory.stackSize;
-						decreaseStackSize(i, stackSize);
-						stack.stackSize -= stackSize;
+				}else if(stack.getItemDamage() == OreDictionary.WILDCARD_VALUE){
+					int id = OreDictionary.getOreID(stack);
+					int id2 = OreDictionary.getOreID(stackInInventory);
+					if(!(id == -1 || id != id2)){
+						if(stack.stackSize <= stackInInventory.stackSize){
+							decreaseStackSize(i, stack.stackSize);
+							stack.stackSize = 0;
+						}else{
+							int stackSize = stackInInventory.stackSize;
+							decreaseStackSize(i, stackSize);
+							stack.stackSize -= stackSize;
+						}
 					}
 				}
 			}
+			if(stack.stackSize == 0)
+				break;
 		}
 		return (stack.stackSize == 0);
 	}
 	
 	public ItemStack decreaseStackSize(int index, int amount){
-		if(tpbRef != null){
-			return tpbRef.decrStackSize(index + tpbRef.inventoryStart, amount);
-		}
 		if(sourceInventory != null){
 			sourceInventory[index].stackSize -= amount;
-			if(sourceInventory[index].stackSize == 0)
+			if(sourceInventory[index].stackSize == 0){
 				sourceInventory[index] = null;
+				if(tpbRef != null)
+					tpbRef.setInventorySlotContents(index +tpbRef.inventoryStart, null);
+			}
 			return sourceInventory[index];
 		}
 		return null;

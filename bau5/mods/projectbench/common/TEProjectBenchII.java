@@ -147,8 +147,8 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	public void setListForDisplay(ArrayList<ItemStack> list){
 		listToDisplay = list;
 		updateNeeded = true;
-		if(worldObj != null)
-			System.out.printf("List is being set for %s with %d entries.\n", worldObj.getClass().getSimpleName(), list.size());
+//		if(worldObj != null)
+//			System.out.printf("List is being set for %s with %d entries.\n", worldObj.getClass().getSimpleName(), list.size());
 	}
 
 	public void setRecipeMap(HashMap<ItemStack, ItemStack[]> possibleRecipesMap) {
@@ -329,20 +329,20 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	@Override
 	public ItemStack decrStackSize(int slot, int amount) {
 
-		ItemStack stack = getStackInSlot(slot);
+		ItemStack stack = inv[slot];
 		if(slot < 27)
 			return stack;
 		if(stack != null)
 		{
 			if(stack.stackSize <= amount)
 			{
-				setInventorySlotContents(slot, null);
+				inv[slot] = null;
 			} else
 			{
 				stack = stack.splitStack(amount);
 				if(stack.stackSize == 0) 
 				{
-					setInventorySlotContents(slot, null);
+					inv[slot] = null;
 				}
 			}
 		}
@@ -458,7 +458,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 
 	public void setDirection(byte dir) {
 		directionFacing = dir;
-		System.out.println("Direction: " +dir +((worldObj != null) ? worldObj.isRemote : "null"));
 	}
 	public byte getDirection(){
 		return directionFacing;

@@ -57,6 +57,8 @@ public class RecipeManager {
 		orderedRecipes = new ArrayList<RecipeItem>();
 		RecipeItem potentialRecipe = null;
 		for(IRecipe rec : defaultRecipes){
+			if(rec == null)
+				continue;
 			potentialRecipe = translateRecipe(rec);
 			if(potentialRecipe != null){
 				if(!checkForRecipe(potentialRecipe))
@@ -320,7 +322,6 @@ public class RecipeManager {
 					}
 				}
 				if(flag){
-//					validRecipes.add(rec.result());
 					outputInputMap.put(rec.result(), rec.alternatives.get(index));
 				}
 				
@@ -442,11 +443,6 @@ public class RecipeManager {
 	 */
 	private RecipeItem translateRecipe(IRecipe rec){
 		String type = "[null]";
-		if(rec.getRecipeOutput() != null
-				&& rec.getRecipeOutput().getItem().itemID < Block.blocksList.length
-				&& Block.blocksList[rec.getRecipeOutput().getItem().itemID] != null
-				&& Block.blocksList[rec.getRecipeOutput().getItem().itemID] == Block.blockIron)
-			System.out.println("True!");
 		try{
 			RecipeItem newRecItem = new RecipeItem();
 			if(rec instanceof ShapedRecipes){
