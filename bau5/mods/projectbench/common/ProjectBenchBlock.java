@@ -7,19 +7,26 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.oredict.OreDictionary;
 
 import org.lwjgl.input.Keyboard;
 
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -80,6 +87,7 @@ public class ProjectBenchBlock extends BlockContainer {
 		super.onBlockAdded(world, i, j, k);
 		world.markBlockForUpdate(i, j, k);
 	}
+
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
 			 int par6, float par7, float par8, float par9)
@@ -89,8 +97,10 @@ public class ProjectBenchBlock extends BlockContainer {
 		{	
 			return false;
 		}
-		int meta = world.getBlockMetadata(x, y, z);
-		if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && te instanceof TEProjectBenchII){
+		int meta = world.getBlockMetadata(x,y,z);
+		
+		/* Compatibility issue for servers...need work around.
+		if(world.isRemote && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && te instanceof TEProjectBenchII){
 			byte dir = ((TEProjectBenchII)te).getDirection();
 			if(dir == 5)
 				dir = 3;
@@ -102,7 +112,7 @@ public class ProjectBenchBlock extends BlockContainer {
 				dir++;
 			((TEProjectBenchII)te).setDirection(dir);
 			return false;
-		}
+		}*/
 
 		switch(meta){
 			case 0:
@@ -113,7 +123,8 @@ public class ProjectBenchBlock extends BlockContainer {
 				break;
 		}
 		return true;
-    }
+    } 
+	
 	@Override
 	public void breakBlock(World world, int x, int y, int z, int par5, int par6)
 	{

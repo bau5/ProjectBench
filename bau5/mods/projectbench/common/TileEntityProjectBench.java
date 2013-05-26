@@ -99,7 +99,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		
 		return recipe;
 	}
-	
+
 	@Override
 	public void updateEntity()
     {
@@ -136,16 +136,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		craftResult.setInventorySlotContents(0, result);
 	}
 	
-	public ItemStack[] getCrafting()
-	{
-		ItemStack[] craftings = new ItemStack[9];
-		for(int i = 0; i < 9; i++)
-		{
-			craftings[i] = inv[i];
-		}
-		return craftings;
-	}
-	
 	public ItemStack getResult()
 	{
 		return (result == null) ? null : result.copy();
@@ -156,6 +146,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 			result = stack.copy();
 		else
 			result = null;
+		
 		updateResultSlot();
 	}
 	
@@ -300,21 +291,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 		}
 		if(stacksData.length != 0 && stacksData[0] > 0)
 		{
-//			int index = 0;
-//			for(int i = 0; i < 9; i++)
-//			{
-//				if(stacksData[index + 1] != 0)
-//				{
-//					ItemStack stack = new ItemStack(stacksData[index], stacksData[index+1], stacksData[index+2]);
-//					inv[i] = stack;
-//				}
-//				else
-//				{
-//					inv[i] = null;
-//				}
-//				index = index + 3;
-//			}
-//			findRecipe(true);
 			this.setResult(new ItemStack(stacksData[0], stacksData[1], stacksData[2]));
 		} else
 			this.setResult(null);
