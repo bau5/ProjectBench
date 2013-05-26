@@ -1,3 +1,7 @@
+2.0dev10-11
+- Shift clicking the Mk. II will rotate the block now, no longer control right click.
+- Hitting the Advanced Crafting frame will toss the item out. Hit again to break the frame.
+
 2.0dev9-10
 - Tweaked version checker
 - Removed Item rotating for the frames.
@@ -27,12 +31,12 @@
     Fill the inventory with crafting components and sift through the possibilities.
     Middle click in the result area to scramble the display to see more results
     Right click on an item to temporarily remove it from the display to free up room for other items
-- Added Crafting Frame
+- Added Advanced Crafting Frame
     Hang it on the wall!
     Place an item in the frame. Right click on the frame to try to craft it from components in your inventory.
     Control right click to remove the currently displayed item from the frame
     Shift right click to craft a full stack (or as many as possible)
-- Added Auto-Crafting Frame
+- Added Crafting Frame
     Hang it on the wall!
     Right click on the frame to craft what you are currently holding in your hand from your inventory
 - Performance enhancements for the Mk. I

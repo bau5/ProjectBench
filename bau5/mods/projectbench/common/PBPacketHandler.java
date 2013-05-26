@@ -21,7 +21,6 @@ import com.google.common.io.ByteStreams;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
-import cpw.mods.fml.server.FMLServerHandler;
 
 /**
  * 
