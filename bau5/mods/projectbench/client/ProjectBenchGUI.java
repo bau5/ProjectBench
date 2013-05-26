@@ -74,7 +74,6 @@ public class ProjectBenchGui extends GuiContainer {
 		}
 		return result;
 	}
-	
 	@Override
 	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
 		if(ID == 0)
