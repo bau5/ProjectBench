@@ -21,7 +21,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import bau5.mods.projectbench.common.ProjectBench;
-import bau5.mods.projectbench.common.ProjectBenchBlock;
 import bau5.mods.projectbench.common.TileEntityProjectBench;
 import cpw.mods.fml.client.FMLClientHandler;
 

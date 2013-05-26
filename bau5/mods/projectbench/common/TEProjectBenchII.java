@@ -86,12 +86,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		ItemStack stack = null;
 		if(listToDisplay.size() == 0)
 			return;
-		String str;
-		if(worldObj.isRemote){
-			str = "server";
-		}else{
-			str = "client";
-		}
 		for(int i = 0; i < inventoryStart; i++){
 			stack = (i < listToDisplay.size()) ? listToDisplay.get(i) : null;
 			inv[i] = stack;
@@ -190,8 +184,10 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	
 	public void updateOutputRecipes(){
 		recipeMap = RecipeManager.instance().getPossibleRecipesMap(consolidateItemStacks(true));
-		if(recipeMap.size() == 0)
+		if(recipeMap.size() == 0){
+			setListForDisplay(new ArrayList<ItemStack>());
 			return;
+		}
 		ArrayList<ItemStack> tempList = new ArrayList<ItemStack>();
 		for(Entry ent : recipeMap.entrySet()){
 			if(ent != null && ent.getKey() instanceof ItemStack)
@@ -328,7 +324,6 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	
 	@Override
 	public ItemStack decrStackSize(int slot, int amount) {
-
 		ItemStack stack = inv[slot];
 		if(slot < 27)
 			return stack;
@@ -336,13 +331,13 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		{
 			if(stack.stackSize <= amount)
 			{
-				inv[slot] = null;
+				setInventorySlotContents(slot, null);
 			} else
 			{
 				stack = stack.splitStack(amount);
 				if(stack.stackSize == 0) 
 				{
-					inv[slot] = null;
+					setInventorySlotContents(slot, null);
 				}
 			}
 		}

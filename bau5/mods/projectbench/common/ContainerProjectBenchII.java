@@ -131,8 +131,6 @@ public class ContainerProjectBenchII extends Container
 				return null;
 			}
 		}
-//		else if(!tileEntity.worldObj.isRemote)
-//			lookForOutputs();
 		ItemStack stack = super.slotClick(slot, fake, meta, player);		
 		return stack;
 		
@@ -201,7 +199,7 @@ public class ContainerProjectBenchII extends Container
             //Merge Supply matrix item with player inventory
             else if (numSlot >= 27 && numSlot < 45)
             {
-                if (!this.mergeItemStack(stack2, 45, 80, true))
+                if (!this.mergeItemStack(stack2, 45, 81, false))
                 {
                     return null;
                 }
@@ -245,6 +243,7 @@ public class ContainerProjectBenchII extends Container
 		tileEntity.initSlots = true;
 		super.putStacksInSlots(par1ArrayOfItemStack);
 		tileEntity.initSlots = false;
+		tileEntity.updateOutputRecipes();
 	}
 	@Override
 	public void detectAndSendChanges(){
