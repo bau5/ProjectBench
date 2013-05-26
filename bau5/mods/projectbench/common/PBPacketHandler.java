@@ -21,6 +21,7 @@ import com.google.common.io.ByteStreams;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.server.FMLServerHandler;
 
 /**
  * 
@@ -33,6 +34,7 @@ import cpw.mods.fml.common.network.Player;
 
 public class PBPacketHandler implements IPacketHandler
 {
+	public static String PACKET_CHANNEL = "bau5_PB";
 
 	@Override
 	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) 
@@ -41,6 +43,7 @@ public class PBPacketHandler implements IPacketHandler
 			completeEmptyOfMatrix((EntityPlayerMP)player);
 			return;
 		}
+		
 		ByteArrayDataInput bis = ByteStreams.newDataInput(packet.data);
 		int id = bis.readInt();
 		int i = bis.readInt();
@@ -69,8 +72,6 @@ public class PBPacketHandler implements IPacketHandler
 				tpb.buildResultFromPacket(result);
 			else
 				tpb.setResult(null);
-//			else
-//				tpb.setResult(null);
 		}else if(te instanceof TEProjectBenchII){
 			TEProjectBenchII tpb = (TEProjectBenchII)te;
 			tpb.setDirection(d);
@@ -95,7 +96,7 @@ public class PBPacketHandler implements IPacketHandler
         thePlayer.sendContainerAndContentsToPlayer(thePlayer.openContainer, itemListToSend);
         ((ContainerProjectBench)thePlayer.openContainer).tileEntity.findRecipe(false);
 	}
-
+	
 	public static Packet prepPacketMkI(TileEntityProjectBench tpb)
 	{
 		int id = 0;
@@ -105,7 +106,6 @@ public class PBPacketHandler implements IPacketHandler
 		int j = tpb.yCoord;
 		int k = tpb.zCoord;
 		int d = 6;
-//		int[] crafting = tpb.getRecipeStacksForPacket();
 		int[] result = new int[3];
 		if(tpb.getResult() != null){
 			result[0] = tpb.getResult().itemID;
@@ -128,10 +128,6 @@ public class PBPacketHandler implements IPacketHandler
 			dos.writeByte(hasStacks ? 1 : 0);
 			if(hasStacks)
 			{
-//				for(int u = 0; u < 27; u++)
-//				{
-//					dos.writeInt(crafting[u]);
-//				}
 				for(int u = 0; u < 3; u++)
 					dos.writeInt(result[u]);
 			}
@@ -140,7 +136,7 @@ public class PBPacketHandler implements IPacketHandler
 			FMLLog.log(Level.SEVERE, ex, "Project Bench: failed packet prepping.");
 		}
 		Packet250CustomPayload packet = new Packet250CustomPayload();
-		packet.channel = "bau5_PB";
+		packet.channel = PACKET_CHANNEL;
 		packet.data = bos.toByteArray();
 		packet.length = bos.size();
 		packet.isChunkDataPacket = true;
@@ -182,7 +178,28 @@ public class PBPacketHandler implements IPacketHandler
 			FMLLog.log(Level.SEVERE, ex, "Project Bench: failed packet prepping.");
 		}
 		Packet250CustomPayload packet = new Packet250CustomPayload();
-		packet.channel = "bau5_PB";
+		packet.channel = PACKET_CHANNEL;
+		packet.data = bos.toByteArray();
+		packet.length = bos.size();
+		packet.isChunkDataPacket = true;
+		
+		return packet;
+	}
+
+	public static Packet buildFrameDispensePacket(EntityCraftingFrame craftingFrame) {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(20);
+		DataOutputStream dos = new DataOutputStream(bos);
+		
+		try{
+			dos.writeInt(2);
+			dos.writeInt(craftingFrame.xPosition);
+			dos.writeInt(craftingFrame.yPosition);
+			dos.writeInt(craftingFrame.zPosition);
+		}catch (IOException ex){
+			FMLLog.log(Level.SEVERE, ex, "Project Bench: failed packet prepping.");
+		}
+		Packet250CustomPayload packet = new Packet250CustomPayload();
+		packet.channel = PACKET_CHANNEL;
 		packet.data = bos.toByteArray();
 		packet.length = bos.size();
 		packet.isChunkDataPacket = true;
