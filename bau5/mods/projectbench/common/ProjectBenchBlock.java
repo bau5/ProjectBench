@@ -24,8 +24,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
-import org.lwjgl.input.Keyboard;
-
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -89,18 +87,12 @@ public class ProjectBenchBlock extends BlockContainer {
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
-			 int par6, float par7, float par8, float par9)
-    {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
-		if(te == null || player.isSneaking() || (player.getHeldItem() != null && player.getHeldItem().getItem() == ProjectBench.instance.projectBenchUpgradeII))
-		{	
-			return false;
-		}
-		int meta = world.getBlockMetadata(x,y,z);
-		
-		/* Compatibility issue for servers...need work around.
-		if(world.isRemote && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && te instanceof TEProjectBenchII){
+	public void onBlockClicked(World world, int x, int y, int z,
+			EntityPlayer player) {
+		if(player.isSneaking()){
+			TileEntity te = world.getBlockTileEntity(x, y, z);
+			if(!(te instanceof TEProjectBenchII))
+				super.onBlockClicked(world, x, y, z, player);
 			byte dir = ((TEProjectBenchII)te).getDirection();
 			if(dir == 5)
 				dir = 3;
@@ -111,9 +103,21 @@ public class ProjectBenchBlock extends BlockContainer {
 			else 
 				dir++;
 			((TEProjectBenchII)te).setDirection(dir);
+		}else
+			super.onBlockClicked(world, x, y, z, player);
+	}
+	
+	@Override
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
+			 int par6, float par7, float par8, float par9)
+    {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te == null || player.isSneaking() || (player.getHeldItem() != null && player.getHeldItem().getItem() == ProjectBench.instance.projectBenchUpgradeII))
+		{	
 			return false;
-		}*/
-
+		}
+		int meta = world.getBlockMetadata(x,y,z);
+		
 		switch(meta){
 			case 0:
 				player.openGui(ProjectBench.instance, 0, world, x, y, z);

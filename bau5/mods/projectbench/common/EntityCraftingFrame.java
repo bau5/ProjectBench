@@ -3,21 +3,19 @@ package bau5.mods.projectbench.common;
 import java.util.ArrayList;
 
 import net.minecraft.block.BlockSourceImpl;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.PositionImpl;
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
-
-import org.lwjgl.input.Keyboard;
-
 import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
@@ -25,7 +23,6 @@ import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 
-import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
 
 /**
@@ -56,12 +53,15 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	@Override
 	public boolean attackEntityFrom(DamageSource source, int par2) {
 		ItemStack stack = getDisplayedItem();
-		if(source.damageType.equals("player") && stack != null){
-			dispenseItem(getDisplayedItem());
-			reset();
-			hit = true;
-			return false;
-		}else if(!hit) return super.attackEntityFrom(source, par2);
+		if(getDisplayedItem() != null && source.getSourceOfDamage()!= null){
+			if(source.getSourceOfDamage().getClass() == EntityPlayerMP.class ||
+					source.getSourceOfDamage().getClass() == EntityClientPlayerMP.class){
+				dispenseItem(getDisplayedItem());
+				reset();
+				return true;
+			}
+		}
+		return super.attackEntityFrom(source, par2);
 	}
 	
 	@Override

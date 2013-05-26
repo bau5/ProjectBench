@@ -32,7 +32,6 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 	public EntityCraftingFrameII(World world, int x, int y, int z, int dir){
 		super(world, x, y, z, dir);
 	}
-	
 	public EntityCraftingFrameII(World world) {
 		super(world);
 	}
