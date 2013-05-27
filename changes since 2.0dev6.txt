@@ -1,3 +1,6 @@
+2.0dev11-11a
+- Fixed crafting frame giving back too many items, and possibly consuming too many.
+
 2.0dev10-11
 - Shift clicking the Mk. II will rotate the block now, no longer control right click.
 - Hitting the Advanced Crafting frame will toss the item out. Hit again to break the frame.

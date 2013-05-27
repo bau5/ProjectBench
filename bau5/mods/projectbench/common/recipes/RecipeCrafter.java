@@ -77,7 +77,7 @@ public class RecipeCrafter {
 			main : for(ItemStack is : toConsume){
 				for(ItemStack stackInInventory : consolidatedStacks){
 					if(is != null){
-						if(is.getItem().equals(stackInInventory.getItem())){
+						if(OreDictionary.itemMatches(is, stackInInventory, false)){
 							//TODO container item
 							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null){
 								flag = false;

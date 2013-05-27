@@ -53,10 +53,12 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	@Override
 	public boolean attackEntityFrom(DamageSource source, int par2) {
 		ItemStack stack = getDisplayedItem();
-		if(getDisplayedItem() != null && source.getSourceOfDamage()!= null){
+		if(stack != null && source.getSourceOfDamage()!= null){
 			if(source.getSourceOfDamage().getClass() == EntityPlayerMP.class ||
 					source.getSourceOfDamage().getClass() == EntityClientPlayerMP.class){
-				dispenseItem(getDisplayedItem());
+				stack.stackSize = 1;
+				if(!worldObj.isRemote)
+					dispenseItem(stack);
 				reset();
 				return true;
 			}
@@ -76,7 +78,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
         		if(currentRecipe == null)
         			return true;
                 this.setDisplayedItem(currentRecipe.result().copy());
-                stackSize = currentRecipe.result().stackSize;
+                stackSize = 1;
         		
                 if (!player.capabilities.isCreativeMode && --itemStack.stackSize <= 0)
                 {
