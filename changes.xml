@@ -2,5 +2,5 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties version="1.0">  
   <entry key = "1.7.4">Fixed inventory wipe.</entry>
-  <entry key = "2.0dev11">Fixed crashes relating to keybinds.</entry>
+  <entry key = "2.0dev11a">Fixed Crafting frames giving back too many items.</entry>
 </properties>
