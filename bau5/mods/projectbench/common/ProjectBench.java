@@ -9,6 +9,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
+import bau5.mods.projectbench.common.packets.PBPacketHandler;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -33,6 +34,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
  * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
  * 
  */
+// NEW WORK
 //1.5.2 - Forge 656
 //Development Environment
 @Mod (modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.DEV_VERSION)

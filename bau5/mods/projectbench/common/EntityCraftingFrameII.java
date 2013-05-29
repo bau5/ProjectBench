@@ -41,14 +41,18 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 			return false;
 		if(player.getHeldItem() != null && !player.getHeldItem().getItem().hasContainerItem()){
 			ItemStack theStack = player.getHeldItem();
-			if(lastRecipe == null || !OreDictionary.itemMatches(lastRecipe.result(), theStack, false))
+			if(theStack.isItemDamaged()){
+				theStack = theStack.copy();
+				theStack.setItemDamage(0);
+			}
+			if(lastRecipe == null || !OreDictionary.itemMatches(lastRecipe.result(), theStack, false)){
 				lastRecipe = RecipeManager.instance().searchForRecipe(theStack);
+			}
 			if(lastRecipe == null)
 				return false;
 			ArrayList<ItemStack[]> recipeStacks = lastRecipe.alternatives(); 
 			if(recipeStacks != null){
-				ItemStack[] consolidatedInventory = null;
-				consolidatedInventory = theCrafter.consolidateItemStacks(player.inventory.mainInventory);
+				ItemStack[] consolidatedInventory = RecipeManager.instance().consolidateItemStacks(player.inventory.mainInventory);
 				for(ItemStack[] isa : recipeStacks){
 					theCrafter.addInventoryReference(player.inventory.mainInventory);
 					int numMade = theCrafter.consumeItems(isa, consolidatedInventory, lastRecipe.result(), player.isSneaking());
