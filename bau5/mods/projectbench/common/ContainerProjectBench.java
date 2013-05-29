@@ -18,7 +18,7 @@ import net.minecraft.item.ItemStack;
 
 public class ContainerProjectBench extends Container
 {
-	protected TileEntityProjectBench tileEntity;
+	public TileEntityProjectBench tileEntity;
 	
 	public IInventory craftSupplyMatrix;
 	public int craftResultSlot = 0;

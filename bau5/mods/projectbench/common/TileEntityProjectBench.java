@@ -17,6 +17,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
+import bau5.mods.projectbench.common.packets.PBPacketManager;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
 /**
@@ -298,7 +299,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IS
 	@Override
 	public Packet getDescriptionPacket()
 	{
-		return PBPacketHandler.prepPacketMkI(this);
+		return PBPacketManager.getMkIPacket(this);
 	}
 
 	@Override

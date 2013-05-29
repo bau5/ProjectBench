@@ -109,18 +109,6 @@ public class RecipeCrafter {
 								}
 							}
 						}
-							/*else if(is.getItemDamage() == OreDictionary.WILDCARD_VALUE && OreDictionary.getOreID(stackInInventory) == OreDictionary.getOreID(is))
-							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null)
-								break counterLoop;
-							boolean success = consumeItemStack(is);
-							if(!success){
-								flag = false;
-								break counterLoop;
-							}
-							if(stackInInventory.getItem().getContainerItem() == null)
-								stackInInventory.stackSize -= is.stackSize;
-							continue main;
-						}*/
 					}
 				}
 			}
@@ -218,14 +206,25 @@ public class RecipeCrafter {
 		for(int i = 0; i < items.length; i++){
 			stack = clonedItems[i];
 			for(ItemStack sin : consolidatedStacks){
-				if(sin.getItem().equals(stack.getItem()) 
-						|| (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE 
-						&& OreDictionary.getOreID(sin) == OreDictionary.getOreID(stack))){
-					if(sin.stackSize >= stack.stackSize){
+				if(OreDictionary.itemMatches(stack, sin, false)){
+					if(stack.stackSize <= sin.stackSize){
 						stack.stackSize = 0;
-						break;
 					}else{
-						stack.stackSize -= sin.stackSize;
+						int stackSize = sin.stackSize;
+						stack.stackSize -= stackSize;
+					}
+				}else if(stack.getItemDamage() == OreDictionary.WILDCARD_VALUE){
+					int id = OreDictionary.getOreID(stack);
+					int id2 = OreDictionary.getOreID(sin);
+					if(!(id == -1 || id != id2)){
+						if(stack.stackSize <= sin.stackSize){
+							decreaseStackSize(i, stack.stackSize);
+							stack.stackSize = 0;
+						}else{
+							int stackSize = sin.stackSize;
+							decreaseStackSize(i, stackSize);
+							stack.stackSize -= stackSize;
+						}
 					}
 				}
 			}

@@ -18,6 +18,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.ISidedInventory;
 import net.minecraftforge.oredict.OreDictionary;
+import bau5.mods.projectbench.common.packets.PBPacketManager;
 import bau5.mods.projectbench.common.recipes.PBRecipeSorter;
 import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
@@ -253,7 +254,7 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	
 	@Override
 	public Packet getDescriptionPacket() {
-		return PBPacketHandler.prepPacketMkII(this);
+		return PBPacketManager.getMkIIPacket(this);
 	}
 	public int[] getInputStacksForPacket()
 	{

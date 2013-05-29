@@ -30,9 +30,10 @@ public class ContainerProjectBenchII extends Container
 		layoutContainer();
 		bindPlayerInventory(invPlayer);
 		detectAndSendChanges();
-		lookForOutputs();
-		if(tileEntity.worldObj.isRemote)
+		if(tileEntity.worldObj.isRemote){
+			lookForOutputs();
 			tileEntity.setRecipeMap(RecipeManager.instance().getPossibleRecipesMap(tileEntity.consolidateItemStacks(false)));
+		}
 	}
 
 	public void lookForOutputs(){
@@ -104,37 +105,69 @@ public class ContainerProjectBenchII extends Container
 	public ItemStack slotClick(int slot, int clickType, int meta, EntityPlayer player){
 		int fake = clickType;
 		ItemStack originalStack = (slot < 45 && slot >= 0) ? tileEntity.getStackInSlot(slot) : null;
-		if((clickType == 1 || clickType == 2) && (slot < 27 && slot >= 0))
-			return handleSlotClick(slot, fake, meta, originalStack, player);
 		if(meta == 6)
-			return null;
+			meta = 0;
 		if(slot < 27 && slot >= 0){
-			if(originalStack == null)
-				return null;
-			ItemStack returnStack = handleSlotClick(slot, fake, meta, originalStack, player);
-			if(returnStack != null){
-				ItemStack stackOnMouse = player.inventory.getItemStack();
-				if(stackOnMouse == null){
-					player.inventory.setItemStack(ItemStack.copyItemStack(returnStack));
-				}
-				else{
-					if(stackOnMouse.isItemEqual(returnStack)){
-						if(stackOnMouse.stackSize + returnStack.stackSize <= stackOnMouse.getMaxStackSize())
-							stackOnMouse.stackSize += returnStack.stackSize;
-						else
-							return null;
+			if(player.worldObj.isRemote){
+				if((clickType == 1 || clickType == 2))
+					return handleSlotClick(slot, fake, meta, originalStack, player);
+				if(slot < 27 && slot >= 0){
+					if(originalStack == null)
+						return null;
+					ItemStack returnStack = handleSlotClick(slot, fake, meta, originalStack, player);
+					if(returnStack != null){
+						ItemStack stackOnMouse = player.inventory.getItemStack();
+						if(stackOnMouse == null){
+							player.inventory.setItemStack(ItemStack.copyItemStack(returnStack));
+						}
+						else{
+							if(stackOnMouse.isItemEqual(returnStack)){
+								if(stackOnMouse.stackSize + returnStack.stackSize <= stackOnMouse.getMaxStackSize())
+									stackOnMouse.stackSize += returnStack.stackSize;
+								else
+									return null;
+							}
+						}
+						return returnStack;
+					}else{
+						lookForOutputs();
+						return null;
 					}
 				}
-				return returnStack;
 			}else{
-				lookForOutputs();
 				return null;
 			}
+		}else{
+			ItemStack stack = super.slotClick(slot, fake, meta, player);		
+			return stack;
 		}
-		ItemStack stack = super.slotClick(slot, fake, meta, player);		
-		return stack;
+		return null;
 		
 	}
+
+	public ItemStack serverMouseClick(int slot, int clickType, int meta, EntityPlayer ep, ItemStack stackRequested) {
+		if(clickType != 1 && clickType != 2){
+			if(slot >= 0 && slot < 27){
+				int fake = (meta == 6) ? 0 : meta;
+				ItemStack returnStack = handleSlotClick(slot, clickType, meta, stackRequested, ep);
+				if(returnStack != null){
+					ItemStack stackOnMouse = ep.inventory.getItemStack();
+					if(stackOnMouse == null){
+						ep.inventory.setItemStack(ItemStack.copyItemStack(returnStack));
+					}
+					else{
+						if(stackOnMouse.isItemEqual(returnStack)){
+							if(stackOnMouse.stackSize + returnStack.stackSize <= stackOnMouse.getMaxStackSize())
+								stackOnMouse.stackSize += returnStack.stackSize;
+						}
+					}
+					return returnStack;
+				}
+			}
+		}
+		return null;
+	}
+	
 	private ItemStack handleSlotClick(int slot, int clickType, int clickMeta, ItemStack stackInSlot, EntityPlayer player) {
 		if(clickType == 1){
 			tileEntity.removeResultFromDisplay(stackInSlot);
