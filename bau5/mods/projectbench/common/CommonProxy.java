@@ -36,12 +36,13 @@ public class CommonProxy implements IGuiHandler
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		
 		TileEntity te = world.getBlockTileEntity(x,y,z);
-		if(te != null && (te instanceof TileEntityProjectBench || te instanceof TEProjectBenchII))
-			return new ProjectBenchGui(player.inventory, te, ID);
+		if(te != null && (te instanceof TileEntityProjectBench || te instanceof TEProjectBenchII)){
+				return new ProjectBenchGui(player.inventory, te, ID);
+		}
 		return null;
 	}
 	
-	public net.minecraft.world.World getClientSideWorld()
+	public World getClientSideWorld()
 	{
 		return null;
 	}

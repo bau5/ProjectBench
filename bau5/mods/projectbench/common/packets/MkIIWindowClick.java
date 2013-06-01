@@ -28,11 +28,12 @@ public class MkIIWindowClick extends PBPacket{
     public int mouseClick;
     public short action;
     public ItemStack itemStack;
+    public int origStackSize;
     public int holdingShift;
     
     public MkIIWindowClick() {};
     @SideOnly(Side.CLIENT)
-	public MkIIWindowClick(int windowId, int par1, int par2, int par3, ItemStack itemstack, short short1) {
+	public MkIIWindowClick(int windowId, int par1, int par2, int par3, ItemStack itemstack, short short1, int size) {
     	super((byte)3);
 		window_Id = windowId;
 		inventorySlot = par1;
@@ -40,11 +41,12 @@ public class MkIIWindowClick extends PBPacket{
 		itemStack = itemstack != null ? itemstack.copy() : null;
 		action = short1;
 		holdingShift = par3;
+		origStackSize = size;
 	}
 	
     @Override
     public Packet makePacket(){
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(20);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(24);
 		DataOutputStream dos = new DataOutputStream(bos);
 		try{
 			dos.writeByte(PACKET_ID);
@@ -56,6 +58,7 @@ public class MkIIWindowClick extends PBPacket{
 	        dos.writeInt((itemStack!=null)? itemStack.itemID : -1);
 	        dos.writeInt((itemStack!=null)? itemStack.stackSize : -1);
 	        dos.writeInt((itemStack!=null)? itemStack.getItemDamage() : -1);
+	        dos.writeInt((itemStack!=null)? origStackSize : -1);
 		}catch (IOException ex){
 			FMLLog.log(Level.SEVERE, ex, "Project Bench: failed packet prepping.");
 		}
@@ -75,8 +78,10 @@ public class MkIIWindowClick extends PBPacket{
     	action = bis.readShort();
     	holdingShift = bis.readByte();
     	int itemId = bis.readInt();
+    	int stackSize = -1;
     	if(itemId != -1){
     		itemStack = new ItemStack(itemId, bis.readInt(), bis.readInt());
+    		origStackSize = bis.readInt();
     	}
     	handleWindowClick(player);
     }
@@ -87,8 +92,12 @@ public class MkIIWindowClick extends PBPacket{
         if (playerEntity!= null && playerEntity.openContainer.windowId == window_Id && playerEntity.openContainer.isPlayerNotUsingContainer(playerEntity))
         {
             if(playerEntity.openContainer instanceof ContainerProjectBenchII){
-            	ContainerProjectBenchII theContainer = (ContainerProjectBenchII)playerEntity.openContainer;
-            	ItemStack serverStack = ((ContainerProjectBenchII)playerEntity.openContainer).serverMouseClick(inventorySlot, mouseClick, holdingShift, playerEntity, ((ContainerProjectBenchII)playerEntity.openContainer).getItemStackFromTileEntity(inventorySlot));
+            	ItemStack origStack = null;
+            	if(itemStack != null){
+            		origStack = itemStack.copy();
+            		origStack.stackSize = origStackSize;
+            	}
+            	ItemStack serverStack = ((ContainerProjectBenchII)playerEntity.openContainer).serverMouseClick(inventorySlot, mouseClick, holdingShift, playerEntity, origStack);
             	
             	if (ItemStack.areItemStacksEqual(itemStack, serverStack))
                 {
