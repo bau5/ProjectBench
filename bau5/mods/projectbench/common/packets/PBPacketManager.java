@@ -22,15 +22,15 @@ public class PBPacketManager {
 	}
 
 	public static Packet getMkIIPacket(TEProjectBenchII tile) {
-		return ((Packet250CustomPayload)new MkIIStandardPacket(tile).makePacket());
+		return (Packet250CustomPayload)new MkIIStandardPacket(tile).makePacket();
 	}
 	
 	public static Packet getMkIIWindowClick(int windowId, int par1, int par2, int par3, ItemStack itemstack, short short1){
-		return new MkIIWindowClick(windowId, par1, par2, par3, itemstack, short1).makePacket();
+		return (Packet250CustomPayload)new MkIIWindowClick(windowId, par1, par2, par3, itemstack, short1).makePacket();
 	}
 
 	public static Packet getRejectionPacket(int window_Id, short action, boolean b) {
-		return new RejectionPacket(window_Id, action, b).makePacket();
+		return (Packet250CustomPayload)new RejectionPacket(window_Id, action, b).makePacket();
 	}
 	
 	public static void handleMkIPacket(Packet250CustomPayload packet, Player player, ByteArrayDataInput bis){

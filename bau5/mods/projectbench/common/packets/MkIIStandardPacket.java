@@ -54,10 +54,12 @@ public class MkIIStandardPacket extends PBPacket {
 		if(te instanceof TEProjectBenchII){
 			TEProjectBenchII tpb = (TEProjectBenchII)te;
 			tpb.setDirection(d);
+			tpb.setNetworkModifying(true);
 			if(hasStacks)
 				tpb.buildResultFromPacket(result);
 			else
 				tpb.setListForDisplay(new ArrayList<ItemStack>());
+			tpb.setNetworkModifying(false);
 		}
 	}
 	

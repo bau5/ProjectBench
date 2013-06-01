@@ -32,8 +32,8 @@ public class PBPacketHandler implements IPacketHandler
 	{
 		if(packet.data == null)
 			return;
-		if(packet.data.length == 1 && packet.data[0] == 1){
-			completeEmptyOfMatrix((EntityPlayerMP)player);
+		if(packet.data.length == 1){
+			handlePBTinyPacket(packet, player);
 			return;
 		}
 		ByteArrayDataInput bis = ByteStreams.newDataInput(packet.data);
@@ -50,7 +50,15 @@ public class PBPacketHandler implements IPacketHandler
 		}
 	}
 
-	public void completeEmptyOfMatrix(EntityPlayerMP thePlayer) {
+	private void handlePBTinyPacket(Packet250CustomPayload packet, Player player) {
+		byte tinyid = packet.data[0];
+		switch(tinyid){
+		case 1: if(player instanceof EntityPlayerMP) completeEmptyOfMatrix((EntityPlayerMP)player);
+			return;
+		}
+	}
+
+	private void completeEmptyOfMatrix(EntityPlayerMP thePlayer) {
         ArrayList itemListToSend = new ArrayList();
         ((ContainerProjectBench)thePlayer.openContainer).tileEntity.containerInit = true;
         for(int i = 0; i < 9; i++){

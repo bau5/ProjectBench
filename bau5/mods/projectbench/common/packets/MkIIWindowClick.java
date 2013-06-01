@@ -87,7 +87,8 @@ public class MkIIWindowClick extends PBPacket{
         if (playerEntity!= null && playerEntity.openContainer.windowId == window_Id && playerEntity.openContainer.isPlayerNotUsingContainer(playerEntity))
         {
             if(playerEntity.openContainer instanceof ContainerProjectBenchII){
-            	ItemStack serverStack = (((ContainerProjectBenchII)playerEntity.openContainer).serverMouseClick(inventorySlot, mouseClick, holdingShift, playerEntity, itemStack));
+            	ContainerProjectBenchII theContainer = (ContainerProjectBenchII)playerEntity.openContainer;
+            	ItemStack serverStack = ((ContainerProjectBenchII)playerEntity.openContainer).serverMouseClick(inventorySlot, mouseClick, holdingShift, playerEntity, ((ContainerProjectBenchII)playerEntity.openContainer).getItemStackFromTileEntity(inventorySlot));
             	
             	if (ItemStack.areItemStacksEqual(itemStack, serverStack))
                 {
