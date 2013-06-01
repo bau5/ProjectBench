@@ -14,6 +14,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 
 import org.lwjgl.opengl.GL11;
@@ -23,7 +24,7 @@ import bau5.mods.projectbench.common.ContainerProjectBenchII;
 import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.TEProjectBenchII;
 import bau5.mods.projectbench.common.TileEntityProjectBench;
-import bau5.mods.projectbench.common.packets.PBPacket;
+import bau5.mods.projectbench.common.packets.PBPacketHandler;
 import bau5.mods.projectbench.common.packets.PBPacketManager;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
@@ -148,11 +149,14 @@ public class ProjectBenchGui extends GuiContainer {
             par2 = par1Slot.slotNumber;
         }
 		if(ID == 1){
-			if(par1Slot.slotNumber >= 27){
+			if(par1Slot == null){
+				super.handleMouseClick(par1Slot, par2, par3, par4);
+				return;
+			}else if(par1Slot.slotNumber >= 27){
 			    this.mc.playerController.windowClick(this.inventorySlots.windowId, par2, par3, par4, this.mc.thePlayer);
 				if(par1Slot != null && par1Slot.getHasStack() && ID == 1 && par1Slot.slotNumber >= 27 && par1Slot.slotNumber < 45)
 					((ContainerProjectBenchII)inventorySlots).updateToolTipMap();
-			}else if(par1Slot.slotNumber > 0 && par1Slot.slotNumber < 27){
+			}else if(par1Slot.slotNumber >= 0 && par1Slot.slotNumber < 27){
 				craftingMatrixSlotClick(par2, par3, par4);
 			}
 		}else if(ID == 0)
@@ -163,6 +167,7 @@ public class ProjectBenchGui extends GuiContainer {
 		short short1 = mc.thePlayer.openContainer.getNextTransactionID(mc.thePlayer.inventory);
         ItemStack itemstack = mc.thePlayer.openContainer.slotClick(par1, par2, par3, mc.thePlayer);
         PacketDispatcher.sendPacketToServer(PBPacketManager.getMkIIWindowClick(inventorySlots.windowId, par1, par2, par3, itemstack, short1));
+        
 	}
 	
 	public class PBClearInventoryButton extends GuiButton{
@@ -202,7 +207,7 @@ public class ProjectBenchGui extends GuiContainer {
 			boolean fireButton = super.mousePressed(mc, par2, par3);
 			if(fireButton){
 	            mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
-				PacketDispatcher.sendPacketToServer(new PBPacket(new byte[]{1}));
+				PacketDispatcher.sendPacketToServer(new Packet250CustomPayload(PBPacketHandler.PACKET_CHANNEL, new byte[]{1}));
 			}
 			return fireButton;
 		}

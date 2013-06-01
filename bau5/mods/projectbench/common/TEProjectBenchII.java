@@ -52,9 +52,15 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	private ArrayList<RecipeItem> recipeList = new ArrayList<RecipeItem>();
 	private RecipeCrafter theCrafter = new RecipeCrafter();
 	private HashMap<ItemStack, ItemStack[]> recipeMap = null;
+	private boolean networkIsModifying = false;;
 	
 	@Override
 	public void onInventoryChanged() {
+		if(updateNeeded){
+			disperseListAcrossMatrix();
+			if(!networkIsModifying && !worldObj.isRemote)
+				PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 15D, worldObj.getWorldInfo().getDimension(), getDescriptionPacket());
+		}
 		super.onInventoryChanged();
 	}
 	public TEProjectBenchII(){
@@ -65,18 +71,10 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 		supplyMatrixSize = 18;
 	}
 	
-	public void forceUpdate(){
-		updateNeeded = true;
-		updateEntity();
-	}
-	
 	@Override
 	public void updateEntity() {
 		super.updateEntity();
 		sync++;
-		if(updateNeeded){
-			disperseListAcrossMatrix();
-		}
 		if(sync == 20 && initSlots && !worldObj.isRemote){
 			sendListClientSide();
 		}
@@ -457,5 +455,8 @@ public class TEProjectBenchII extends TileEntity implements IInventory, ISidedIn
 	}
 	public byte getDirection(){
 		return directionFacing;
+	}
+	public void setNetworkModifying(boolean b) {
+		networkIsModifying  = b;
 	}
 }

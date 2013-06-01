@@ -168,6 +168,10 @@ public class ContainerProjectBenchII extends Container
 		return null;
 	}
 	
+	public ItemStack getItemStackFromTileEntity(int slot){
+		return tileEntity.getStackInSlot(slot);
+	}
+	
 	private ItemStack handleSlotClick(int slot, int clickType, int clickMeta, ItemStack stackInSlot, EntityPlayer player) {
 		if(clickType == 1){
 			tileEntity.removeResultFromDisplay(stackInSlot);
