@@ -25,8 +25,8 @@ public class PBPacketManager {
 		return (Packet250CustomPayload)new MkIIStandardPacket(tile).makePacket();
 	}
 	
-	public static Packet getMkIIWindowClick(int windowId, int par1, int par2, int par3, ItemStack itemstack, short short1){
-		return (Packet250CustomPayload)new MkIIWindowClick(windowId, par1, par2, par3, itemstack, short1).makePacket();
+	public static Packet getMkIIWindowClick(int windowId, int par1, int par2, int par3, ItemStack itemstack, short short1, int stackSize){
+		return (Packet250CustomPayload)new MkIIWindowClick(windowId, par1, par2, par3, itemstack, short1, stackSize).makePacket();
 	}
 
 	public static Packet getRejectionPacket(int window_Id, short action, boolean b) {

@@ -13,7 +13,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * ContainerProjectBenchII
- *
+ * 
  * @author _bau5
  * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
  * 
@@ -177,7 +177,7 @@ public class ContainerProjectBenchII extends Container
 			tileEntity.removeResultFromDisplay(stackInSlot);
 			return null;
 		}else if(clickType == 2){
-			tileEntity.scrambleMatrix();
+			//tileEntity.scrambleMatrix();
 			return null;
 		}else{
 			ItemStack stackOnMouse = player.inventory.getItemStack();
@@ -289,5 +289,9 @@ public class ContainerProjectBenchII extends Container
 			lookForOutputs();
 			postSlotClick = false;
 		}
+	}
+
+	public void scrambleMatrix() {
+		tileEntity.scrambleMatrix();
 	}
 }
