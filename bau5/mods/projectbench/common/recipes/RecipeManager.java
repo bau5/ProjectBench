@@ -415,7 +415,7 @@ public class RecipeManager {
 				int counter = 0;
 				for(ItemStack stackInList : consolidatedItems){
 					counter++;
-					if(stackInList.getItem().equals(stackInArray.getItem())){
+					if(OreDictionary.itemMatches(stackInArray, stackInList, false)){
 						stackInList.stackSize++;
 						continue main;
 					}else if(counter == consolidatedItems.size()){

@@ -45,14 +45,15 @@ public class ProjectBenchGui extends GuiContainer {
 	private ItemStack[] stacksToDraw = null;
 	private boolean once = true;
 	private boolean changed = false;
+	private boolean panel = false;
 
 	private int matrixStartX;
 	private int matrixStopX;
 	private int matrixStartY;
 	private int matrixStopY;
 	
-	private int xShift;
-	private int yShift;
+	private int xShift = 0;
+	private int yShift = 0;
 	
 	public ProjectBenchGui(InventoryPlayer inventoryPlayer,
 			TileEntity tileEntity, int guiID) {
@@ -64,10 +65,8 @@ public class ProjectBenchGui extends GuiContainer {
 			texPath = ProjectBench.baseTexFile + "/gui/pbGUI.png";
 		}
 		else if (ID == 1){
-			xShift = 15;
-			yShift = 11;
-			
 			texPath = ProjectBench.baseTexFile + "/gui/pbGUI2.png";
+			panel = true;
 		}
 	}
 	
@@ -96,23 +95,28 @@ public class ProjectBenchGui extends GuiContainer {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2,
 			int par3) {
-		if(once && ID == 0)
+		int x = (width - xSize) / 2;
+		int y = (height - ySize) / 2;
+		if(once && ID == 0){
+			once = false;
 			buttonList.add(new PBClearInventoryButton(15294, width/2 -76, height/2 -49, 11, 11, ""));
-		if(once && ID == 1){
-			buttonList.add(new PBScrambleMatrixButton(15294, width/2 -97, height/2 -86, 9, 9, ""));
-			xSize += xShift;
+		}else if(once && ID == 1){
+			matrixStartX = guiLeft+7;
+			matrixStopX  = matrixStartX+162;
+			matrixStartY = guiTop +15;
+			matrixStopY  = matrixStartY +58;
+			xShift = -3;
+			yShift = 2;
+			buttonList.add(new PBScrambleMatrixButton(15294, x-8+xShift, y +19 +yShift, 9, 9, ""));
+			buttonList.add( new PBRefreshMatrixButton(15295, x-8+xShift, y +31 +yShift, 9, 9, ""));
+			once = false;
 		}
-		matrixStartX = guiLeft+7;
-		matrixStopX  = matrixStartX+162;
-		matrixStartY = guiTop +15;
-		matrixStopY  = matrixStartY +58;
-		int iiShift = (ID == 1) ? 7 : 0;
-		once = false;
 		mc.renderEngine.bindTexture(texPath);
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		int x = (width - xSize) / 2 - xShift;
-		int y = (height - ySize) / 2 - yShift;
-		this.drawTexturedModalRect(x+iiShift, y, 0, -2, xSize, ySize);
+		this.drawTexturedModalRect(x+xShift, y+yShift, 0, 0, xSize, ySize);
+		if(panel){
+			this.drawTexturedModalRect(x+xShift-11, y+yShift+14, 185, 1, 12, 29);
+		}
 	}
 	@Override
 	protected void drawItemStackTooltip(ItemStack stack, int x,
@@ -172,7 +176,7 @@ public class ProjectBenchGui extends GuiContainer {
 			}else if(par1Slot.slotNumber >= 0 && par1Slot.slotNumber < 27){
 				craftingMatrixSlotClick(par2, par3, par4);
 			}
-		}else if(ID == 0)
+		}else
 			super.handleMouseClick(par1Slot, par2, par3, par4);
 	}
 	
@@ -230,8 +234,8 @@ public class ProjectBenchGui extends GuiContainer {
 	}
 	
 	public class PBScrambleMatrixButton extends GuiButton{
-		
-		private int rotation = 0;
+		private boolean clicked = false;
+		private int displayTicks = 0;
 		public PBScrambleMatrixButton(int id, int xPos, int yPos, int width,
 				int height, String label) {
 			super(id, xPos, yPos, width, height, label);
@@ -240,6 +244,12 @@ public class ProjectBenchGui extends GuiContainer {
 		@Override
 		public void drawButton(Minecraft par1Minecraft, int i, int j) {
 			if(this.drawButton){
+				if(clicked){
+					if(++displayTicks > 10){
+						clicked = false;
+						displayTicks = 0;
+					}
+				}
 				FontRenderer fontrenderer = mc.fontRenderer;
 	            mc.renderEngine.bindTexture(texPath);
 	            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -247,7 +257,7 @@ public class ProjectBenchGui extends GuiContainer {
 	            int k = this.getHoverState(this.field_82253_i);
 	            //Top left, top right, bottom left, bottom right, icon
 	            GL11.glPushMatrix();
-	            this.drawTexturedModalRect(this.xPosition, this.yPosition, 191, 14 + (k-1)*9, width, height);
+	            this.drawTexturedModalRect(this.xPosition, this.yPosition, 176, 3 + (k-1)*9*(clicked ? 2:1), width, height);
 	            GL11.glPopMatrix();
 	            this.mouseDragged(mc, i, j);
 	            int l = 14737632;
@@ -265,18 +275,69 @@ public class ProjectBenchGui extends GuiContainer {
 	       
 			}
 		}
-		
 		@Override
 		public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3) {
 			boolean fireButton = super.mousePressed(par1Minecraft, par2, par3);
-			
 			if(fireButton){
-				rotation++;
+				clicked = true;
 	            mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
 	            ((ContainerProjectBenchII)inventorySlots).scrambleMatrix();
 			}
 			return fireButton;
 		}
+	}
+	public class PBRefreshMatrixButton extends GuiButton{
+		private boolean clicked = false;
+		private int displayTicks = 0;
+		public PBRefreshMatrixButton(int id, int xPos, int yPos, int width,
+				int height, String label) {
+			super(id, xPos, yPos, width, height, label);
+		}
 		
+		@Override
+		public void drawButton(Minecraft par1Minecraft, int i, int j) {
+			if(this.drawButton){
+				if(clicked){
+					if(++displayTicks > 20){
+						clicked = false;
+						displayTicks = 0;
+					}
+				}
+				FontRenderer fontrenderer = mc.fontRenderer;
+	            mc.renderEngine.bindTexture(texPath);
+	            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	            this.field_82253_i = i >= this.xPosition && j >= this.yPosition && i < this.xPosition + this.width && j < this.yPosition + this.height;
+	            int k = this.getHoverState(this.field_82253_i);
+	            //Top left, top right, bottom left, bottom right, icon
+	            GL11.glPushMatrix();
+	            this.drawTexturedModalRect(this.xPosition, this.yPosition, 176, 30 + (k-1)*9*(clicked ? 2:1), width, height);
+	            GL11.glPopMatrix();
+	            this.mouseDragged(mc, i, j);
+	            int l = 14737632;
+	            
+	            if (!this.enabled)
+	            {
+	                l = -6250336;
+	            }
+	            else if (this.field_82253_i)
+	            {
+	                l = 16777120;
+	            }
+
+	            this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, l);
+	       
+			}
+		}
+		
+		@Override
+		public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3) {
+			boolean fireButton = super.mousePressed(par1Minecraft, par2, par3);
+			if(fireButton){
+				clicked = true;
+	            mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
+	            ((ContainerProjectBenchII)inventorySlots).lookForOutputs();
+			}
+			return fireButton;
+		}
 	}
 }

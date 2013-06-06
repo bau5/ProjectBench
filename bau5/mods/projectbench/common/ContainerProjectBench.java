@@ -30,7 +30,7 @@ public class ContainerProjectBench extends Container
 		tileEntity = tpb;
 		craftSupplyMatrix = tileEntity.craftSupplyMatrix;
 		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, tileEntity, tileEntity.craftResult, 
-										 tileEntity, craftResultSlot, 124, 37));
+										 tileEntity, craftResultSlot, 124, 35));
 		layoutContainer(invPlayer, tileEntity);
 		bindPlayerInventory(invPlayer);
 		containerChanged = true;
@@ -48,7 +48,7 @@ public class ContainerProjectBench extends Container
 		{
 			for(col = 0; col < 3; col++)
 			{
-				slot = new Slot(tileEntity, ++index, 30 + col * 18, 19 + row * 18);
+				slot = new Slot(tileEntity, ++index, 30 + col * 18, 17 + row * 18);
 				addSlotToContainer(slot);
 				counter++;
 			}
@@ -61,12 +61,12 @@ public class ContainerProjectBench extends Container
 				if(row == 1)
 				{
 					slot = new Slot(tileEntity, 18 + col, 8 + col * 18, 
-									(row * 2 - 1) + 79 + row * 18);
+									(row * 2 - 1) + 77 + row * 18);
 					addSlotToContainer(slot);
 				} else
 				{
 					slot = new Slot(tileEntity, 9 + col, 8 + col * 18,
-							79 + row * 18);
+							77 + row * 18);
 					addSlotToContainer(slot);
 				}
 				counter++;
@@ -80,12 +80,12 @@ public class ContainerProjectBench extends Container
 			for(int j = 0; j < 9; j++)
 			{
 				addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9,
-											8 + j * 18, 84 + i * 18 + 39));
+											8 + j * 18, 82 + i * 18 + 39));
 			}
 		}
 		for(int i = 0; i < 9; i++)
 		{
-			addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 142 + 39));
+			addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 142 + 37));
 		}
 	}
 	public void updateCrafting(boolean flag){

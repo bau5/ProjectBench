@@ -58,7 +58,7 @@ public class ContainerProjectBenchII extends Container
 		{
 			for(col = 0; col < 9; col++)
 			{	
-				addSlotToContainer(new SlotPBII(tileEntity, ++index, 8 + col * 18, 16 + row * 18));
+				addSlotToContainer(new SlotPBII(tileEntity, ++index, 5 + col * 18, 16 + row * 18));
 			}
 		}
 		
@@ -69,12 +69,12 @@ public class ContainerProjectBenchII extends Container
 			{
 				if(row == 1)
 				{
-					slot = new Slot(tileEntity, ++index, 8 + col * 18, 
+					slot = new Slot(tileEntity, ++index, 5 + col * 18, 
 									(row * 2 - 1) + 76 + row * 18);
 					addSlotToContainer(slot);
 				} else
 				{
-					slot = new Slot(tileEntity, ++index, 8 + col * 18,
+					slot = new Slot(tileEntity, ++index, 5 + col * 18,
 							76 + row * 18);
 					addSlotToContainer(slot);
 				}
@@ -88,12 +88,12 @@ public class ContainerProjectBenchII extends Container
 			for(int j = 0; j < 9; j++)
 			{
 				addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9,
-											8 + j * 18, 84 + i * 18 + 36));
+											5 + j * 18, 84 + i * 18 + 36));
 			}
 		}
 		for(int i = 0; i < 9; i++)
 		{
-			addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 142 + 36));
+			addSlotToContainer(new Slot(invPlayer, i, 5 + i * 18, 142 + 36));
 		}
 	}
 	@Override
