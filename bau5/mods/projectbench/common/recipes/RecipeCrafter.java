@@ -42,7 +42,7 @@ public class RecipeCrafter {
 				int counter = 0;
 				for(ItemStack stackInList : consolidatedItems){
 					counter++;
-					if(stackInList.getItem().equals(stackInArray.getItem())){
+					if(OreDictionary.itemMatches(stackInList, stackInArray, false)){
 						if(stackInList.getItem().getContainerItem() != null){
 							consolidatedItems.add(stackInArray.copy());
 						}else
@@ -79,10 +79,10 @@ public class RecipeCrafter {
 					if(is != null){
 						if(OreDictionary.itemMatches(is, stackInInventory, false)){
 							//TODO container item
-							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null){
-								flag = false;
-								continue;
-							}
+//							if(stackInInventory.stackSize < is.stackSize && is.getItem().getContainerItem() == null){
+//								flag = false;
+//								continue;
+//							}
 							boolean success = consumeItemStack(is);
 							if(!success){
 								flag = false;

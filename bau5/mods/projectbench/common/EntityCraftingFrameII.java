@@ -52,7 +52,7 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 				return false;
 			ArrayList<ItemStack[]> recipeStacks = lastRecipe.alternatives(); 
 			if(recipeStacks != null){
-				ItemStack[] consolidatedInventory = RecipeManager.instance().consolidateItemStacks(player.inventory.mainInventory);
+				ItemStack[] consolidatedInventory = theCrafter.consolidateItemStacks(player.inventory.mainInventory);
 				for(ItemStack[] isa : recipeStacks){
 					theCrafter.addInventoryReference(player.inventory.mainInventory);
 					int numMade = theCrafter.consumeItems(isa, consolidatedInventory, lastRecipe.result(), player.isSneaking());
