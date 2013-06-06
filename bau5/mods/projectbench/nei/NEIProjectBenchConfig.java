@@ -9,8 +9,8 @@ public class NEIProjectBenchConfig implements IConfigureNEI {
 	@Override
 	public void loadConfig() {
 
-		API.registerGuiOverlay(ProjectBenchGui.class, "crafting",5,13);
-        API.registerGuiOverlayHandler(ProjectBenchGui.class, new DefaultOverlayHandler(5,13), "crafting");
+		API.registerGuiOverlay(ProjectBenchGui.class, "crafting",5,11);
+        API.registerGuiOverlayHandler(ProjectBenchGui.class, new DefaultOverlayHandler(5,11), "crafting");
 	}
 
 	@Override
