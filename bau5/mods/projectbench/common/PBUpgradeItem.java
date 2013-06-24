@@ -54,14 +54,6 @@ public class PBUpgradeItem extends Item
 		case 1: itemIcon = register.registerIcon("projectbench:pbupii");
 		}
 	}
-	@Override
-	public boolean onItemUse(ItemStack par1ItemStack,
-			EntityPlayer par2EntityPlayer, World par3World, int par4, int par5,
-			int par6, int par7, float par8, float par9, float par10) {
-		// TODO Auto-generated method stub
-		return super.onItemUse(par1ItemStack, par2EntityPlayer, par3World, par4, par5,
-				par6, par7, par8, par9, par10);
-	}
 	
 	@Override
 	public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
@@ -82,7 +74,7 @@ public class PBUpgradeItem extends Item
 			if(world.getBlockTileEntity(x,y,z) == null)
 				return false;
 			if(!player.capabilities.isCreativeMode)
-				player.inventory.consumeInventoryItem(ProjectBench.instance.projectBenchUpgrade.itemID);
+				player.inventory.consumeInventoryItem(ProjectBench.instance.projectBenchUpgradeII.itemID);
 			TileEntityProjectBench tpb = (TileEntityProjectBench)world.getBlockTileEntity(x , y, z);
 			tpb.emptyCraftingMatrix();
 			TEProjectBenchII tpbII = new TEProjectBenchII();

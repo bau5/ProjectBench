@@ -14,7 +14,6 @@ import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import bau5.mods.projectbench.common.OreRegistrationHandler;
 import bau5.mods.projectbench.common.ProjectBench;
 
 /**
@@ -32,7 +31,7 @@ public class RecipeManager {
 	private List<RecipeItem> orderedRecipes;
 	private static RecipeManager instance;
 	private static boolean DEBUG_MODE = ProjectBench.DEBUG_MODE_ENABLED;
-	public HashMap<Integer, ArrayList<ItemStack>> oreAlts = null;
+	private RecipeCrafter crafter = new RecipeCrafter();
 	
 	public RecipeManager(){
 		defaultRecipes = CraftingManager.getInstance().getRecipeList();
@@ -43,7 +42,6 @@ public class RecipeManager {
 		displayList();
 		defaultRecipes = null;
 		instance = this;
-		oreAlts = OreRegistrationHandler.getOreAlternatives();
 		
 		System.out.println("\tRecipe Manager active.");
 	}
@@ -114,7 +112,7 @@ public class RecipeManager {
 		ItemStack result = rec.result();
 		int indexInList = 0;
 		for(; indexInList < orderedRecipes.size(); indexInList++){
-			if(orderedRecipes.get(indexInList) != null && ItemStack.areItemStacksEqual(orderedRecipes.get(indexInList).result, result)){
+			if(orderedRecipes.get(indexInList) != null && crafter.checkItemMatch(orderedRecipes.get(indexInList).result, result)){
 				dup = orderedRecipes.get(indexInList);
 				break;
 			}
@@ -136,7 +134,6 @@ public class RecipeManager {
 		}
 	}
 	
-	//TODO account for stack size differences.
 	/**
 	 * Uses the Java library binary search function to find 
 	 * recipes within the list. Since the list can be rather
@@ -215,8 +212,9 @@ public class RecipeManager {
 				for(int i = 0; i < recItems.length; i++){
 					for(ItemStack stackInInventory : stacks){
 						if(stackInInventory != null){
-							if(stackInInventory.getItem().equals(recItems[i].getItem())){
-								if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
+//							if(stackInInventory.getItem().equals(recItems[i].getItem())){
+							if(crafter.checkItemMatch(recItems[i], stackInInventory)){
+								if(!crafter.checkItemMatch(recItems[i], stackInInventory))
 	    							continue;
 								//TODO container item
 								if(recItems[i].getItem().hasContainerItem()){
@@ -279,8 +277,9 @@ public class RecipeManager {
 				for(int i = 0; i < recItems.length; i++){
 					for(ItemStack stackInInventory : stacks){
 						if(stackInInventory != null){
-							if(stackInInventory.getItem().equals(recItems[i].getItem())){
-								if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
+//							if(stackInInventory.getItem().equals(recItems[i].getItem())){
+							if(crafter.checkItemMatch(recItems[i], stackInInventory)){
+								if(!crafter.checkItemMatch(recItems[i], stackInInventory))
 	    							continue;
 								//TODO container item
 								if(recItems[i].getItem().hasContainerItem()){
@@ -331,107 +330,7 @@ public class RecipeManager {
 		return outputInputMap;
 		
 	}
-	public ArrayList<RecipeItem> getValidRecipes(ItemStack[] stacks) {
-		ArrayList<RecipeItem> validRecipes = new ArrayList<RecipeItem>();
-		ArrayList<ItemStack[]> stacksForRecipe = null;
-		boolean hasMeta = false;
-		boolean flag = true;
-		recLoop : for(RecipeItem rec : orderedRecipes){
-			flag = true;
-			stacksForRecipe = rec.alternatives();
-			hasMeta = rec.hasMeta();
-			multiRecipeLoop : for(ItemStack[] recItems : stacksForRecipe){
-				for(int i = 0; i < recItems.length; i++){
-					for(ItemStack stackInInventory : stacks){
-						if(stackInInventory != null){
-							if(stackInInventory.getItem().equals(recItems[i].getItem())){
-								if(hasMeta){
-									if(!OreDictionary.itemMatches(recItems[i], stackInInventory, false))
-		    							continue;
-								}
-								//TODO container item
-								if(recItems[i].getItem().hasContainerItem()){
-									continue recLoop;
-									// Disabling container recipes for now.
-//									ItemStack contItem = recItems[i].getItem().getContainerItemStack(recItems[i]);
-//									if(contItem.isItemStackDamageable()){
-//										if(contItem.getItemDamage() + 1 <= contItem.getMaxDamage())
-//											recItems[i].stackSize = 0;
-//										else{
-//											recItems[i].setItemDamage(recItems[i].getItemDamage() + 1);
-//										}
-//									}else{
-//										if(contItem.stackSize <= stackInInventory.stackSize){
-//											recItems[i].stackSize -= contItem.stackSize;
-//										}
-//									}
-								}else if(recItems[i].stackSize <= stackInInventory.stackSize){
-									recItems[i].stackSize = 0;
-								}else if(recItems[i].stackSize > stackInInventory.stackSize){
-									continue multiRecipeLoop;
-								}
-							}else if(recItems[i].getItemDamage() == OreDictionary.WILDCARD_VALUE){
-								int id = OreDictionary.getOreID(recItems[i]);
-								int id2 = OreDictionary.getOreID(stackInInventory);
-								if(!(id == -1 || id != id2)){
-									if(recItems[i].stackSize <= stackInInventory.stackSize){
-										recItems[i].stackSize = 0;
-									}else if(recItems[i].stackSize > stackInInventory.stackSize){
-										continue multiRecipeLoop;
-									}
-								}
-							}
-						}
-					}
-					if(recItems[i].stackSize != 0){
-						flag = false;
-						break;
-					}
-				}
-				if(flag)
-					validRecipes.add(rec);
-			}
-		}
-		return validRecipes;		
-	}
-	
-	public ItemStack[] consolidateItemStacks(ItemStack[] stacks){
-		ArrayList<ItemStack> items = new ArrayList();
-		ItemStack stack = null;
-		for(int i = 0; i < stacks.length; i++){
-			if(stacks[i] != null)
-				stack = stacks[i].copy();
-			if(stack != null){
-				items.add(stack);
-			}
-		}
-		List<ItemStack> consolidatedItems = new ArrayList();
-		main : for(ItemStack stackInArray : items){
-			if(stackInArray == null)
-				continue main;
-			if(consolidatedItems.size() == 0)
-				consolidatedItems.add(stackInArray.copy());
-			else{
-				int counter = 0;
-				for(ItemStack stackInList : consolidatedItems){
-					counter++;
-					if(OreDictionary.itemMatches(stackInArray, stackInList, false)){
-						stackInList.stackSize++;
-						continue main;
-					}else if(counter == consolidatedItems.size()){
-						consolidatedItems.add(stackInArray.copy());
-						continue main;
-					}
-				}
-			}
-		}
-		ItemStack[] stacks2 = new ItemStack[consolidatedItems.size()];
-		for(int i = 0; i < stacks2.length; i++){
-			stacks2[i] = consolidatedItems.get(i);
-		}
-		return stacks2;
-	}
-	
+
 	/**
 	 * This method takes the sloppy format of the IRecipes
 	 * and turns them into RecipeItems so that they can be 
@@ -443,6 +342,9 @@ public class RecipeManager {
 	 */
 	private RecipeItem translateRecipe(IRecipe rec){
 		String type = "[null]";
+		if(rec != null && rec.getRecipeOutput() != null && rec.getRecipeOutput().itemID == 42){
+			System.out.println("Check");
+		}
 		try{
 			RecipeItem newRecItem = new RecipeItem();
 			if(rec instanceof ShapedRecipes){
@@ -451,8 +353,6 @@ public class RecipeManager {
 			}else if(rec instanceof ShapelessRecipes){
 				type = "ShapelessRecipes";
 				List ls = ((ShapelessRecipes) rec).recipeItems;
-				if(rec.getRecipeOutput().getItem().itemID == 2215)
-					System.out.println("Check");
 				if(ls.size() > 0 && ls.get(0) instanceof ItemStack){
 					List<ItemStack> ls2 = ls;
 					newRecItem.items = new ItemStack[ls2.size()];
@@ -461,7 +361,6 @@ public class RecipeManager {
 					}
 				}
 			}else if(rec instanceof ShapedOreRecipe){
-				type = "ShapedOreRecipe";
 				Object[] objArray = ((ShapedOreRecipe) rec).getInput();
 				newRecItem.items = new ItemStack[objArray.length];
 				for(int i = 0; i < objArray.length; i++){
@@ -480,6 +379,7 @@ public class RecipeManager {
 							}
 						}else{
 							//Recipe is missing nonexistant ore types
+							System.out.println("[Project Bench] Recipe Manager encountered a null OreDict type for item " +rec.getRecipeOutput());
 							return null;
 						}
 					}
@@ -555,10 +455,7 @@ public class RecipeManager {
 		private boolean isMetadataSensitive = false;
 		private String type = "[null]";
 				
-		public RecipeItem(){
-			
-		}
-		
+		public RecipeItem() { }
 		/**
 		 * Called after the creation of a new RecipeItem. Here
 		 * as a bridge method to call other initialization type
@@ -577,47 +474,17 @@ public class RecipeManager {
 				}
 			}
 		}
-		/**
-		 * Takes the array of ItemStacks, which may be the same
-		 * item type spread across multiple stacks, and puts
-		 * them all into one stack, otherwise it deletes null
-		 * ItemStacks
-		 */
+		
 		private void consolidateStacks(){
-			List<ItemStack> consolidatedItems = new ArrayList();
 			if(items == null)
 				return;
-			main : for(ItemStack stackInArray : items){
-				if(stackInArray == null || stackInArray.getItem() == null)
-					continue main;
-				if(result.getHasSubtypes())
-					isMetadataSensitive = true;
-				if(consolidatedItems.size() == 0){
-					ItemStack temp = stackInArray.copy();
-					temp.stackSize = 1;
-					consolidatedItems.add(temp);
-				}
-				else{
-					int counter = 0;
-					list : for(ItemStack stackInList : consolidatedItems){
-						if(stackInList == null || stackInArray.getItem() == null)
-							continue list;
-						counter++;
-						if(stackInList.getItem().equals(stackInArray.getItem())){
-							stackInList.stackSize++;
-							continue main;
-						}else if(counter == consolidatedItems.size()){
-							consolidatedItems.add(stackInArray.copy());
-							continue main;
-						}
-					}
-				}
+			for(ItemStack stack : items){
+				if(stack == null){
+					continue;
+				}else if(stack.stackSize > 1 || stack.stackSize < 1)
+					stack.stackSize = 1;
 			}
-			int counter = 0;
-			items = new ItemStack[consolidatedItems.size()];
-			for(int i = 0; i < items.length; i++)
-				items[i] = consolidatedItems.get(i);
-			alternatives.add(items);
+			alternatives.add(new RecipeCrafter().consolidateItemStacks(items));
 			items = null;
 		}
 		public ArrayList<ItemStack[]> alternatives(){
@@ -639,9 +506,7 @@ public class RecipeManager {
 			}
 			return temp;
 		}
-		public boolean hasAlternatives(){
-			return (alternatives != null && alternatives.size() > 1);
-		}
+		
 		public Object[] components(){
 			return input.clone();
 		}

@@ -3,7 +3,6 @@ package bau5.mods.projectbench.client;
 import invtweaks.api.ContainerGUI;
 import invtweaks.api.ContainerSection;
 
-import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -20,6 +20,15 @@ public class RecipeCrafter {
 	private ItemStack[] sourceInventory = null;
 	private TEProjectBenchII tpbRef = null;
 	
+	
+	public boolean checkItemMatch(ItemStack target, ItemStack input){
+		if (input == null && target != null || input != null && target == null)
+        {
+            return false;
+        }
+        return (target.itemID == input.itemID && (target.getItemDamage() == OreDictionary.WILDCARD_VALUE|| target.getItemDamage() == input.getItemDamage()));
+	}
+	
 	public ItemStack[] consolidateItemStacks(ItemStack[] stacks){
 		ArrayList<ItemStack> items = new ArrayList();
 		ItemStack stack = null;
@@ -42,7 +51,8 @@ public class RecipeCrafter {
 				int counter = 0;
 				for(ItemStack stackInList : consolidatedItems){
 					counter++;
-					if(OreDictionary.itemMatches(stackInList, stackInArray, false)){
+//					if(OreDictionary.itemMatches(stackInList, stackInArray, false)){
+					if(checkItemMatch(stackInList, stackInArray)){
 						if(stackInList.getItem().getContainerItem() != null){
 							consolidatedItems.add(stackInArray.copy());
 						}else
