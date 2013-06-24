@@ -1,3 +1,7 @@
+2.0dev13-14
+- Standardized item matching, one change will affect all usages now.
+- Fixed issue with some recipes having components stack sizes of > 1 or < 1 (I have no idea why)
+
 2.0dev12-13
 - Fixed crafting frames not consuming the correct amount of items in some cases.
 - Fixed some incorrectly aligned guis.
