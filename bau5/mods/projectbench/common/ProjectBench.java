@@ -140,19 +140,19 @@ public class ProjectBench
 		LanguageRegistry.addName(craftingFrame, "Advanced Crafting Frame");
 		LanguageRegistry.addName(craftingFrameII, "Crafting Frame");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
-		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 0), new Object[]{
-			" G ", "ICI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'C', Block.workbench, 'W', Block.planks, 'H', Block.chest
-		});
-		GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgrade, 1), new Object[]{
-			" G ", "IWI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'W', Block.planks, 'H', Block.chest
-		});
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(this.projectBench, 1, 0), true, new Object[]{
+			" G ", "ICI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'C', Block.workbench, 'W', "plankWood", 'H', Block.chest}));
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(this.projectBenchUpgrade, 1), new Object[]{
+			" G ", "IWI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'W', "plankWood", 'H', Block.chest
+		}));
 		if(DEV_ENV){
-			GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 1), new Object[]{
-				"IPI", "WDW", "IWI", 'P', new ItemStack(this.projectBench, 1, 0), 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
-			});
-			GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgradeII, 1, 0), new Object[]{
-				"IWI", "WDW", "IWI", 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
-			});
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(this.projectBench, 1, 1), true, new Object[]{
+			"IPI", "WDW", "IWI", 'P', new ItemStack(this.projectBench, 1, 0), 'I', Item.ingotIron, 'D', Item.diamond, 'W', "plankWood"}));
+		
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(this.projectBenchUpgradeII, 1, 0), true, new Object[]{
+			"IWI", "WDW", "IWI", 'I', Item.ingotIron, 'D', Item.diamond, 'W', "plankWood"}));
+			
 			GameRegistry.addRecipe(new ItemStack(this.craftingFrame), new Object[]{
 				"SIS", "SCS", "SIS", 'C', Block.workbench, 'I', Item.ingotIron, 'S', Item.stick
 			});
