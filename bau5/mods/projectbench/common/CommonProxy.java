@@ -4,6 +4,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import bau5.mods.projectbench.client.ProjectBenchGui;
+import bau5.mods.projectbench.common.tileentity.ContainerProjectBench;
+import bau5.mods.projectbench.common.tileentity.ContainerProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 /**

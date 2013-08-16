@@ -6,7 +6,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import bau5.mods.projectbench.common.ContainerProjectBench;
+import bau5.mods.projectbench.common.tileentity.ContainerProjectBench;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
@@ -46,6 +46,8 @@ public class PBPacketHandler implements IPacketHandler
 		case 3: PBPacketManager.handleMkIIWindowClick(packet, player, bis);
 			return;
 		case 4: PBPacketManager.handleRejectionPacket(packet, player, bis);
+			return;
+		case 5: PBPacketManager.handleRecipePacket(packet, player, bis);
 			return;
 		}
 	}

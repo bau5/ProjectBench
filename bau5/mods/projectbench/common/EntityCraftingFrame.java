@@ -7,6 +7,7 @@ import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.PositionImpl;
 import net.minecraft.entity.DataWatcher;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -15,7 +16,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraftforge.oredict.OreDictionary;
 import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
@@ -51,9 +51,9 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	}
 	
 	@Override
-	public boolean attackEntityFrom(DamageSource source, int par2) {
+	public boolean attackEntityFrom(DamageSource source, float f) {
 		ItemStack stack = getDisplayedItem();
-		if(stack != null && source.getSourceOfDamage()!= null){
+		if(stack != null && source.getSourceOfDamage() != null){
 			if(source.getSourceOfDamage().getClass() == EntityPlayerMP.class ||
 					source.getSourceOfDamage().getClass() == EntityClientPlayerMP.class){
 				stack.stackSize = 1;
@@ -63,18 +63,18 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 				return true;
 			}
 		}
-		return super.attackEntityFrom(source, par2);
+		return super.attackEntityFrom(source, f);
 	}
 	
 	@Override
-	public boolean interact(EntityPlayer player) {
-		if(player == null)
+	public boolean func_130002_c(EntityPlayer player) {
+		if(player == null || !ProjectBench.MKII_ENABLED)
 			return true;
 		if(getDisplayedItem() == null){
             ItemStack itemStack = player.getHeldItem();
             if (itemStack != null && !this.worldObj.isRemote)
             {
-        		currentRecipe = RecipeManager.instance().searchForRecipe(itemStack);
+        		currentRecipe = RecipeManager.instance().searchForRecipe(itemStack, false);
         		if(currentRecipe == null)
         			return true;
                 this.setDisplayedItem(currentRecipe.result().copy());
@@ -86,10 +86,17 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
                 }
             }
 	        return true;	
+		}else if(this.getDisplayedItem() != null && currentRecipe == null || RecipeCrafter.checkItemMatch(currentRecipe.result(), getDisplayedItem(), false)){
+			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem(), false);
 		}
 		
-		if(this.getDisplayedItem() != null && currentRecipe == null || OreDictionary.itemMatches(currentRecipe.result(), getDisplayedItem(), false)){
-			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem());
+		if((currentRecipe == null || !currentRecipe.isEnabled()) && this.getDisplayedItem() != null){
+			ItemStack stack = this.getDisplayedItem();
+			stack.stackSize = 1;
+			if(!worldObj.isRemote)
+				dispenseItem(stack);
+			reset();
+			return false;
 		}
 		
 		ArrayList<ItemStack[]> stacks = RecipeManager.instance().getComponentsToConsume(currentRecipe.result());
@@ -104,13 +111,13 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 					toDispense.stackSize *= numMade;
 					if(!worldObj.isRemote)
 						dispenseItem(toDispense);	
+					theCrafter.onItemCrafted(toDispense, player.worldObj, player, numMade);
 					break;
 				}
 			}
 		}
 		return false;
 	}
-	
 	protected void dispenseItem(ItemStack stack){
 		// 2  0  3  1
 		//10 11 12 13
@@ -154,7 +161,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	public void onUpdate() {
 		super.onUpdate();
 		if(currentRecipe == null && getDisplayedItem() != null)
-			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem());
+			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem(), false);
 	}
 	
 	@Override
@@ -165,27 +172,18 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
         this.getDataWatcher().updateObject(2, par1ItemStack);
         this.getDataWatcher().setObjectWatched(2);
     }
-	@Override
-	public void dropItemStack()
-    {
-        this.entityDropItem(new ItemStack(ProjectBench.instance.craftingFrame), 0.0F);
-        ItemStack itemstack = this.getDisplayedItem();
-
-        if (itemstack != null)
-        {
-            itemstack = itemstack.copy();
-            itemstack.setItemFrame((EntityItemFrame)null);
-            this.entityDropItem(itemstack, 0.0F);
-        }
-    }
 	
+	@Override
+	public void func_110128_b(Entity par1Entity) {
+        this.entityDropItem(new ItemStack(ProjectBench.instance.craftingFrame), 0.5F);
+	}
 	public void reset(){
 		currentRecipe = null;
 		dataWatcher = new DataWatcher();
         this.dataWatcher.addObject(0, Byte.valueOf((byte)0));
         this.dataWatcher.addObject(1, Short.valueOf((short)300));
         entityInit();
-        interact(null);
+        func_130002_c(null);
 	}
 	@Override
 	public void writeEntityToNBT(NBTTagCompound mainTag) {

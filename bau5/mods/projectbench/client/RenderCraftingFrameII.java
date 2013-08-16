@@ -6,12 +6,14 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Icon;
+import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
@@ -27,6 +29,8 @@ import bau5.mods.projectbench.common.EntityCraftingFrameII;
 
 public class RenderCraftingFrameII extends Render {
 	private final RenderBlocks renderBlocks = new RenderBlocks();
+	private static final ResourceLocation resourceLocation = new ResourceLocation("textures/blocks/crafting_table_top.png");
+
 	private Icon icon;
 	
 	@Override
@@ -88,7 +92,7 @@ public class RenderCraftingFrameII extends Render {
 	private void renderFrameItemAsBlock(EntityItemFrame eif)
     {
         GL11.glPushMatrix();
-        this.renderManager.renderEngine.bindTexture("/terrain.png");
+        this.renderManager.renderEngine.func_110577_a(TextureMap.field_110575_b);
         GL11.glRotatef(eif.rotationYaw, 0.0F, 1.0F, 0.0F);
         Block block = Block.planks;
         float f = 0.0625F;
@@ -96,7 +100,7 @@ public class RenderCraftingFrameII extends Render {
         float f2 = f1 / 2.0F;
         GL11.glPushMatrix();
         this.renderBlocks.overrideBlockBounds(0.0D, (0.5F - f2 + 0.0625F), (0.5F - f2 + 0.0625F), (f * 0.5F), (0.5F + f2 - 0.0625F), (0.5F + f2 - 0.0625F));
-        this.renderBlocks.setOverrideBlockTexture(icon);
+        this.renderBlocks.setOverrideBlockTexture(Block.workbench.getBlockTextureFromSide(1));
         this.renderBlocks.renderBlockAsItem(block, 0, 1.0F);
         this.renderBlocks.clearOverrideBlockTexture();
         this.renderBlocks.unlockBlockBounds();
@@ -126,6 +130,11 @@ public class RenderCraftingFrameII extends Render {
 	public void doRender(Entity entity, double d0, double d1, double d2,
 			float f, float f1) {
 		render((EntityCraftingFrameII)entity, d0, d1, d2, f, f1);
+	}
+
+	@Override
+	protected ResourceLocation func_110775_a(Entity entity) {
+		return null;
 	}
 
 }

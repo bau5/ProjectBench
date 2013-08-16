@@ -9,6 +9,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 
 /**
  * PBUpgradeItem
@@ -88,13 +90,13 @@ public class PBUpgradeItem extends Item
 				if(stack1 != null)
 					stack2 = ItemStack.copyItemStack(stack1);
 				tpbII.setInventorySlotContents(i +tpbII.inventoryStart, stack2);
-				tpb.setInventorySlotContents(i, null);
+				tpb.setInventorySlotContents(i +9, null);
 			}
 			tpbII.initSlots = false;
 			tpb.initSlots = false;
 			tpbII.setDirection((byte)getPlayerFacing(player));
-			world.setBlock(x, y, z, 0);
 			world.setBlock(x, y, z, ProjectBench.instance.projectBench.blockID, 1, 3);
+			world.setBlockTileEntity(x, y, z, null);
 			world.setBlockTileEntity(x, y, z, tpbII);
 			world.setBlock(x, y, z, ProjectBench.instance.projectBench.blockID, 1, 3);
 			world.markBlockForUpdate(x, y, z);
