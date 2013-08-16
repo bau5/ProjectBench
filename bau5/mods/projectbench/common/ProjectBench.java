@@ -11,13 +11,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Configuration;
 import bau5.mods.projectbench.common.packets.PBPacketHandler;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
+import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.Init;
+import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.Mod.PostInit;
-import cpw.mods.fml.common.Mod.PreInit;
-import cpw.mods.fml.common.Mod.ServerStarting;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -37,7 +36,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
  * 
  */
 // NEW WORK
-//1.5.2 - Forge 656
+//1.6.2 Forge 9.10.0.789
 //Development Environment
 @Mod (modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.DEV_VERSION)
 @NetworkMod(clientSideRequired = true, serverSideRequired = false,
@@ -61,23 +60,22 @@ public class ProjectBench
 	public static boolean RENDER_ALL = false;
 	public static boolean II_DO_RENDER = true;
 	public static boolean DEBUG_MODE_ENABLED = false;
-	public static int  SPEED_FACTOR = 5;
+	public static boolean VERBOSE = false;
+	public static boolean MKII_ENABLED = false;
 	public static boolean VERSION_CHECK = true;
+	public static int  SPEED_FACTOR = 5;
 	
 	private int[] entityID = new int[2];
 	
-	//FIXME dev version!
-	public static boolean DEV_ENV = true;
+	public static boolean DEV_ENV = false;
 
 	public Block projectBench;
 	public Item  projectBenchUpgrade;
 	public Item  projectBenchUpgradeII;
 	public Item  craftingFrame;
 	public Item  craftingFrameII;
-	public static String baseTexFile = "/mods/projectbench/textures";
-	public static String textureFile = baseTexFile + "/pbsheet.png";
   
-	@PreInit
+	@EventHandler
 	public void preInit(FMLPreInitializationEvent ev)
 	{
 		Configuration config = new Configuration(ev.getSuggestedConfigurationFile());
@@ -93,6 +91,7 @@ public class ProjectBench
 			II_DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldIIRenderItems", true).getBoolean(true);
 			RENDER_ALL = config.get(Configuration.CATEGORY_GENERAL, "shouldRenerStackSize", false).getBoolean(false);
 			VERSION_CHECK = config.get(Configuration.CATEGORY_GENERAL, "versionCheckEnabled", true).getBoolean(true);
+			MKII_ENABLED = config.get(Configuration.CATEGORY_GENERAL, "MKIIEnabled", true).getBoolean(true);
 			SPEED_FACTOR = config.get(Configuration.CATEGORY_GENERAL, "speedFactor", 5).getInt(5);
 			if(!DEBUG_MODE_ENABLED)
 				DEBUG_MODE_ENABLED = config.get(Configuration.CATEGORY_GENERAL, "debugMode", false).getBoolean(false);
@@ -114,11 +113,10 @@ public class ProjectBench
 		}
 		if(VERSION_CHECK)
 			VersionChecker.go();
+		initParts();
 	}
-	
-	@Init
-	public void initMain(FMLInitializationEvent ev)
-	{
+	public void initParts(){
+
 		projectBench = new ProjectBenchBlock(pbID, Material.wood).setCreativeTab(CreativeTabs.tabDecorations);
 		projectBenchUpgrade = new PBUpgradeItem(pbItemsID[0], 0).setUnlocalizedName("pbupi").setCreativeTab(CreativeTabs.tabMisc);
 		projectBenchUpgradeII = new PBUpgradeItem(pbItemsID[1], 1).setUnlocalizedName("pbupii").setCreativeTab(CreativeTabs.tabMisc);
@@ -140,40 +138,39 @@ public class ProjectBench
 		LanguageRegistry.addName(craftingFrame, "Advanced Crafting Frame");
 		LanguageRegistry.addName(craftingFrameII, "Crafting Frame");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
+	}
+	@EventHandler
+	public void initMain(FMLInitializationEvent ev)
+	{
 		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 0), new Object[]{
 			" G ", "ICI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'C', Block.workbench, 'W', Block.planks, 'H', Block.chest
 		});
 		GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgrade, 1), new Object[]{
 			" G ", "IWI", "WHW", 'G', Block.glass, 'I', Item.ingotIron, 'W', Block.planks, 'H', Block.chest
 		});
-		if(DEV_ENV){
-			GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 1), new Object[]{
-				"IPI", "WDW", "IWI", 'P', new ItemStack(this.projectBench, 1, 0), 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
-			});
-			GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgradeII, 1, 0), new Object[]{
-				"IWI", "WDW", "IWI", 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
-			});
-			GameRegistry.addRecipe(new ItemStack(this.craftingFrame), new Object[]{
-				"SIS", "SCS", "SIS", 'C', Block.workbench, 'I', Item.ingotIron, 'S', Item.stick
-			});
-			GameRegistry.addRecipe(new ItemStack(this.craftingFrameII), new Object[]{
-				"SGS", "RCR", "SSS", 'G', Item.silk, 'S', Item.stick, 'R', Item.redstone, 'C', Block.workbench
-			});
-		}		
+		GameRegistry.addRecipe(new ItemStack(this.projectBench, 1, 1), new Object[]{
+			"IPI", "WDW", "IWI", 'P', new ItemStack(this.projectBench, 1, 0), 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
+		});
+		GameRegistry.addRecipe(new ItemStack(this.projectBenchUpgradeII, 1, 0), new Object[]{
+			"IWI", "WDW", "IWI", 'I', Item.ingotIron, 'D', Item.diamond, 'W', Block.planks
+		});
+		GameRegistry.addRecipe(new ItemStack(this.craftingFrame), new Object[]{
+			"SIS", "SCS", "SIS", 'C', Block.workbench, 'I', Item.ingotIron, 'S', Item.stick
+		});
+		GameRegistry.addRecipe(new ItemStack(this.craftingFrameII), new Object[]{
+			"SGS", "RCR", "SSS", 'G', Item.silk, 'S', Item.stick, 'R', Item.redstone, 'C', Block.workbench
+		});
 	}
-	@PostInit
+	@EventHandler
 	public void postInit(FMLPostInitializationEvent ev){
-		if(DEV_ENV){
+		if(MKII_ENABLED)
 			new RecipeManager();
-			System.out.println("**********************");
-			System.out.println("* DEV ENV IS ACTIVE. *");
-			System.out.println("**********************");
-		}
 	}
-	@ServerStarting
+	@EventHandler
 	public void serverStarting(FMLServerStartingEvent ev){
 		ServerCommandManager serverCommandManager = (ServerCommandManager)ev.getServer().getCommandManager();
 		serverCommandManager.registerCommand(new CommandInspectRecipe());
+		serverCommandManager.registerCommand(new CommandPBGeneral());
 	}
 	
 }

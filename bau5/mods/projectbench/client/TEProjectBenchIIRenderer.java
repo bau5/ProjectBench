@@ -23,7 +23,7 @@ import net.minecraft.tileentity.TileEntity;
 import org.lwjgl.opengl.GL11;
 
 import bau5.mods.projectbench.common.ProjectBench;
-import bau5.mods.projectbench.common.TEProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
 import cpw.mods.fml.client.FMLClientHandler;
 
 /**
@@ -102,13 +102,13 @@ public class TEProjectBenchIIRenderer extends TileEntitySpecialRenderer {
 				zShift += 0.4F;
 				xShift = 0.2F;
 			}
-			if(newStack.itemID > Block.blocksList.length || Block.blocksList[newStack.itemID] == null){
-				glScalef(0.5f, 0.5f, 0.5f);
-			}
 			ei.setEntityItemStack(newStack);
 			glPushMatrix();
 			glTranslatef(xShift, yShift, zShift);
 			glPushMatrix();
+			if(newStack.itemID > Block.blocksList.length || Block.blocksList[newStack.itemID] == null){
+				glScalef(0.5f, 0.5f, 0.5f);
+			}
 			renderItems.doRenderItem(ei, 0, 0, 0, 0, 0);
 			glPopMatrix();
 			glPopMatrix();

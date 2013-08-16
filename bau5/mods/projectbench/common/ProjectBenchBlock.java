@@ -7,7 +7,7 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -17,6 +17,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -108,6 +110,8 @@ public class ProjectBenchBlock extends BlockContainer {
 		{	
 			return false;
 		}
+		if(te instanceof TEProjectBenchII && !ProjectBench.MKII_ENABLED)
+			return false;
 		int meta = world.getBlockMetadata(x,y,z);
 		
 		switch(meta){
@@ -162,11 +166,11 @@ public class ProjectBenchBlock extends BlockContainer {
 		}
 	}
 	@Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving el, ItemStack stack)
+	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase living, ItemStack stack)
     {
-		super.onBlockPlacedBy(world, x, y, z, el, stack);
+		super.onBlockPlacedBy(world, x, y, z, living, stack);
         byte dir = 0;
-        int plyrFacing = MathHelper.floor_double(((el.rotationYaw * 4F) / 360F) + 0.5D) & 3;
+        int plyrFacing = MathHelper.floor_double(((living.rotationYaw * 4F) / 360F) + 0.5D) & 3;
         if (plyrFacing == 0)
             dir = 2;
         if (plyrFacing == 1)
@@ -187,7 +191,7 @@ public class ProjectBenchBlock extends BlockContainer {
     {
 		switch(metadata){
 		case 0: return new TileEntityProjectBench();
-		case 1: if(ProjectBench.DEV_ENV) return new TEProjectBenchII();
+		case 1: /*if(ProjectBench.DEV_ENV)*/ return new TEProjectBenchII();
 		default: return null;
 		}
     }
@@ -206,7 +210,7 @@ public class ProjectBenchBlock extends BlockContainer {
     public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
     {
         par3List.add(new ItemStack(par1, 1, 0));
-        if(ProjectBench.DEV_ENV)
+        /*if(ProjectBench.DEV_ENV)*/
         	par3List.add(new ItemStack(par1, 1, 1));
     }
 	

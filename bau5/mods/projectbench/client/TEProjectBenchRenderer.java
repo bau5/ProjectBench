@@ -21,7 +21,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import bau5.mods.projectbench.common.ProjectBench;
-import bau5.mods.projectbench.common.TileEntityProjectBench;
+import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 import cpw.mods.fml.client.FMLClientHandler;
 
 /**
@@ -71,7 +71,7 @@ public class TEProjectBenchRenderer extends TileEntitySpecialRenderer {
 		renderBlocks.renderStandardBlock(block, (int) x, (int) y, (int) z);
 		if (RENDER_ITEM && tpb.worldObj.getBlockId(tpb.xCoord, tpb.yCoord + 1, tpb.zCoord) == 0
 						&& tpb.worldObj.getClosestPlayer(tpb.xCoord, tpb.yCoord, tpb.zCoord, 15) != null
-						&& !mc.isGamePaused) {
+						/*&& !mc.isGamePaused*/) {
 			ItemStack stack = tpb.getResult();
 			if (stack == null){
 				return;

@@ -2,7 +2,7 @@ package bau5.mods.projectbench.common;
 
 import java.util.ArrayList;
 
-import net.minecraft.entity.item.EntityItemFrame;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -32,12 +32,14 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 	public EntityCraftingFrameII(World world, int x, int y, int z, int dir){
 		super(world, x, y, z, dir);
 	}
+	
 	public EntityCraftingFrameII(World world) {
 		super(world);
 	}
+	
 	@Override
-	public boolean interact(EntityPlayer player) {
-		if(player == null)
+	public boolean func_130002_c(EntityPlayer player) {
+		if(player == null || !ProjectBench.MKII_ENABLED)
 			return false;
 		if(player.getHeldItem() != null && !player.getHeldItem().getItem().hasContainerItem()){
 			ItemStack theStack = player.getHeldItem();
@@ -46,7 +48,7 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 				theStack.setItemDamage(0);
 			}
 			if(lastRecipe == null || !OreDictionary.itemMatches(lastRecipe.result(), theStack, false)){
-				lastRecipe = RecipeManager.instance().searchForRecipe(theStack);
+				lastRecipe = RecipeManager.instance().searchForRecipe(theStack, false);
 			}
 			if(lastRecipe == null)
 				return false;
@@ -62,6 +64,7 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 						toDispense.stackSize *= numMade;
 						if(!worldObj.isRemote)
 							super.dispenseItem(toDispense);
+						theCrafter.onItemCrafted(toDispense, player.worldObj, player, numMade);
 						return true;
 					}
 				}
@@ -69,19 +72,10 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 		}
 		return false;
 	}
-
-	@Override
-	public void dropItemStack()
-	{
-	    this.entityDropItem(new ItemStack(ProjectBench.instance.craftingFrameII), 0.0F);
-	    ItemStack itemstack = this.getDisplayedItem();
 	
-	    if (itemstack != null)
-	    {
-	        itemstack = itemstack.copy();
-	        itemstack.setItemFrame((EntityItemFrame)null);
-	        this.entityDropItem(itemstack, 0.0F);
-	    }
+	@Override
+	public void func_110128_b(Entity par1Entity) {
+        this.entityDropItem(new ItemStack(ProjectBench.instance.craftingFrameII), 0.0F);
 	}
 	
 	private void updateDisplay(ItemStack theStack) {

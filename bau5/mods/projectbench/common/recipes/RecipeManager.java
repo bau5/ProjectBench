@@ -1,5 +1,6 @@
 package bau5.mods.projectbench.common.recipes;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,12 +10,20 @@ import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.RecipeFireworks;
+import net.minecraft.item.crafting.RecipesArmor;
+import net.minecraft.item.crafting.RecipesArmorDyes;
+import net.minecraft.item.crafting.RecipesMapCloning;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import bau5.mods.projectbench.common.ProjectBench;
+
+import com.google.common.collect.Lists;
+
+import cpw.mods.fml.common.ICraftingHandler;
 
 /**
  * RecipeManager
@@ -29,23 +38,28 @@ import bau5.mods.projectbench.common.ProjectBench;
 public class RecipeManager {
 	private List<IRecipe> defaultRecipes;
 	private List<RecipeItem> orderedRecipes;
+	private List<ICraftingHandler> customCraftingHandlers = Lists.newArrayList();
 	private static RecipeManager instance;
 	private static boolean DEBUG_MODE = ProjectBench.DEBUG_MODE_ENABLED;
 	private RecipeCrafter crafter = new RecipeCrafter();
 	
 	public RecipeManager(){
+		initiateRecipeManager();
+		defaultRecipes = null;
+		instance = this;
+		System.out.println("\tRecipe Manager active.");
+	}
+		
+	public void initiateRecipeManager() {
 		defaultRecipes = CraftingManager.getInstance().getRecipeList();
 		associateRecipes();
 		Collections.sort(orderedRecipes, new PBRecipeSorter());
 		verifyList();
 		indexList();
-		displayList();
-		defaultRecipes = null;
-		instance = this;
-		
-		System.out.println("\tRecipe Manager active.");
+		if(ProjectBench.VERBOSE)
+			displayList();
 	}
-		
+
 	/**
 	 * Builds the initial list by iterating through the default
 	 * recipes and translating them into something easier to
@@ -107,20 +121,44 @@ public class RecipeManager {
 			return false;
 	}
 	
+	public ArrayList<RecipeItem> getDisabledRecipes(){
+		ArrayList<RecipeItem> ls = new ArrayList();
+		for(RecipeItem rec : orderedRecipes)
+			if(!rec.isEnabled())
+				ls.add(rec);
+		return ls;
+	}
+	
 	public boolean checkForRecipe(RecipeItem rec){
 		RecipeItem dup = null;
 		ItemStack result = rec.result();
 		int indexInList = 0;
 		for(; indexInList < orderedRecipes.size(); indexInList++){
-			if(orderedRecipes.get(indexInList) != null && crafter.checkItemMatch(orderedRecipes.get(indexInList).result, result)){
+			if(orderedRecipes.get(indexInList) != null && crafter.checkItemMatch(orderedRecipes.get(indexInList).result, result, false)){
 				dup = orderedRecipes.get(indexInList);
 				break;
 			}
 		}
 		if(dup != null){
-			if(dup.items != null)
+			if(dup.items != null){
 				dup.alternatives.add(dup.items());
+			}
 			rec.consolidateStacks();
+			for(ItemStack[] isa : dup.alternatives){
+				for(ItemStack[] isa2 : rec.alternatives){
+					boolean flag = true;
+					if(isa.length == isa2.length){
+						for(int i = 0; i < isa.length; i++){
+							if(!RecipeCrafter.checkItemMatch(isa[i], isa2[i], false)){
+								flag = false;
+								break;
+							}
+						}
+					}
+					if(flag)
+						return true;
+				}
+			}
 			for(ItemStack[] isa : rec.alternatives)
 				if(isa.length > 0)
 					dup.alternatives.add(isa);
@@ -147,7 +185,7 @@ public class RecipeManager {
 	 * 
 	 * 
 	 */
-	public RecipeItem searchForRecipe(ItemStack result){
+	public RecipeItem searchForRecipe(ItemStack result, boolean truth){
 		RecipeItem ri = new RecipeItem();
 		ri.setResult(result);
 		int i = Collections.binarySearch(orderedRecipes, ri, new PBRecipeSorter());
@@ -155,7 +193,11 @@ public class RecipeManager {
 			print("Recipe not found for " +result);
 			return null;
 		}
-		return orderedRecipes.get(i);
+		RecipeItem ri2 = orderedRecipes.get(i);
+		if(ri2.isEnabled() || truth)
+			return orderedRecipes.get(i);
+		else
+			return null;
 	}
 	
 	private void indexList(){
@@ -184,7 +226,7 @@ public class RecipeManager {
 		ArrayList<ItemStack[]> itemsToConsume = null;
 		if(stack == null)
 			return null;
-		RecipeItem ri = searchForRecipe(stack);
+		RecipeItem ri = searchForRecipe(stack, false);
 		if(ri != null)
 			itemsToConsume = ri.alternatives();
 		return itemsToConsume;
@@ -213,8 +255,8 @@ public class RecipeManager {
 					for(ItemStack stackInInventory : stacks){
 						if(stackInInventory != null){
 //							if(stackInInventory.getItem().equals(recItems[i].getItem())){
-							if(crafter.checkItemMatch(recItems[i], stackInInventory)){
-								if(!crafter.checkItemMatch(recItems[i], stackInInventory))
+							if(crafter.checkItemMatch(recItems[i], stackInInventory, false)){
+								if(!crafter.checkItemMatch(recItems[i], stackInInventory, false))
 	    							continue;
 								//TODO container item
 								if(recItems[i].getItem().hasContainerItem()){
@@ -255,7 +297,7 @@ public class RecipeManager {
 						break;
 					}
 				}
-				if(flag)
+				if(flag && rec.isEnabled())
 					validRecipes.add(rec.result());
 			}
 		}
@@ -265,23 +307,22 @@ public class RecipeManager {
 		HashMap<ItemStack, ItemStack[]> outputInputMap = new HashMap();
 		ArrayList<ItemStack> validRecipes = new ArrayList<ItemStack>();
 		ArrayList<ItemStack[]> stacksForRecipe = null;
+		int id3 = 0;
+		if(stacks != null && stacks.length == 1 && stacks[0] != null)
+			 id3 = OreDictionary.getOreID(stacks[0]);
 		boolean hasMeta = false;
 		boolean flag = true;
 		recLoop : for(RecipeItem rec : orderedRecipes){
 			flag = true;
 			stacksForRecipe = rec.alternatives();
 			hasMeta = rec.hasMeta();
-//			multiRecipeLoop : for(ItemStack[] recItems : stacksForRecipe){
 			multiRecipeLoop : for(int index = 0; index < stacksForRecipe.size(); index++){
 				ItemStack[] recItems = stacksForRecipe.get(index);
 				for(int i = 0; i < recItems.length; i++){
 					for(ItemStack stackInInventory : stacks){
 						if(stackInInventory != null){
-//							if(stackInInventory.getItem().equals(recItems[i].getItem())){
-							if(crafter.checkItemMatch(recItems[i], stackInInventory)){
-								if(!crafter.checkItemMatch(recItems[i], stackInInventory))
-	    							continue;
-								//TODO container item
+							if(RecipeCrafter.checkItemMatch(recItems[i], stackInInventory, false)){
+								//TODO container item 
 								if(recItems[i].getItem().hasContainerItem()){
 									continue recLoop;
 									// Disabling container recipes for now.
@@ -320,7 +361,7 @@ public class RecipeManager {
 						break;
 					}
 				}
-				if(flag){
+				if(flag && rec.isEnabled()){
 					outputInputMap.put(rec.result(), rec.alternatives.get(index));
 				}
 				
@@ -332,7 +373,7 @@ public class RecipeManager {
 	}
 
 	/**
-	 * This method takes the sloppy format of the IRecipes
+	 * This method takes the format of the IRecipes
 	 * and turns them into RecipeItems so that they can be 
 	 * dealt with much easier.
 	 * 
@@ -342,11 +383,12 @@ public class RecipeManager {
 	 */
 	private RecipeItem translateRecipe(IRecipe rec){
 		String type = "[null]";
-		if(rec != null && rec.getRecipeOutput() != null && rec.getRecipeOutput().itemID == 42){
-			System.out.println("Check");
-		}
 		try{
 			RecipeItem newRecItem = new RecipeItem();
+			ItemStack recOutput = (rec != null) ? rec.getRecipeOutput() : null;
+			if(rec != null && rec.getRecipeOutput() != null && rec.getRecipeOutput().itemID == 30184 /*+256*/){
+//				System.out.println("Check");
+			}
 			if(rec instanceof ShapedRecipes){
 				type = "ShapedRecipes";
 				newRecItem.items = ((ShapedRecipes) rec).recipeItems;
@@ -413,7 +455,68 @@ public class RecipeManager {
 				}
 			}
 			else{
-				print("Recipe type not accounted for: " +rec.getRecipeOutput());
+				type = "CustomRecipe";
+				newRecItem.setResult(rec.getRecipeOutput());
+				if(rec != null && rec.getRecipeOutput() != null && rec.getRecipeOutput().itemID == 5 && rec.getRecipeOutput().getItemDamage() == 1){
+					System.out.println("Check");
+				}
+				try{
+					int i = 0;
+					do{
+						try
+				        {
+				            Field f = rec.getClass().getDeclaredFields()[i++];
+				            f.setAccessible(true);
+				            Object obj = f.get(rec);
+				            if(obj != null){
+				            	if(obj instanceof Object[]){
+				            		Object[] objArr = (Object[])obj;
+				            		newRecItem.input = new Object[objArr.length];
+				            		for(int j = 0; j < objArr.length; j++){
+				            			Object obj2 = objArr[j];
+				            			newRecItem.input[j] = obj2;
+				            			if(obj2 == null){
+				            				if(newRecItem.items == null)
+				            					newRecItem.items = new ItemStack[objArr.length];
+				            			}else if(obj2 instanceof ItemStack){
+				            				if(newRecItem.items == null)
+				            					newRecItem.items = new ItemStack[objArr.length];
+				            				newRecItem.items[j] = ((ItemStack)obj2).copy();
+				            			}else if(obj2 instanceof ArrayList){
+				            				ArrayList oreArrayList = (ArrayList)obj2;
+				            				if(oreArrayList.get(0) != null && oreArrayList.get(0) instanceof ItemStack){
+				                				if(newRecItem.items == null)
+				                					newRecItem.items = new ItemStack[objArr.length];
+				                				ItemStack oreDictStack = ((ItemStack)oreArrayList.get(0)).copy();
+				                				newRecItem.items[j] = oreDictStack/*new ItemStack(oreDictStack.itemID, oreDictStack.stackSize, OreDictionary.WILDCARD_VALUE)*/;
+				            				}
+				            			}else if(obj2 instanceof String){
+				            				ItemStack oreStack = OreDictionary.getOres((String)obj2).get(0);
+				            				ItemStack newStack = oreStack /*new ItemStack(oreStack.itemID, oreStack.stackSize, OreDictionary.WILDCARD_VALUE)*/;
+				            				if(newRecItem.items == null)
+				            					newRecItem.items = new ItemStack[objArr.length];
+				            				newRecItem.items[j] = newStack;
+				            			}else{
+				            				System.out.println("ProjectBench: Unaccounted for object type, disabling recipe. " +obj2.getClass());
+				            				newRecItem.forceDisable();
+				            			}
+				            				
+				            		}
+				            	}
+				            }
+				        }
+				        catch(ArrayIndexOutOfBoundsException ex)
+				        {
+				        	break;
+				        }
+						catch(Exception ex){
+							newRecItem.forceDisable();
+						}
+					}
+					while(true);
+				}catch(Exception ex){
+					newRecItem.forceDisable();
+				}
 			}
 			newRecItem.type = type;
 			
@@ -429,7 +532,10 @@ public class RecipeManager {
 			}
 			return newRecItem;
 		}catch(Exception ex){
+			if(rec instanceof RecipesArmor || rec instanceof RecipesArmorDyes || rec instanceof RecipeFireworks || rec instanceof RecipesMapCloning)
+				return null;
 			System.err.println("Project Bench: Error encountered while translating recipe.");
+			System.err.println("\t Recipe: " +rec);
 			System.err.println("\t Recipe for: " +rec.getRecipeOutput());
 			System.err.println("\t Recipe type: "+type);
 			System.err.println("Please report this on the forums or GitHub.");
@@ -445,7 +551,7 @@ public class RecipeManager {
 	 *
 	 */
 	public class RecipeItem{
-		private ItemStack[] items;
+		private ItemStack[] items = null;
 		private HashMap<ItemStack, ItemStack[]> oreDictItems = new HashMap<ItemStack, ItemStack[]>();
 		private ArrayList<ItemStack[]> alternatives = new ArrayList<ItemStack[]>();
 		private Object[] input;
@@ -453,6 +559,7 @@ public class RecipeManager {
 		private ItemStack result;
 		private int indexInList;
 		private boolean isMetadataSensitive = false;
+		private boolean usable = true;
 		private String type = "[null]";
 				
 		public RecipeItem() { }
@@ -484,6 +591,7 @@ public class RecipeManager {
 				}else if(stack.stackSize > 1 || stack.stackSize < 1)
 					stack.stackSize = 1;
 			}
+			
 			alternatives.add(new RecipeCrafter().consolidateItemStacks(items));
 			items = null;
 		}
@@ -507,6 +615,15 @@ public class RecipeManager {
 			return temp;
 		}
 		
+		public boolean isEnabled(){
+			return usable;
+		}
+		public void forceEnable(){
+			usable = true;
+		}
+		public void forceDisable(){
+			usable = false;
+		}
 		public Object[] components(){
 			return input.clone();
 		}
@@ -552,7 +669,7 @@ public class RecipeManager {
 		return instance;
 	}
 	public static void print(String message){
-		if(DEBUG_MODE || ProjectBench.DEV_ENV)
+		if(DEBUG_MODE /*|| ProjectBench.DEV_ENV*/)
 			System.out.println(message);
 	}
 	public static void print(ItemStack stack){

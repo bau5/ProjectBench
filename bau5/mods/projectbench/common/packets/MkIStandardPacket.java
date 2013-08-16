@@ -10,7 +10,7 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import bau5.mods.projectbench.common.ProjectBench;
-import bau5.mods.projectbench.common.TileEntityProjectBench;
+import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 
 import com.google.common.io.ByteArrayDataInput;
 

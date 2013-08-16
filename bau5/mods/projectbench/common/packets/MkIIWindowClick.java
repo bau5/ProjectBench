@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet106Transaction;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import bau5.mods.projectbench.common.ContainerProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.ContainerProjectBenchII;
 
 import com.google.common.io.ByteArrayDataInput;
 
@@ -89,7 +89,7 @@ public class MkIIWindowClick extends PBPacket{
     	EntityPlayerMP playerEntity = null;
     	if(player instanceof EntityPlayerMP)
     		playerEntity = (EntityPlayerMP)player;
-        if (playerEntity!= null && playerEntity.openContainer.windowId == window_Id && playerEntity.openContainer.isPlayerNotUsingContainer(playerEntity))
+        if (playerEntity != null && playerEntity.openContainer.windowId == window_Id && playerEntity.openContainer.isPlayerNotUsingContainer(playerEntity))
         {
             if(playerEntity.openContainer instanceof ContainerProjectBenchII){
             	ItemStack origStack = null;
@@ -98,7 +98,6 @@ public class MkIIWindowClick extends PBPacket{
             		origStack.stackSize = origStackSize;
             	}
             	ItemStack serverStack = ((ContainerProjectBenchII)playerEntity.openContainer).serverMouseClick(inventorySlot, mouseClick, holdingShift, playerEntity, origStack);
-            	
             	if (ItemStack.areItemStacksEqual(itemStack, serverStack))
                 {
                     playerEntity.playerNetServerHandler.sendPacketToPlayer(new Packet106Transaction(window_Id, action, true));
@@ -109,16 +108,17 @@ public class MkIIWindowClick extends PBPacket{
                 }
                 else
                 {
-                	playerEntity.playerNetServerHandler.sendPacketToPlayer(PBPacketManager.getRejectionPacket(window_Id, action, false));
+                	playerEntity.playerNetServerHandler.sendPacketToPlayer(PBPacketManager.getRejectionPacket(window_Id, action, serverStack, false));
                     playerEntity.openContainer.setPlayerIsPresent(playerEntity, false);
+                    playerEntity.inventory.setItemStack(serverStack);
                     ArrayList arraylist = new ArrayList();
 
                     for (int i = 0; i < playerEntity.openContainer.inventorySlots.size(); ++i)
                     {
                         arraylist.add(((Slot)playerEntity.openContainer.inventorySlots.get(i)).getStack());
                     }
-
                     playerEntity.sendContainerAndContentsToPlayer(playerEntity.openContainer, arraylist);
+                    playerEntity.openContainer.detectAndSendChanges();
                 }
         	}
         }

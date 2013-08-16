@@ -13,7 +13,6 @@ Release?
 Bugs:
 
 Minor:
-- Add NEI support (agh)
 - Organize Imports on whole source
 
 Ideas:

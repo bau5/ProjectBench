@@ -1,11 +1,9 @@
 package bau5.mods.projectbench.client;
 
-import invtweaks.api.ContainerGUI;
-import invtweaks.api.ContainerSection;
-
-import java.util.HashMap;
+/*import invtweaks.api.container.ChestContainer;
+import invtweaks.api.container.ContainerSectionCallback;
+*/
 import java.util.List;
-import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -16,16 +14,16 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
-import bau5.mods.projectbench.common.ContainerProjectBench;
-import bau5.mods.projectbench.common.ContainerProjectBenchII;
-import bau5.mods.projectbench.common.ProjectBench;
-import bau5.mods.projectbench.common.TEProjectBenchII;
-import bau5.mods.projectbench.common.TileEntityProjectBench;
 import bau5.mods.projectbench.common.packets.PBPacketHandler;
 import bau5.mods.projectbench.common.packets.PBPacketManager;
+import bau5.mods.projectbench.common.tileentity.ContainerProjectBench;
+import bau5.mods.projectbench.common.tileentity.ContainerProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
 /**
@@ -36,12 +34,13 @@ import cpw.mods.fml.common.network.PacketDispatcher;
  * 
  */
 
-@ContainerGUI
+/*@ChestContainer*/
 public class ProjectBenchGui extends GuiContainer {
 	private int ID;
-	private String texPath;
+	private ResourceLocation resource;
 	private int lastIndex = -1;
 	private ItemStack[] stacksToDraw = null;
+	private static boolean NEI_ACTIVE = false;
 	private boolean once = true;
 	private boolean changed = false;
 	private boolean panel = false;
@@ -61,26 +60,12 @@ public class ProjectBenchGui extends GuiContainer {
 		ySize += 48;
 		ID = guiID;
 		if(ID == 0){
-			texPath = ProjectBench.baseTexFile + "/gui/pbGUI.png";
+			resource = new ResourceLocation("projectbench","textures/gui/pbGUI.png");
 		}
 		else if (ID == 1){
-			texPath = ProjectBench.baseTexFile + "/gui/pbGUI2.png";
+			resource = new ResourceLocation("projectbench", "textures/gui/pbGUI2.png");
 			panel = true;
 		}
-	}
-	
-	@ContainerGUI.ContainerSectionCallback
-	public Map<ContainerSection, List<Slot>> getContainerSections(){
-		Map<ContainerSection, List<Slot>> result = new HashMap<ContainerSection, List<Slot>>();
-		if(inventorySlots instanceof ContainerProjectBenchII){
-			result.put(ContainerSection.CHEST, inventorySlots.inventorySlots.subList(27, 45));
-		}
-		else if(inventorySlots instanceof ContainerProjectBench){
-			result.put(ContainerSection.CRAFTING_OUT, inventorySlots.inventorySlots.subList(0, 1));
-			result.put(ContainerSection.CRAFTING_IN_PERSISTENT, inventorySlots.inventorySlots.subList(1, 10));
-			result.put(ContainerSection.CHEST, inventorySlots.inventorySlots.subList(10, 28));
-		}
-		return result;
 	}
 	
 	@Override
@@ -106,17 +91,30 @@ public class ProjectBenchGui extends GuiContainer {
 			matrixStopY  = matrixStartY +58;
 			xShift = -3;
 			yShift = 2;
-			buttonList.add(new PBScrambleMatrixButton(15294, x-8+xShift, y +19 +yShift, 9, 9, ""));
-			buttonList.add( new PBRefreshMatrixButton(15295, x-8+xShift, y +31 +yShift, 9, 9, ""));
 			once = false;
+			buttonList.add(new PBScrambleMatrixButton(15294, x-8+xShift, y +19 +yShift, 9, 9, ""));
+			buttonList.add(new PBRefreshMatrixButton(15295, x-8+xShift, y +31 +yShift, 9, 9, ""));
 		}
-		mc.renderEngine.bindTexture(texPath);
+        mc.func_110434_K().func_110577_a(resource);
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		this.drawTexturedModalRect(x+xShift, y+yShift, 0, 0, xSize, ySize);
 		if(panel){
 			this.drawTexturedModalRect(x+xShift-11, y+yShift+14, 185, 1, 12, 29);
 		}
 	}
+	
+	public List<String> handleItemTooltip(ItemStack stack, int mousex, int mousey, List<String> currenttip)
+    {
+		if(stack != null){
+			if(ID == 1){
+				if(mousex >= matrixStartX && mousex < matrixStopX && mousey >= matrixStartY && mousey <= matrixStopY){
+					drawRecipeToolTip((mousex-matrixStartX)/18, (mousey-matrixStartY)/18, mousex, mousey);
+				}
+			}
+		}
+        return currenttip;
+    }
+	
 	@Override
 	protected void drawItemStackTooltip(ItemStack stack, int x,
 			int y) {
@@ -200,7 +198,7 @@ public class ProjectBenchGui extends GuiContainer {
 			if (this.drawButton)
 	        {
 	            FontRenderer fontrenderer = mc.fontRenderer;
-	            mc.renderEngine.bindTexture(texPath);
+	            mc.func_110434_K().func_110577_a(resource);
 	            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	            this.field_82253_i = i >= this.xPosition && j >= this.yPosition && i < this.xPosition + this.width && j < this.yPosition + this.height;
 	            int k = this.getHoverState(this.field_82253_i);
@@ -250,7 +248,7 @@ public class ProjectBenchGui extends GuiContainer {
 					}
 				}
 				FontRenderer fontrenderer = mc.fontRenderer;
-	            mc.renderEngine.bindTexture(texPath);
+	            mc.func_110434_K().func_110577_a(resource);
 	            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	            this.field_82253_i = i >= this.xPosition && j >= this.yPosition && i < this.xPosition + this.width && j < this.yPosition + this.height;
 	            int k = this.getHoverState(this.field_82253_i);
@@ -303,7 +301,7 @@ public class ProjectBenchGui extends GuiContainer {
 					}
 				}
 				FontRenderer fontrenderer = mc.fontRenderer;
-	            mc.renderEngine.bindTexture(texPath);
+//	            mc.func_110434_K().func_110577_a(field_110332_a);
 	            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	            this.field_82253_i = i >= this.xPosition && j >= this.yPosition && i < this.xPosition + this.width && j < this.yPosition + this.height;
 	            int k = this.getHoverState(this.field_82253_i);
@@ -339,4 +337,25 @@ public class ProjectBenchGui extends GuiContainer {
 			return fireButton;
 		}
 	}
+	
+	public static void setIsNEIActive(boolean bool){
+		NEI_ACTIVE = bool;
+	}
+	public static boolean isNEIActive(){
+		return NEI_ACTIVE;
+	}
+	
+	/*	@ContainerSectionCallback
+	public Map<ContainerSection, List<Slot>> getContainerSections(){
+		Map<ContainerSection, List<Slot>> result = new HashMap<ContainerSection, List<Slot>>();
+		if(inventorySlots instanceof ContainerProjectBenchII){
+			result.put(ContainerSection.CHEST, inventorySlots.inventorySlots.subList(27, 45));
+		}
+		else if(inventorySlots instanceof ContainerProjectBench){
+			result.put(ContainerSection.CRAFTING_OUT, inventorySlots.inventorySlots.subList(0, 1));
+			result.put(ContainerSection.CRAFTING_IN_PERSISTENT, inventorySlots.inventorySlots.subList(1, 10));
+			result.put(ContainerSection.CHEST, inventorySlots.inventorySlots.subList(10, 28));
+		}
+		return result;
+	}*/
 }

@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.RenderItemFrame;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -12,10 +13,12 @@ import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Icon;
+import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
 import bau5.mods.projectbench.common.EntityCraftingFrame;
+import bau5.mods.projectbench.common.ProjectBench;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -30,6 +33,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class RenderCraftingFrame extends RenderItemFrame
 {
 	private final RenderBlocks renderBlocks = new RenderBlocks();
+	private final ResourceLocation resource = new ResourceLocation("projectbench","textures/blocks/craftingFrame_back.png");
 	private Icon icon;
 	
 	@Override
@@ -92,7 +96,7 @@ public class RenderCraftingFrame extends RenderItemFrame
 	private void renderFrameItemAsBlock(EntityItemFrame eif)
     {
         GL11.glPushMatrix();
-        this.renderManager.renderEngine.bindTexture("/terrain.png");
+        this.renderManager.renderEngine.func_110577_a(TextureMap.field_110575_b);
         GL11.glRotatef(eif.rotationYaw, 0.0F, 1.0F, 0.0F);
         Block block = Block.planks;
         float f = 0.0625F;
@@ -100,7 +104,7 @@ public class RenderCraftingFrame extends RenderItemFrame
         float f2 = f1 / 2.0F;
         GL11.glPushMatrix();
         this.renderBlocks.overrideBlockBounds(0.0D, (0.5F - f2 + 0.0625F), (0.5F - f2 + 0.0625F), (f * 0.5F), (0.5F + f2 - 0.0625F), (0.5F + f2 - 0.0625F));
-        this.renderBlocks.setOverrideBlockTexture(icon);
+        this.renderBlocks.setOverrideBlockTexture(ProjectBench.instance.projectBench.getIcon(1, 0));
         this.renderBlocks.renderBlockAsItem(block, 0, 1.0F);
         this.renderBlocks.clearOverrideBlockTexture();
         this.renderBlocks.unlockBlockBounds();
@@ -126,12 +130,17 @@ public class RenderCraftingFrame extends RenderItemFrame
         this.renderBlocks.clearOverrideBlockTexture();
         GL11.glPopMatrix();
     }
-
+	
+	@Override
+	protected ResourceLocation func_110775_a(Entity par1Entity) {
+		return resource;
+	}
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void doRender(Entity entity, double x, double y,
 			double z, float par8, float par9) {
 		render((EntityCraftingFrame)entity, x, y, z, par8, par9);
 	}
-
+	
 }
