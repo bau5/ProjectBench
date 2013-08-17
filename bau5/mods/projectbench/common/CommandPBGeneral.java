@@ -45,7 +45,12 @@ public class CommandPBGeneral extends CommandBase {
 					rec.forceEnable();
 				else
 					rec.forceDisable();
-				PacketDispatcher.sendPacketToPlayer(PBPacketManager.getRecipePacket(theStack, rec.isEnabled()), (Player)sender);
+				if(sender instanceof Player)
+					PacketDispatcher.sendPacketToPlayer(PBPacketManager.getRecipePacket(theStack, rec.isEnabled()), (Player)sender);
+				else{
+					sender.sendChatToPlayer(new ChatMessageComponent().func_111066_d("Recipe disabled for " +rec.toString()));
+					PacketDispatcher.sendPacketToAllPlayers(PBPacketManager.getRecipePacket(theStack, rec.isEnabled()));
+				}
 //				sender.sendChatToPlayer(new ChatMessageComponent().func_111066_d("Recipe for " +rec.result() +" " +(flag ? "enabled." : "disabled.")));
 			}else{
 				sender.sendChatToPlayer(new ChatMessageComponent().func_111066_d("Recipe for item not found."));
