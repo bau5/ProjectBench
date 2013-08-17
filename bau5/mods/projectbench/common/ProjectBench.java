@@ -9,8 +9,10 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.MinecraftForge;
 import bau5.mods.projectbench.common.packets.PBPacketHandler;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
+import bau5.mods.projectbench.common.recipes.RecipeSaver;
 import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
 import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 import cpw.mods.fml.common.FMLLog;
@@ -22,6 +24,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -168,9 +171,17 @@ public class ProjectBench
 	}
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent ev){
-		ServerCommandManager serverCommandManager = (ServerCommandManager)ev.getServer().getCommandManager();
-		serverCommandManager.registerCommand(new CommandInspectRecipe());
-		serverCommandManager.registerCommand(new CommandPBGeneral());
+		ev.registerServerCommand(new CommandInspectRecipe());
+		ev.registerServerCommand(new CommandPBGeneral());
+		if(ev.getServer().isDedicatedServer())
+			MinecraftForge.EVENT_BUS.register(new PlayerJoiningServerHandler());
+		if(MKII_ENABLED)
+			RecipeSaver.readFromNBT();
 	}
 	
+	@EventHandler
+	public void serverStopping(FMLServerStoppingEvent ev){
+		if(MKII_ENABLED)
+			RecipeSaver.writeToNBT();
+	}
 }
