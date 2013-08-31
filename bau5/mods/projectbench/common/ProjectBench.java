@@ -84,18 +84,19 @@ public class ProjectBench
 		Configuration config = new Configuration(ev.getSuggestedConfigurationFile());
 		try
 		{
-			config.load(); 
+			config.load();
 			pbID = config.getBlock("Project Bench", 700).getInt(700);
 			pbItemsID[0] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. I Upgrade Item", 13070).getInt(13070);
 			pbItemsID[1] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. II Upgrade Item", 13071).getInt(13071);
 			pbItemsID[2] = config.getItem(Configuration.CATEGORY_ITEM, "Crafting Frame I", 13072).getInt(13072);
 			pbItemsID[3] = config.getItem(Configuration.CATEGORY_ITEM, "Auto-Crafting Frame", 13073).getInt(13073);
-			DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldRenderItem", true).getBoolean(true);
-			II_DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldIIRenderItems", true).getBoolean(true);
-			RENDER_ALL = config.get(Configuration.CATEGORY_GENERAL, "shouldRenerStackSize", false).getBoolean(false);
-			VERSION_CHECK = config.get(Configuration.CATEGORY_GENERAL, "versionCheckEnabled", true).getBoolean(true);
-			MKII_ENABLED = config.get(Configuration.CATEGORY_GENERAL, "MKIIEnabled", true).getBoolean(true);
-			SPEED_FACTOR = config.get(Configuration.CATEGORY_GENERAL, "speedFactor", 5).getInt(5);
+			DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "Should Render Item", true).getBoolean(true);
+			II_DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "Should Mk. II Render Items", true).getBoolean(true);
+			RENDER_ALL = config.get(Configuration.CATEGORY_GENERAL, "Should Render Stack Sizes", false).getBoolean(false);
+			VERSION_CHECK = config.get(Configuration.CATEGORY_GENERAL, "Version Check Enabled", true).getBoolean(true);
+			MKII_ENABLED = config.get(Configuration.CATEGORY_GENERAL, "Mk. II Enabled", true).getBoolean(true);
+			VERBOSE = config.get(Configuration.CATEGORY_GENERAL, "Verbose Logging", false).getBoolean(false);
+			SPEED_FACTOR = config.get(Configuration.CATEGORY_GENERAL, "Speed Factor", 5).getInt(5);
 			if(!DEBUG_MODE_ENABLED)
 				DEBUG_MODE_ENABLED = config.get(Configuration.CATEGORY_GENERAL, "debugMode", false).getBoolean(false);
 				
@@ -173,10 +174,11 @@ public class ProjectBench
 	public void serverStarting(FMLServerStartingEvent ev){
 		ev.registerServerCommand(new CommandInspectRecipe());
 		ev.registerServerCommand(new CommandPBGeneral());
-		if(ev.getServer().isDedicatedServer())
-			MinecraftForge.EVENT_BUS.register(new PlayerJoiningServerHandler());
-		if(MKII_ENABLED)
+		if(MKII_ENABLED){
 			RecipeSaver.readFromNBT();
+			if(ev.getServer().isDedicatedServer())
+				MinecraftForge.EVENT_BUS.register(new PlayerJoiningServerHandler());
+		}
 	}
 	
 	@EventHandler

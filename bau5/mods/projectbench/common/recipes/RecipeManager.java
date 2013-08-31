@@ -109,6 +109,8 @@ public class RecipeManager {
 			for(ItemStack is : isa){
 				if(is == null)
 					continue arrays;
+				else if(is.getItem().hasContainerItem())
+					recipe.hasContainerItem = true;
 			}
 			goodStacks.add(isa);
 		}
@@ -134,7 +136,7 @@ public class RecipeManager {
 		ItemStack result = rec.result();
 		int indexInList = 0;
 		for(; indexInList < orderedRecipes.size(); indexInList++){
-			if(orderedRecipes.get(indexInList) != null && crafter.checkItemMatch(orderedRecipes.get(indexInList).result, result, false)){
+			if(orderedRecipes.get(indexInList) != null && crafter.checkItemMatch(orderedRecipes.get(indexInList).result, result, true)){
 				dup = orderedRecipes.get(indexInList);
 				break;
 			}
@@ -189,6 +191,7 @@ public class RecipeManager {
 		RecipeItem ri = new RecipeItem();
 		ri.setResult(result);
 		int i = Collections.binarySearch(orderedRecipes, ri, new PBRecipeSorter());
+		i = Math.abs(i);
 		if(i == -1 || i >= orderedRecipes.size() || i < 0){
 			print("Recipe not found for " +result);
 			return null;
@@ -312,7 +315,7 @@ public class RecipeManager {
 			 id3 = OreDictionary.getOreID(stacks[0]);
 		boolean hasMeta = false;
 		boolean flag = true;
-		recLoop : for(RecipeItem rec : orderedRecipes){
+		/*recLoop :*/ for(RecipeItem rec : orderedRecipes){
 			flag = true;
 			stacksForRecipe = rec.alternatives();
 			hasMeta = rec.hasMeta();
@@ -324,20 +327,20 @@ public class RecipeManager {
 							if(RecipeCrafter.checkItemMatch(recItems[i], stackInInventory, false)){
 								//TODO container item 
 								if(recItems[i].getItem().hasContainerItem()){
-									continue recLoop;
-									// Disabling container recipes for now.
-//									ItemStack contItem = recItems[i].getItem().getContainerItemStack(recItems[i]);
-//									if(contItem.isItemStackDamageable()){
-//										if(contItem.getItemDamage() + 1 <= contItem.getMaxDamage())
-//											recItems[i].stackSize = 0;
-//										else{
-//											recItems[i].setItemDamage(recItems[i].getItemDamage() + 1);
-//										}
-//									}else{
-//										if(contItem.stackSize <= stackInInventory.stackSize){
-//											recItems[i].stackSize -= contItem.stackSize;
-//										}
-//									}
+//									continue recLoop;
+//									 Disabling container recipes for now.
+									ItemStack contItem = recItems[i].getItem().getContainerItemStack(recItems[i]);
+									if(contItem.isItemStackDamageable()){
+										if(contItem.getItemDamage() + 1 <= contItem.getMaxDamage())
+											recItems[i].stackSize = 0;
+										else{
+											recItems[i].setItemDamage(recItems[i].getItemDamage() + 1);
+										}
+									}else{
+										if(recItems[i].stackSize <= stackInInventory.stackSize){
+											recItems[i].stackSize = 0;
+										}
+									}
 								}else if(recItems[i].stackSize <= stackInInventory.stackSize){
 									recItems[i].stackSize = 0;
 								}else if(recItems[i].stackSize > stackInInventory.stackSize){
@@ -386,9 +389,6 @@ public class RecipeManager {
 		try{
 			RecipeItem newRecItem = new RecipeItem();
 			ItemStack recOutput = (rec != null) ? rec.getRecipeOutput() : null;
-			if(rec != null && rec.getRecipeOutput() != null && rec.getRecipeOutput().itemID == 30184 /*+256*/){
-//				System.out.println("Check");
-			}
 			if(rec instanceof ShapedRecipes){
 				type = "ShapedRecipes";
 				newRecItem.items = ((ShapedRecipes) rec).recipeItems;
@@ -403,6 +403,7 @@ public class RecipeManager {
 					}
 				}
 			}else if(rec instanceof ShapedOreRecipe){
+				type = "ShapedOreRecipe";
 				Object[] objArray = ((ShapedOreRecipe) rec).getInput();
 				newRecItem.items = new ItemStack[objArray.length];
 				for(int i = 0; i < objArray.length; i++){
@@ -457,9 +458,6 @@ public class RecipeManager {
 			else{
 				type = "CustomRecipe";
 				newRecItem.setResult(rec.getRecipeOutput());
-				if(rec != null && rec.getRecipeOutput() != null && rec.getRecipeOutput().itemID == 5 && rec.getRecipeOutput().getItemDamage() == 1){
-					System.out.println("Check");
-				}
 				try{
 					int i = 0;
 					do{
@@ -560,6 +558,7 @@ public class RecipeManager {
 		private int indexInList;
 		private boolean isMetadataSensitive = false;
 		private boolean usable = true;
+		private boolean hasContainerItem = false;
 		private String type = "[null]";
 				
 		public RecipeItem() { }
@@ -624,6 +623,9 @@ public class RecipeManager {
 		public void forceDisable(){
 			usable = false;
 		}
+		public boolean hasContainerItem(){
+			return hasContainerItem;
+		}
 		public Object[] components(){
 			return input.clone();
 		}
@@ -669,7 +671,7 @@ public class RecipeManager {
 		return instance;
 	}
 	public static void print(String message){
-		if(DEBUG_MODE /*|| ProjectBench.DEV_ENV*/)
+		if(DEBUG_MODE || ProjectBench.VERBOSE /*|| ProjectBench.DEV_ENV*/)
 			System.out.println(message);
 	}
 	public static void print(ItemStack stack){
