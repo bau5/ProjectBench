@@ -77,7 +77,7 @@ public class RecipeCrafter {
 					counter++;
 					if(checkItemMatch(stackInList, stackInArray, false)){
 						if(stackInList.getItem().getContainerItem() != null){
-							consolidatedItems.add(stackInArray.copy());
+							consolidatedItems.add(stackInList.copy());
 						}else
 							stackInList.stackSize += stackInArray.stackSize;
 						continue main;
@@ -147,7 +147,19 @@ public class RecipeCrafter {
 				continue;
 			}else{
 				if(checkItemMatch(stack, stackInInventory, false)){
-					if(stack.stackSize <= stackInInventory.stackSize){
+					if(stackInInventory.getItem().hasContainerItem()){
+						ItemStack contItem = stackInInventory.getItem().getContainerItemStack(stackInInventory);
+						if(contItem != null){
+							if(contItem.isItemStackDamageable()){
+								contItem.setItemDamage(contItem.getItemDamage() - 1);
+								stack.stackSize = 0;
+							}else{
+								decreaseStackSize(i, stack.stackSize);
+								stack.stackSize = 0;
+								addStackToInventory(contItem);
+							}
+						}
+					}else if(stack.stackSize <= stackInInventory.stackSize){
 						decreaseStackSize(i, stack.stackSize);
 						stack.stackSize = 0;
 					}/*else{
@@ -194,7 +206,7 @@ public class RecipeCrafter {
 		}else if(sourceInventory != null){
 			for(int i = 0; i < sourceInventory.length; i++){
 				theStack = sourceInventory[i];
-				if(theStack == null || (OreDictionary.itemMatches(theStack, stack, false) && (theStack.stackSize + stack.stackSize <= theStack.getMaxStackSize()))){
+				if(theStack == null || checkItemMatch(theStack, stack, false) && (theStack.stackSize + stack.stackSize <= theStack.getMaxStackSize())){
 					if(theStack != null)
 						theStack.stackSize += stack.stackSize;
 					else
@@ -212,13 +224,15 @@ public class RecipeCrafter {
 		for(int i = 0; i < clonedItems.length; i++){
 			clonedItems[i] = ItemStack.copyItemStack(items[i]);
 		}
+		
 		ItemStack stack = null;
-		for(int i = 0; i < items.length; i++){
+		mainLoop : for(int i = 0; i < items.length; i++){
 			stack = clonedItems[i];
 			for(ItemStack sin : consolidatedStacks){
 				if(checkItemMatch(stack, sin, false)){
 					if(stack.stackSize <= sin.stackSize){
 						stack.stackSize = 0;
+						continue mainLoop;
 					}else{
 						int stackSize = sin.stackSize;
 						stack.stackSize -= stackSize;
