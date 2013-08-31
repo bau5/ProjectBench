@@ -28,7 +28,8 @@ public class PBPacketHandler implements IPacketHandler
 	public static String PACKET_CHANNEL = "bau5_PB";
 	
 	@Override
-	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) {
+	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) 
+	{
 		if(packet.data == null)
 			return;
 		if(packet.data.length == 1){

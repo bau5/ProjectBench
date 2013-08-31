@@ -11,12 +11,12 @@ import com.google.common.io.ByteArrayDataInput;
 import cpw.mods.fml.common.network.Player;
 
 public class PBPacketManager {
-	/** ID:     Class:
-	 *   1		  {@link MkIStandardPacket}
-	 *   2		  {@link MKIIStandardPacket}
-	 *   3     	  {@link MkIIWindowClick}
-	 *   4		  {@link RejectionPacket}
-	 *   5		  {@link RecipePacket}
+	/** ID:        Class:
+	 *   1			{@link MkIStandardPacket}
+	 *   2			{@link MKIIStandardPacket}
+	 *   3     		{@link MkIIWindowClick}
+	 *   4			{@link RejectionPacket}
+	 *   5			{@link RecipePacket}
 	 */
 	public static Packet getMkIPacket(TileEntityProjectBench tile) {
 		return (Packet250CustomPayload)new MkIStandardPacket(tile).makePacket();

@@ -84,7 +84,7 @@ public class RecipeSaver {
 			if(!f.exists()){
 				f.createNewFile();
 				if(ProjectBench.VERBOSE){
-					System.out.println("Project Bench: creating disabled recipes save file.");
+					System.out.println("Project Bench: loading of saved disabled stacks halted, no save file.");
 				}
 				RecipeManager.instance().initiateRecipeManager();
 				return;
@@ -102,7 +102,7 @@ public class RecipeSaver {
 					if(theStack != null){
 						RecipeItem rec = RecipeManager.instance().searchForRecipe(theStack, true);
 						if(rec != null){
-							if(RecipeCrafter.checkItemMatch(rec.result(), theStack, true)){
+							if(RecipeCrafter.checkItemMatch(rec.result(), theStack, false)){
 								if(ProjectBench.VERBOSE)
 									System.out.println("Project Bench: disabling " +rec.toString() +" from save.");
 								rec.forceDisable();
