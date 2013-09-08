@@ -48,7 +48,7 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 				theStack.setItemDamage(0);
 			}
 			if(lastRecipe == null || !OreDictionary.itemMatches(lastRecipe.result(), theStack, false)){
-				lastRecipe = RecipeManager.instance().searchForRecipe(theStack, false);
+				lastRecipe = RecipeManager.instance().searchForRecipe(theStack);
 			}
 			if(lastRecipe == null)
 				return false;

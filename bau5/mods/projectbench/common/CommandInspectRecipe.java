@@ -12,18 +12,21 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
 
 public class CommandInspectRecipe extends CommandBase {
+	private final String COMMAND_LOCALE = "command.bau5ProjectBench.pbinspect.";
+	
 	@Override
 	public String getCommandName() {
-		return "pbinspect";
+		return "pb" +StatCollector.translateToLocal(COMMAND_LOCALE+"name");
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/" +getCommandName() + " <itemID> [meta]";
+		return "/" +getCommandName() +"<"+StatCollector.translateToLocal(COMMAND_LOCALE+"part3")+">" +StatCollector.translateToLocal(COMMAND_LOCALE+"part4");
 	}
 	@Override
 	public void processCommand(ICommandSender sender, String[] astring) {
@@ -33,7 +36,7 @@ public class CommandInspectRecipe extends CommandBase {
 		else if(astring.length == 0){
 			ItemStack held = ((EntityPlayer)sender).getCurrentEquippedItem();
 			if(held == null){
-				sender.sendChatToPlayer(ChatMessageComponent.func_111066_d("Must be holding an item."));
+				sender.sendChatToPlayer(ChatMessageComponent.func_111066_d(StatCollector.translateToLocal(COMMAND_LOCALE +"err1")));
 				throw new WrongUsageException(getCommandUsage(sender), new Object[0]);
 			}else{
 				theStack = held.copy();
@@ -45,14 +48,14 @@ public class CommandInspectRecipe extends CommandBase {
 				meta = Integer.parseInt(astring[1]);
 			theStack = new ItemStack(theID, 1, meta);
 		}
-		RecipeItem theRec = RecipeManager.instance().searchForRecipe(theStack, true);
+		RecipeItem theRec = RecipeManager.instance().searchForRecipe(theStack);
 		if(theRec == null){
-			sender.sendChatToPlayer(ChatMessageComponent.func_111066_d("No recipe found for item " +theStack.itemID +":" +theStack.getItemDamage() +"."));
+			sender.sendChatToPlayer(ChatMessageComponent.func_111066_d(StatCollector.translateToLocal(COMMAND_LOCALE +"err2") +" "+theStack.itemID +":" +theStack.getItemDamage() +"."));
 		}else{
 			ArrayList<ItemStack[]> ls = theRec.alternatives();
 			StringBuilder builder = new StringBuilder();
-			builder.append("Recipe for " +EnumChatFormatting.DARK_RED +theRec.result() +EnumChatFormatting.WHITE +" Enabled? " +theRec.isEnabled() +"\n ");
-			builder.append("Alts: " +ls.size() +"\n  ");
+			builder.append(StatCollector.translateToLocal(COMMAND_LOCALE +"part1") +" "+EnumChatFormatting.DARK_RED +theRec.result() +EnumChatFormatting.WHITE +"\n ");
+			builder.append(StatCollector.translateToLocal(COMMAND_LOCALE +"part2") +" "+ls.size() +"\n  ");
 			for(int i = 0; i < ls.size(); i++){
 				builder.append(" "+(i+1) +": ");
 				for(ItemStack stack : ls.get(i)){

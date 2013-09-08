@@ -74,7 +74,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
             ItemStack itemStack = player.getHeldItem();
             if (itemStack != null && !this.worldObj.isRemote)
             {
-        		currentRecipe = RecipeManager.instance().searchForRecipe(itemStack, false);
+        		currentRecipe = RecipeManager.instance().searchForRecipe(itemStack);
         		if(currentRecipe == null)
         			return true;
                 this.setDisplayedItem(currentRecipe.result().copy());
@@ -87,16 +87,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
             }
 	        return true;	
 		}else if(this.getDisplayedItem() != null && currentRecipe == null || RecipeCrafter.checkItemMatch(currentRecipe.result(), getDisplayedItem(), false)){
-			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem(), false);
-		}
-		
-		if((currentRecipe == null || !currentRecipe.isEnabled()) && this.getDisplayedItem() != null){
-			ItemStack stack = this.getDisplayedItem();
-			stack.stackSize = 1;
-			if(!worldObj.isRemote)
-				dispenseItem(stack);
-			reset();
-			return false;
+			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem());
 		}
 		
 		ArrayList<ItemStack[]> stacks = RecipeManager.instance().getComponentsToConsume(currentRecipe.result());
@@ -161,7 +152,7 @@ public class EntityCraftingFrame extends EntityItemFrame implements IEntityAddit
 	public void onUpdate() {
 		super.onUpdate();
 		if(currentRecipe == null && getDisplayedItem() != null)
-			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem(), false);
+			currentRecipe = RecipeManager.instance().searchForRecipe(getDisplayedItem());
 	}
 	
 	@Override

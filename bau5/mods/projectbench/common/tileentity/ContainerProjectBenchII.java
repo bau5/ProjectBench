@@ -187,8 +187,9 @@ public class ContainerProjectBenchII extends Container
 						items = RecipeManager.instance().getComponentsToConsume(stackInSlot);
 					}
 				}
-			}else
+			}else{
 				items = RecipeManager.instance().getComponentsToConsume(stackInSlot);
+			}
 			if(items == null){
 				return null;
 			}

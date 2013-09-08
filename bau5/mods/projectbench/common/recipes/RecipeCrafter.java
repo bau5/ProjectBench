@@ -8,7 +8,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
+import bau5.mods.projectbench.common.tileentity.ContainerProjectBench;
 import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 
 import com.google.common.collect.Lists;
 
@@ -24,6 +26,7 @@ public class RecipeCrafter {
 	
 	private ItemStack[] sourceInventory = null;
 	private TEProjectBenchII tpbRef = null;
+	private TileEntityProjectBench tpbRefI = null;
 	
 	
 	public static boolean checkItemMatch(ItemStack target, ItemStack input, boolean stackSize){
@@ -95,6 +98,48 @@ public class RecipeCrafter {
 		return orderItemStacksByID(stacks2);
 	}
 	
+	public ItemStack[] makeShallowCopy(ItemStack[] stacks){
+		ItemStack[] copy = new ItemStack[stacks.length];
+		for(int i = 0; i < stacks.length; i++){
+			if(stacks[i] == null)
+				copy[i] = null;
+			else
+				copy[i] = ItemStack.copyItemStack(stacks[i]);
+		}
+		return copy;
+	}
+	
+	public boolean checkListAgainstList(ItemStack[] arr1, ItemStack[] arr2){
+		boolean flag = true;
+		arr1 = makeShallowCopy(arr1);
+		
+		for(ItemStack stack : arr1){
+			if(stack == null) continue;
+			for(ItemStack stack2 : arr2){
+				if(stack2 == null) continue;
+				if(RecipeCrafter.checkItemMatch(stack, stack2, true)){
+					if(stack2.stackSize >= stack.stackSize)
+						stack.stackSize = 0;
+					break;
+				}
+			}
+		}
+		for(ItemStack is : arr1){
+			flag = (is.stackSize == 0);
+			if(!flag)
+				break;
+		}
+		return flag;
+	}
+	
+	public ItemStack[] listToArray(ArrayList<ItemStack> list){
+		ItemStack[] newArray = new ItemStack[list.size()];
+		for(int i = 0; i < list.size(); i++){
+			newArray[i] = list.get(i);
+		}
+		return newArray;
+	}
+	
 	public ItemStack[] orderItemStacksByID(ItemStack[] originalArray){
 		if(originalArray == null) return originalArray;
 		if(originalArray.length == 0) return originalArray;
@@ -106,12 +151,40 @@ public class RecipeCrafter {
 		return sortedArray;
 	}
 
+	public ItemStack[] getMissingStacks(ContainerProjectBench cpb, ItemStack thePlan){
+		ArrayList<ItemStack> list = new ArrayList<ItemStack>();
+		ItemStack is = cpb.tileEntity.getStackInSlot(27);
+		if(is != null && ItemStack.areItemStacksEqual(is, thePlan) && ItemStack.areItemStackTagsEqual(is, thePlan)){
+			ItemStack[] plansItems = listToArray(RecipeManager.instance().getRecipeItemsForPlan(thePlan));
+			plansItems = consolidateItemStacks(plansItems);
+			ItemStack[] supplyItems = consolidateItemStacks(cpb.tileEntity.getSupplyInventoryItems());
+			pi : for(int i = 0; i < plansItems.length; i++){
+				ItemStack missing = ItemStack.copyItemStack(plansItems[i]);
+				for(int j = 0; j < supplyItems.length; j++){
+					if(plansItems[i] != null && supplyItems[j] != null && checkItemMatch(plansItems[i], supplyItems[j], false)){
+						if(plansItems[i].stackSize > supplyItems[j].stackSize){
+							missing.stackSize = plansItems[i].stackSize - supplyItems[j].stackSize;
+							list.add(missing);
+						}else
+							continue pi;
+					}
+				}
+				list.add(missing);
+			}
+		}
+		if(list.size() > 0)
+			return listToArray(list);
+		else
+			return new ItemStack[0];
+	}
+	
 	public int consumeItems(ItemStack[] toConsume, ItemStack[] supplies, ItemStack result, boolean max) {
 		int numMade = 0;
 		ItemStack resultStack = ItemStack.copyItemStack(result);
 		if(!checkForItems(toConsume.clone(), supplies)){
 			return numMade;
 		}
+		
 		int tries = (max) ? (resultStack.getMaxStackSize()/resultStack.stackSize) : 1;
 		while(tries * resultStack.stackSize > resultStack.getMaxStackSize())
 			tries--;
@@ -172,6 +245,8 @@ public class RecipeCrafter {
 				sourceInventory[index] = null;
 				if(tpbRef != null)
 					tpbRef.setInventorySlotContents(index +tpbRef.inventoryStart, null);
+				else if(tpbRefI != null)
+					tpbRefI.setInventorySlotContents(index +tpbRefI.getSupplyMatrixStart(), null);
 			}
 			return sourceInventory[index];
 		}
@@ -246,4 +321,7 @@ public class RecipeCrafter {
 		tpbRef = ref;
 	}
 	
+	public void addTPBIReference(TileEntityProjectBench ref){
+		tpbRefI = ref;
+	}
 }

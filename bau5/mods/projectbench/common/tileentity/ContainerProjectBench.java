@@ -6,6 +6,11 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.oredict.OreDictionary;
+import bau5.mods.projectbench.common.recipes.RecipeCrafter;
+import bau5.mods.projectbench.common.recipes.RecipeManager;
 
 /**
  * 
@@ -22,6 +27,7 @@ public class ContainerProjectBench extends Container
 	
 	public IInventory craftSupplyMatrix;
 	public int craftResultSlot = 0;
+	public int planSlot = 27;
 	private boolean containerChanged;
 	private boolean netEditingContainer = false;
 		
@@ -32,6 +38,7 @@ public class ContainerProjectBench extends Container
 		addSlotToContainer(new SlotPBCrafting(this, invPlayer.player, tileEntity, tileEntity.craftResult, 
 										 tileEntity, craftResultSlot, 124, 35));
 		layoutContainer(invPlayer, tileEntity);
+		addSlotToContainer(new SlotPBPlan(tileEntity, planSlot, 9, 35));
 		bindPlayerInventory(invPlayer);
 		containerChanged = true;
 		detectAndSendChanges();
@@ -92,17 +99,88 @@ public class ContainerProjectBench extends Container
 		tileEntity.markShouldUpdate();
 	}
 	
-	@Override
-	public ItemStack slotClick(int slot, int clickType, int clickMeta, EntityPlayer player)
-	{
-		if(slot <= 9 && slot > -1)
-			updateCrafting(true);
-		ItemStack stack = super.slotClick(slot, clickType, clickMeta, player);
-		return stack;
+	public ItemStack getPlanStack(){
+		return tileEntity.getPlanStack();
 	}
+	
+	public ItemStack getPlanResult(){
+		return tileEntity.getPlanResult();
+	}
+
+	public boolean validPlanInSlot(){
+		return tileEntity.validPlanInSlot();
+	}
+	
+	public void writePlanToNBT() {
+		if(tileEntity.getResult() == null)
+			return;
+		NBTTagCompound mainTag = new NBTTagCompound("PlanData");
+		NBTTagList list = new NBTTagList();
+		for(int i = 0; i < 9; i++){
+			NBTTagCompound tag = new NBTTagCompound();
+			ItemStack stack = tileEntity.getStackInSlot(i);
+			int oreid = OreDictionary.getOreID(stack);
+			ItemStack oreStack = (oreid != -1) ? OreDictionary.getOres(oreid).get(0) : stack;
+			if(oreStack != null)
+				System.out.println(oreStack.getDisplayName());
+			if(oreStack != null)
+				tag = oreStack.writeToNBT(tag);
+			list.appendTag(tag);
+		}
+		mainTag.setTag("Components", list);
+		mainTag.setTag("Result", tileEntity.getResult().writeToNBT(new NBTTagCompound()));
+		getPlanStack().stackTagCompound = mainTag;
+		getPlanStack().setItemDamage(1);
+	}
+	
 	@Override
-	public boolean canInteractWith(EntityPlayer player) 
-	{
+	public ItemStack slotClick(int slot, int clickType, int clickMeta, EntityPlayer player) {
+		if(slot <= 9 && slot > -1 || slot == 28)
+			updateCrafting(true);
+		if(slot == 0 && validPlanInSlot() && ItemStack.areItemStacksEqual(getPlanResult(), tileEntity.getResult())){
+			ItemStack stack = handleSlotClick(slot, clickType, clickMeta, player);
+			if(stack == null){
+				ItemStack result = tileEntity.findRecipe(false);
+				if(result != null)
+					return super.slotClick(slot, clickType, clickMeta, player);
+			}
+			return stack;
+		}else
+			return super.slotClick(slot, clickType, clickMeta, player);
+	}
+	
+	public ItemStack handleSlotClick(int slot, int clickType, int clickMeta, EntityPlayer player){
+		ItemStack returnStack = tileEntity.getResult();
+		if(returnStack == null)
+			return null;
+		RecipeCrafter crafter = new RecipeCrafter();
+		crafter.addTPBIReference(tileEntity);
+		ItemStack[] supplyMatrix = tileEntity.getSupplyInventoryItems();
+		crafter.addInventoryReference(supplyMatrix);
+		
+		int numMade = crafter.consumeItems(crafter.consolidateItemStacks(crafter.listToArray(RecipeManager.instance().getRecipeItemsForPlan(getPlanStack()))), crafter.consolidateItemStacks(supplyMatrix), getPlanResult(), clickMeta == 1);
+		ItemStack outputClone = returnStack.copy();
+		if(numMade == 0)
+			return null;
+		outputClone.stackSize *= numMade;
+		ItemStack stackOnMouse = player.inventory.getItemStack();
+		if(stackOnMouse == null){
+			player.inventory.setItemStack(ItemStack.copyItemStack(outputClone));
+		}
+		else{
+			if(stackOnMouse.isItemEqual(outputClone)){
+				if(stackOnMouse.stackSize + outputClone.stackSize <= stackOnMouse.getMaxStackSize())
+					stackOnMouse.stackSize += outputClone.stackSize;
+				else
+					return null;
+			}
+		}
+		updateCrafting(true);
+		return outputClone;
+	}
+	
+	@Override
+	public boolean canInteractWith(EntityPlayer player) {
 		return tileEntity.isUseableByPlayer(player);
 	}
 	@Override

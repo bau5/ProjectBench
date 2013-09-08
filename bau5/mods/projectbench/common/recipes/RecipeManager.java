@@ -16,6 +16,8 @@ import net.minecraft.item.crafting.RecipesArmorDyes;
 import net.minecraft.item.crafting.RecipesMapCloning;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -121,14 +123,6 @@ public class RecipeManager {
 			return false;
 	}
 	
-	public ArrayList<RecipeItem> getDisabledRecipes(){
-		ArrayList<RecipeItem> ls = new ArrayList();
-		for(RecipeItem rec : orderedRecipes)
-			if(!rec.isEnabled())
-				ls.add(rec);
-		return ls;
-	}
-	
 	public boolean checkForRecipe(RecipeItem rec){
 		RecipeItem dup = null;
 		ItemStack result = rec.result();
@@ -185,7 +179,7 @@ public class RecipeManager {
 	 * 
 	 * 
 	 */
-	public RecipeItem searchForRecipe(ItemStack result, boolean truth){
+	public RecipeItem searchForRecipe(ItemStack result){
 		RecipeItem ri = new RecipeItem();
 		ri.setResult(result);
 		int i = Collections.binarySearch(orderedRecipes, ri, new PBRecipeSorter());
@@ -193,11 +187,7 @@ public class RecipeManager {
 			print("Recipe not found for " +result);
 			return null;
 		}
-		RecipeItem ri2 = orderedRecipes.get(i);
-		if(ri2.isEnabled() || truth)
-			return orderedRecipes.get(i);
-		else
-			return null;
+		return orderedRecipes.get(i);
 	}
 	
 	private void indexList(){
@@ -210,6 +200,25 @@ public class RecipeManager {
 		for(RecipeItem ri : orderedRecipes){
 			print(ri.getIndex() + " " +ri.result() +" " +ri.result().itemID);
 		}
+	}
+	
+	public ArrayList<ItemStack> getRecipeItemsForPlan(ItemStack thePlan){
+		if(thePlan != null){
+			ArrayList<ItemStack> list = new ArrayList<ItemStack>();
+			NBTTagList tagList = thePlan.stackTagCompound.getTagList("Components");
+			for(int i = 0; i < tagList.tagCount(); i++){
+				NBTTagCompound stackTag = (NBTTagCompound)tagList.tagAt(i);
+				if(stackTag.hasKey("id")){
+					ItemStack stack = ItemStack.loadItemStackFromNBT(stackTag);
+					list.add(stack);
+				}
+				else{
+					list.add(null);
+				}
+			}
+			return list;
+		}
+		return null;
 	}
 	
 	/**
@@ -226,7 +235,7 @@ public class RecipeManager {
 		ArrayList<ItemStack[]> itemsToConsume = null;
 		if(stack == null)
 			return null;
-		RecipeItem ri = searchForRecipe(stack, false);
+		RecipeItem ri = searchForRecipe(stack);
 		if(ri != null)
 			itemsToConsume = ri.alternatives();
 		return itemsToConsume;
@@ -297,7 +306,7 @@ public class RecipeManager {
 						break;
 					}
 				}
-				if(flag && rec.isEnabled())
+				if(flag)
 					validRecipes.add(rec.result());
 			}
 		}
@@ -361,11 +370,9 @@ public class RecipeManager {
 						break;
 					}
 				}
-				if(flag && rec.isEnabled()){
+				if(flag){
 					outputInputMap.put(rec.result(), rec.alternatives.get(index));
 				}
-				
-				
 			}
 		}
 		return outputInputMap;
@@ -593,7 +600,6 @@ public class RecipeManager {
 			}
 			
 			alternatives.add(new RecipeCrafter().consolidateItemStacks(items));
-			items = null;
 		}
 		public ArrayList<ItemStack[]> alternatives(){
 			ArrayList<ItemStack[]> temp = new ArrayList<ItemStack[]>();

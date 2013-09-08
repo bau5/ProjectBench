@@ -19,6 +19,8 @@ public class PBRecipeSorter implements Comparator{
 		return (item1.result().itemID < item2.result().itemID) ? -1 : (item1.result().itemID==item2.result().itemID ? ((item1.result().getItemDamage() < item2.result().getItemDamage()) ? -1 : (item1.result().getItemDamage() == item2.result().getItemDamage() ? 0 : 1)) : 1);
 	}
 	public int compareIS(ItemStack item1, ItemStack item2){
+		if(item1 == null || item2 == null)
+			return -1;
 		return (item1.itemID < item2.itemID) ? -1 : (item1.itemID==item2.itemID ? ((item1.getItemDamage() < item2.getItemDamage()) ? -1 : (item1.getItemDamage() == item2.getItemDamage() ? 0 : 1)) : 1);
 	}
 	@Override

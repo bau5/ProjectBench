@@ -1,15 +1,14 @@
 package bau5.mods.projectbench.common.tileentity;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.InventoryCraftResult;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,6 +16,8 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import bau5.mods.projectbench.common.packets.PBPacketManager;
+import bau5.mods.projectbench.common.recipes.RecipeCrafter;
+import bau5.mods.projectbench.common.recipes.RecipeManager;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
 /**
@@ -29,19 +30,9 @@ import cpw.mods.fml.common.network.PacketDispatcher;
  */
 
 public class TileEntityProjectBench extends TileEntity implements IInventory,ISidedInventory
-{
-	class LocalInventoryCrafting extends InventoryCrafting
-	{
-		public LocalInventoryCrafting() {
-			super(new Container(){
-				@Override
-				public boolean canInteractWith(EntityPlayer var1) {
-					return false;
-				}
-			}, 3, 3);
-		}
-		public Container eventHandler;
-	};
+{	
+	private static final int[] slots_top = new int[] {0,1,2,3,4,5,6,7,8};
+	private static final int[] slots_other = new int[18];
 	
 	private ItemStack[] inv;
 	private boolean shouldUpdate = false;
@@ -62,6 +53,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory,ISi
 	@Override
 	public void onInventoryChanged()
 	{
+		if(getPlanStack() != null)
+			markShouldUpdate();
 		if(!containerInit && shouldUpdate){
 			findRecipe(false);
 			shouldUpdate = false;
@@ -72,9 +65,12 @@ public class TileEntityProjectBench extends TileEntity implements IInventory,ISi
 	{
 		craftSupplyMatrix = new InventoryBasic("pbCraftingSupply", true, 18);
 		craftResult = new InventoryCraftResult();
-		inv = new ItemStack[27];
+		inv = new ItemStack[28];
 		shouldUpdate = true;
 		craftMatrix = new LocalInventoryCrafting();
+		for(int i = 0; i < slots_other.length; i++){
+			slots_other[i] = 9 +i;
+		}
 	}
 	public ItemStack findRecipe(boolean fromPacket) 
 	{
@@ -90,6 +86,8 @@ public class TileEntityProjectBench extends TileEntity implements IInventory,ISi
 		}
 
 		ItemStack recipe = CraftingManager.getInstance().findMatchingRecipe(craftMatrix, worldObj);
+		if(recipe == null && validPlanInSlot() && haveSuppliesForPlan())
+			recipe = getPlanResult();
 		setResult(recipe);
 		
 		if(!ItemStack.areItemStacksEqual(lastResult, result) && !fromPacket && !worldObj.isRemote){
@@ -99,7 +97,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory,ISi
 		
 		return recipe;
 	}
-
 	@Override
 	public void updateEntity()
     {
@@ -127,6 +124,34 @@ public class TileEntityProjectBench extends TileEntity implements IInventory,ISi
 					worldObj.getWorldInfo().getVanillaDimension());
 				break;
 		}
+	}
+	
+	public boolean validPlanInSlot(){
+		return (getPlanStack() != null && getPlanStack().stackTagCompound != null && getPlanResult() != null);
+	}
+
+	public boolean haveSuppliesForPlan() {
+		ArrayList<ItemStack> stacks = RecipeManager.instance().getRecipeItemsForPlan(getPlanStack());
+		if(stacks == null)
+			return false;
+		RecipeCrafter helper = new RecipeCrafter();
+		return helper.checkListAgainstList(helper.consolidateItemStacks(helper.orderItemStacksByID(helper.listToArray(stacks))), helper.consolidateItemStacks(helper.orderItemStacksByID(getSupplyInventoryItems())));
+	}
+	
+	public ItemStack getPlanResult() {
+		return (getPlanStack() != null ? ItemStack.loadItemStackFromNBT(getPlanStack().stackTagCompound.getCompoundTag("Result")) : null);
+	}
+	
+	public ItemStack getPlanStack() {
+		return inv[27];
+	}
+	
+	public ItemStack[] getSupplyInventoryItems(){
+		ItemStack[] is = new ItemStack[18];
+		for(int i = 0; i < is.length; i++){
+			is[i] = inv[i + supplyMatrixStart];
+		}
+		return is;
 	}
 	
 	public void markShouldUpdate(){
@@ -347,6 +372,44 @@ public class TileEntityProjectBench extends TileEntity implements IInventory,ISi
 		}
 		tagCompound.setTag("Inventory", itemList);
 	}
+	//TODO Update for vanilla sided inventory eventually.
+	/*
+	//Get start inventory side
+	@Override
+	public int func_94127_c(int side) {
+		switch(side)
+		{
+		case 0: return 0;
+		default: return 9;
+		}
+	}
+	//Get size inventory based on side
+	@Override
+	public int func_94128_d(int side) {
+		switch(side)
+		{
+		case 0: return 9;
+		default: return 18;
+		}
+	}*/
+/*	@Override
+	public int getStartInventorySide(ForgeDirection side) 
+	{
+		switch(side)
+		{
+		case UP: return 0;
+		default: return 9;
+		}
+	}
+	@Override
+	public int getSizeInventorySide(ForgeDirection side) 
+	{
+		switch(side)
+		{
+		case UP: return 9;
+		default: return 18;
+		}
+	}*/
 	@Override
 	public boolean isInvNameLocalized() {
 		return false;
