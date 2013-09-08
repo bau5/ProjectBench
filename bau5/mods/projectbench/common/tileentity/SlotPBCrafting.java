@@ -8,6 +8,7 @@ import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 /**
@@ -23,6 +24,7 @@ public class SlotPBCrafting extends SlotCrafting
 	private EntityPlayer thePlayer;
 	private final IInventory craftMatrix;
 	private IInventory craftResultMatrix;
+	private ContainerProjectBench theContainer;
 	//This is actually the TileEntity, need to use the 
 	//tileEntity's inventory to satisfy crafting.
 	private IInventory craftSupplyMatrix;
@@ -32,26 +34,43 @@ public class SlotPBCrafting extends SlotCrafting
 									                int slotID, int xDisplay, int yDisplay) 
 	{
 		super(player, craftingMatrix, craftingResultMatrix, slotID, xDisplay, yDisplay);
+		theContainer = (ContainerProjectBench)parent;
 		thePlayer = player;
 		craftMatrix = craftingMatrix;
 		craftResultMatrix = craftingResultMatrix;
 		craftSupplyMatrix = craftingSupplyMatrix;
 	}
+
+	@Override
+	public boolean canTakeStack(EntityPlayer par1EntityPlayer) {
+//		ArrayList<ItemStack> stacks = RecipeManager.instance().getRecipeItemsForPlan(theContainer.getPlanStack());
+//		if(stacks == null)
+			return super.canTakeStack(par1EntityPlayer);
+//		RecipeCrafter helper = new RecipeCrafter();
+//		return helper.checkListAgainstList(helper.orderItemStacksByID(helper.listToArray(stacks)), helper.orderItemStacksByID(theContainer.tileEntity.getSupplyInventoryItems()));
+//		helper.consumeItems(helper.listToArray(stacks), helper.orderItemStacksByID(theContainer.tileEntity.getSupplyInventoryItems()), theContainer.getPlanResult(), false);
+	}
 	
 	@Override
-	public void onPickupFromSlot(EntityPlayer player, ItemStack stack)
-    {
+	public void onPickupFromSlot(EntityPlayer player, ItemStack stack){
 		boolean found = false;
 		boolean metaSens = false;
         GameRegistry.onItemCrafted(thePlayer, stack, craftMatrix);
         this.onCrafting(stack);
-        
+//        ArrayList<ItemStack> itemList = null;
+////        if(theContainer.validPlanInSlot()){
+////        	itemList = RecipeManager.instance().getRecipeItemsForPlan(theContainer.getPlanStack());
+////        }
         //Looping through crafting matrix finding required items
         for(int invIndex = 0; invIndex < 9; invIndex++)
         {
         	found = false;
+        	ItemStack craftComponentStack = null;
         	//Grabs the item for comparison
-        	ItemStack craftComponentStack = craftSupplyMatrix.getStackInSlot(invIndex);
+//        	if(itemList != null){
+//        		craftComponentStack = itemList.get(invIndex);
+//        	}else
+        		craftComponentStack = craftSupplyMatrix.getStackInSlot(invIndex);
         	if(craftComponentStack != null)
         	{
         		if(!craftComponentStack.isItemStackDamageable() && craftComponentStack.getMaxDamage() == 0
@@ -68,7 +87,7 @@ public class SlotPBCrafting extends SlotCrafting
 	    			ItemStack supplyMatrixStack = craftSupplyMatrix.getStackInSlot(supplyInv);
 	    			if(supplyMatrixStack != null)
 	    			{
-	    				if(supplyMatrixStack.getItem().equals(craftComponentStack.getItem()))
+	    				if(RecipeCrafter.checkItemMatch(supplyMatrixStack, craftComponentStack, false))
 	    				{
 	    					if(metaSens)
 	    					{
@@ -115,7 +134,7 @@ public class SlotPBCrafting extends SlotCrafting
 	    		}
         		
         		//Didn't find it in the supply inventory, remove from crafting matrix
-    			if(!found)
+    			if(!found/* && !theContainer.validPlanInSlot()*/)
         		{
         			craftSupplyMatrix.decrStackSize(invIndex, 1);
         			if (craftComponentStack.getItem().hasContainerItem())
@@ -144,7 +163,6 @@ public class SlotPBCrafting extends SlotCrafting
         	}
         }
     }
-	
 	@Override
 	public ItemStack decrStackSize(int amount) {
 		return this.inventory.getStackInSlot(this.slotNumber);

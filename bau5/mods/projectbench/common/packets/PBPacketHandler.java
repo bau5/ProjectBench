@@ -47,8 +47,6 @@ public class PBPacketHandler implements IPacketHandler
 			return;
 		case 4: PBPacketManager.handleRejectionPacket(packet, player, bis);
 			return;
-		case 5: PBPacketManager.handleRecipePacket(packet, player, bis);
-			return;
 		}
 	}
 
@@ -57,6 +55,7 @@ public class PBPacketHandler implements IPacketHandler
 		switch(tinyid){
 		case 1: if(player instanceof EntityPlayerMP) completeEmptyOfMatrix((EntityPlayerMP)player);
 			return;
+		case 2: if(player instanceof EntityPlayerMP) ((ContainerProjectBench)(((EntityPlayerMP) player).openContainer)).writePlanToNBT();
 		}
 	}
 

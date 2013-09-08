@@ -1,25 +1,26 @@
 package bau5.mods.projectbench.client;
 
-/*import invtweaks.api.container.ChestContainer;
-import invtweaks.api.container.ContainerSectionCallback;
-*/
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 
 import bau5.mods.projectbench.common.packets.PBPacketHandler;
 import bau5.mods.projectbench.common.packets.PBPacketManager;
+import bau5.mods.projectbench.common.recipes.RecipeManager;
 import bau5.mods.projectbench.common.tileentity.ContainerProjectBench;
 import bau5.mods.projectbench.common.tileentity.ContainerProjectBenchII;
 import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
@@ -34,17 +35,17 @@ import cpw.mods.fml.common.network.PacketDispatcher;
  * 
  */
 
-/*@ChestContainer*/
 public class ProjectBenchGui extends GuiContainer {
 	private int ID;
+	private final String GUI_LOCALE = "gui.bau5ProjectBench.";
 	private ResourceLocation resource;
 	private int lastIndex = -1;
 	private ItemStack[] stacksToDraw = null;
-	private static boolean NEI_ACTIVE = false;
 	private boolean once = true;
 	private boolean changed = false;
 	private boolean panel = false;
-
+	private static boolean NEI_ACTIVE = false;
+	
 	private int matrixStartX;
 	private int matrixStopX;
 	private int matrixStartY;
@@ -68,14 +69,40 @@ public class ProjectBenchGui extends GuiContainer {
 		}
 	}
 	
+/*	@ContainerGUI.ContainerSectionCallback
+	public Map<ContainerSection, List<Slot>> getContainerSections(){
+		Map<ContainerSection, List<Slot>> result = new HashMap<ContainerSection, List<Slot>>();
+		if(inventorySlots instanceof ContainerProjectBenchII){
+			result.put(ContainerSection.CHEST, inventorySlots.inventorySlots.subList(27, 45));
+		}
+		else if(inventorySlots instanceof ContainerProjectBench){
+			result.put(ContainerSection.CRAFTING_OUT, inventorySlots.inventorySlots.subList(0, 1));
+			result.put(ContainerSection.CRAFTING_IN_PERSISTENT, inventorySlots.inventorySlots.subList(1, 10));
+			result.put(ContainerSection.CHEST, inventorySlots.inventorySlots.subList(10, 28));
+		}
+		return result;
+	}*/
+	
 	@Override
 	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
 		if(ID == 0)
-			fontRenderer.drawString("Project Bench", 8, 6, 4210752);
+			fontRenderer.drawString(StatCollector.translateToLocal(GUI_LOCALE+"mki.name"), 8, 6, 4210752);
 		else if(ID == 1)
-			fontRenderer.drawString("Project Bench Mk. II", 8, 6, 4210752);
+			fontRenderer.drawString(StatCollector.translateToLocal(GUI_LOCALE+"mkii.name"), 8, 6, 4210752);
 	}
-
+	
+	public List<String> handleItemTooltip(ItemStack stack, int mousex, int mousey, List<String> currenttip)
+    {
+		if(stack != null){
+			if(ID == 1){
+				if(mousex >= matrixStartX && mousex < matrixStopX && mousey >= matrixStartY && mousey <= matrixStopY){
+					drawRecipeToolTip((mousex-matrixStartX)/18, (mousey-matrixStartY)/18, mousex, mousey);
+				}
+			}
+		}
+        return currenttip;
+    }
+	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2,
 			int par3) {
@@ -84,6 +111,7 @@ public class ProjectBenchGui extends GuiContainer {
 		if(once && ID == 0){
 			once = false;
 			buttonList.add(new PBClearInventoryButton(15294, width/2 -76, height/2 -49, 11, 11, ""));
+			buttonList.add(new PBWritePlanButton(15295, width/2 - 76, height /2 -88, 11, 11, ""));
 		}else if(once && ID == 1){
 			matrixStartX = guiLeft+7;
 			matrixStopX  = matrixStartX+162;
@@ -101,24 +129,50 @@ public class ProjectBenchGui extends GuiContainer {
 		if(panel){
 			this.drawTexturedModalRect(x+xShift-11, y+yShift+14, 185, 1, 12, 29);
 		}
+		if(ID == 0)
+			handlePlanOverlay();
 	}
 	
-	public List<String> handleItemTooltip(ItemStack stack, int mousex, int mousey, List<String> currenttip)
-    {
-		if(stack != null){
-			if(ID == 1){
-				if(mousex >= matrixStartX && mousex < matrixStopX && mousey >= matrixStartY && mousey <= matrixStopY){
-					drawRecipeToolTip((mousex-matrixStartX)/18, (mousey-matrixStartY)/18, mousex, mousey);
+	private void handlePlanOverlay() {
+		ContainerProjectBench cont = (ContainerProjectBench)inventorySlots;
+		if(cont.validPlanInSlot()){
+			ArrayList<ItemStack> theList = RecipeManager.instance().getRecipeItemsForPlan(cont.tileEntity.getPlanStack());
+			if(theList == null || theList.size() <= 0)
+				return;
+
+	        RenderHelper.enableGUIStandardItemLighting();
+			GL11.glTranslatef(0.0F, 0.0F, 32.0F);
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
+	        GL11.glEnable(GL11.GL_BLEND);
+	        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+	        this.zLevel = 50.0F;
+	        itemRenderer.zLevel = 50.0F;
+			int index = 0;
+			for(int i = 0; i < 3; i++){
+				for(int j = 0; j < 3; j++){
+					ItemStack stack = theList.get(index);
+					index++;
+					if(stack == null) continue;
+			        FontRenderer font = null;
+			        if (stack != null) font = stack.getItem().getFontRenderer(stack);
+			        if (font == null) font = fontRenderer;
+			        GL11.glPushMatrix();
+			        itemRenderer.renderItemAndEffectIntoGUI(font, this.mc.func_110434_K(), stack, (guiLeft + 30)+(j * 18), (guiTop + 17)+(i * 18));
+//			        itemRenderer.renderItemOverlayIntoGUI(font, this.mc.func_110434_K(), stack, 30, 17, "asdf");
+			        GL11.glPopMatrix();
 				}
 			}
+			GL11.glDisable(GL11.GL_BLEND);
+	        this.zLevel = 0.0F;
+	        itemRenderer.zLevel = 0.0F;
 		}
-        return currenttip;
-    }
-	
+	}
+
 	@Override
 	protected void drawItemStackTooltip(ItemStack stack, int x,
 			int y) {
-		super.drawItemStackTooltip(stack, x, y);
+		if(!isNEIActive())
+			super.drawItemStackTooltip(stack, x, y);
 		if(ID == 1){
 			if(x >= matrixStartX && x < matrixStopX && y >= matrixStartY && y <= matrixStopY){
 				drawRecipeToolTip((x-matrixStartX)/18, (y-matrixStartY)/18, x, y);
@@ -225,6 +279,57 @@ public class ProjectBenchGui extends GuiContainer {
 			if(fireButton){
 	            mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
 				PacketDispatcher.sendPacketToServer(new Packet250CustomPayload(PBPacketHandler.PACKET_CHANNEL, new byte[]{1}));
+			}
+			return fireButton;
+		}
+	}
+	
+	public class PBWritePlanButton extends GuiButton{
+
+		public PBWritePlanButton(int id, int xPos, int yPos, int width,
+				int height, String label) {
+			super(id, xPos, yPos, width, height, label);
+		}
+		
+		@Override
+		public void drawButton(Minecraft mc, int i, int j) {
+			if(drawButton && isEnabled()){
+				FontRenderer fontrenderer = mc.fontRenderer;
+	            mc.func_110434_K().func_110577_a(resource);
+	            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	            this.field_82253_i = i >= this.xPosition && j >= this.yPosition && i < this.xPosition + this.width && j < this.yPosition + this.height;
+	            int k = this.getHoverState(this.field_82253_i);
+	            //Top left, top right, bottom left, bottom right, icon
+	            this.drawTexturedModalRect(this.xPosition, this.yPosition, 176, 0 + (k-1)*11, width, height); 
+	            this.mouseDragged(mc, i, j);
+	            int l = 14737632;
+
+	            if (!this.enabled)
+	            {
+	                l = -6250336;
+	            }
+	            else if (this.field_82253_i)
+	            {
+	                l = 16777120;
+	            }
+
+	            this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, l);
+	       }
+		}
+		
+		public boolean isEnabled(){
+			ItemStack plan = ((ContainerProjectBench)inventorySlots).getPlanStack();
+			return (((ContainerProjectBench)inventorySlots).tileEntity.getResult() != null && plan != null && plan.stackTagCompound == null);
+		}
+		
+		@Override
+		public boolean mousePressed(Minecraft mc, int par2, int par3) {
+			if(!isEnabled())
+				return false;
+			boolean fireButton = super.mousePressed(mc, par2, par3);
+			if(fireButton){
+				PacketDispatcher.sendPacketToServer(new Packet250CustomPayload(PBPacketHandler.PACKET_CHANNEL, new byte[]{2}));
+				((ContainerProjectBench)inventorySlots).writePlanToNBT();
 			}
 			return fireButton;
 		}
@@ -344,18 +449,4 @@ public class ProjectBenchGui extends GuiContainer {
 	public static boolean isNEIActive(){
 		return NEI_ACTIVE;
 	}
-	
-	/*	@ContainerSectionCallback
-	public Map<ContainerSection, List<Slot>> getContainerSections(){
-		Map<ContainerSection, List<Slot>> result = new HashMap<ContainerSection, List<Slot>>();
-		if(inventorySlots instanceof ContainerProjectBenchII){
-			result.put(ContainerSection.CHEST, inventorySlots.inventorySlots.subList(27, 45));
-		}
-		else if(inventorySlots instanceof ContainerProjectBench){
-			result.put(ContainerSection.CRAFTING_OUT, inventorySlots.inventorySlots.subList(0, 1));
-			result.put(ContainerSection.CRAFTING_IN_PERSISTENT, inventorySlots.inventorySlots.subList(1, 10));
-			result.put(ContainerSection.CHEST, inventorySlots.inventorySlots.subList(10, 28));
-		}
-		return result;
-	}*/
 }

@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
 import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
@@ -23,31 +24,27 @@ import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 public class PBUpgradeItem extends Item	
 {
 	private int type;
-	private final String[] itemNames = { "Mk. I", "Mk. II" };
+	private final int itemUseDuration;
+	private final String[] itemNames = { "Mki", "Mkii" };
 	public PBUpgradeItem(int id, int meta) 
 	{
 		super(id);
 		type = meta;
 		setMaxDamage(0);
 		setMaxStackSize(16);
+		itemUseDuration = 32;
 	}
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean bool) {
 		super.addInformation(stack, player, list, bool);
 		switch(type){
-		case 0: list.add("\u00A77" + "Used to upgrade a Crafting Bench."); 
+		case 0: list.add("\u00A77" + StatCollector.translateToLocal(getUnlocalizedName(stack) +".description")); 
 			break;
-		case 1: list.add("\u00A77" + "Used to upgrade a Project Bench."); 
+		case 1: list.add("\u00A77" + StatCollector.translateToLocal(getUnlocalizedName(stack) +".description")); 
 			break;
 		}
 	}
-	
-	@Override
-	public String getItemDisplayName(ItemStack stack) {
-		return "Project Bench Upgrade " + itemNames[type];
-	}
-	
 	@Override
 	public void registerIcons(IconRegister register) {
 		switch(type){
@@ -90,13 +87,13 @@ public class PBUpgradeItem extends Item
 				if(stack1 != null)
 					stack2 = ItemStack.copyItemStack(stack1);
 				tpbII.setInventorySlotContents(i +tpbII.inventoryStart, stack2);
-				tpb.setInventorySlotContents(i +9, null);
+				tpb.setInventorySlotContents(i, null);
 			}
 			tpbII.initSlots = false;
 			tpb.initSlots = false;
 			tpbII.setDirection((byte)getPlayerFacing(player));
+			world.setBlock(x, y, z, 0);
 			world.setBlock(x, y, z, ProjectBench.instance.projectBench.blockID, 1, 3);
-			world.setBlockTileEntity(x, y, z, null);
 			world.setBlockTileEntity(x, y, z, tpbII);
 			world.setBlock(x, y, z, ProjectBench.instance.projectBench.blockID, 1, 3);
 			world.markBlockForUpdate(x, y, z);

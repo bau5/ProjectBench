@@ -8,11 +8,10 @@ import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.Configuration;
-import net.minecraftforge.common.MinecraftForge;
 import bau5.mods.projectbench.common.packets.PBPacketHandler;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
-import bau5.mods.projectbench.common.recipes.RecipeSaver;
 import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
 import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
 import cpw.mods.fml.common.FMLLog;
@@ -24,7 +23,6 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -57,7 +55,7 @@ public class ProjectBench
 	 * Index 1 is {@link ItemCraftingFrame} for Mk I. 
 	 * Index 2 is {@link ItemCraftingFrame} for Mk II. 
 	 */
-	private static int[] pbItemsID = new int[4];
+	private static int[] pbItemsID = new int[5];
 	private static int pbID;
 	public static boolean DO_RENDER = true;
 	public static boolean RENDER_ALL = false;
@@ -77,6 +75,7 @@ public class ProjectBench
 	public Item  projectBenchUpgradeII;
 	public Item  craftingFrame;
 	public Item  craftingFrameII;
+	public Item  pbPlan;
   
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent ev)
@@ -90,6 +89,7 @@ public class ProjectBench
 			pbItemsID[1] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. II Upgrade Item", 13071).getInt(13071);
 			pbItemsID[2] = config.getItem(Configuration.CATEGORY_ITEM, "Crafting Frame I", 13072).getInt(13072);
 			pbItemsID[3] = config.getItem(Configuration.CATEGORY_ITEM, "Auto-Crafting Frame", 13073).getInt(13073);
+			pbItemsID[4] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. I Plan", 13074).getInt(13074);
 			DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldRenderItem", true).getBoolean(true);
 			II_DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldIIRenderItems", true).getBoolean(true);
 			RENDER_ALL = config.get(Configuration.CATEGORY_GENERAL, "shouldRenerStackSize", false).getBoolean(false);
@@ -119,12 +119,13 @@ public class ProjectBench
 		initParts();
 	}
 	public void initParts(){
-
+		LanguageRegistry.instance().loadLocalization(new ResourceLocation("/bau5/mods/projectbench/langs/en_US.xml").func_110623_a(), "en_US", true);
 		projectBench = new ProjectBenchBlock(pbID, Material.wood).setCreativeTab(CreativeTabs.tabDecorations);
 		projectBenchUpgrade = new PBUpgradeItem(pbItemsID[0], 0).setUnlocalizedName("pbupi").setCreativeTab(CreativeTabs.tabMisc);
 		projectBenchUpgradeII = new PBUpgradeItem(pbItemsID[1], 1).setUnlocalizedName("pbupii").setCreativeTab(CreativeTabs.tabMisc);
 		craftingFrame = new ItemCraftingFrame(pbItemsID[2], EntityCraftingFrame.class).setUnlocalizedName("craftingframe");
 		craftingFrameII = new ItemCraftingFrame(pbItemsID[3], EntityCraftingFrameII.class).setUnlocalizedName("craftingframeii");
+		pbPlan = new ProjectBenchPlan(pbItemsID[4]).setUnlocalizedName("pbplan").setCreativeTab(CreativeTabs.tabMisc);
 		GameRegistry.registerBlock(projectBench, PBItemBlock.class, "pb_block");
 		System.out.println("ProjectBench: Registered block id @ " +pbID +". Rendering: " +DO_RENDER +" @: " +SPEED_FACTOR);
 		GameRegistry.registerTileEntity(TileEntityProjectBench.class, "bau5pbTileEntity");
@@ -138,8 +139,8 @@ public class ProjectBench
 		}
 		EntityRegistry.registerModEntity(EntityCraftingFrameII.class, "craftingFrameII", entityID[1] +1, this, 15, Integer.MAX_VALUE, false);
 		proxy.registerRenderInformation();
-		LanguageRegistry.addName(craftingFrame, "Advanced Crafting Frame");
-		LanguageRegistry.addName(craftingFrameII, "Crafting Frame");
+//		LanguageRegistry.addName(craftingFrame, "Advanced Crafting Frame");
+//		LanguageRegistry.addName(craftingFrameII, "Crafting Frame");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
 	}
 	@EventHandler
@@ -163,6 +164,9 @@ public class ProjectBench
 		GameRegistry.addRecipe(new ItemStack(this.craftingFrameII), new Object[]{
 			"SGS", "RCR", "SSS", 'G', Item.silk, 'S', Item.stick, 'R', Item.redstone, 'C', Block.workbench
 		});
+		GameRegistry.addRecipe(new ItemStack(this.pbPlan, 1, 0), new Object[]{
+			" S ", "RPR", " S ", 'S', Item.stick, 'R', Item.silk, 'P', Item.paper
+		});
 	}
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent ev){
@@ -171,17 +175,9 @@ public class ProjectBench
 	}
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent ev){
-		ev.registerServerCommand(new CommandInspectRecipe());
-		ev.registerServerCommand(new CommandPBGeneral());
-		if(ev.getServer().isDedicatedServer())
-			MinecraftForge.EVENT_BUS.register(new PlayerJoiningServerHandler());
-		if(MKII_ENABLED)
-			RecipeSaver.readFromNBT();
+		ServerCommandManager serverCommandManager = (ServerCommandManager)ev.getServer().getCommandManager();
+		serverCommandManager.registerCommand(new CommandInspectRecipe());
+		serverCommandManager.registerCommand(new CommandPBGeneral());
 	}
 	
-	@EventHandler
-	public void serverStopping(FMLServerStoppingEvent ev){
-		if(MKII_ENABLED)
-			RecipeSaver.writeToNBT();
-	}
 }

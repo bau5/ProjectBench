@@ -6,6 +6,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 
 /**
  * PBItemBlock
@@ -18,7 +19,7 @@ import net.minecraft.item.ItemStack;
 public class PBItemBlock extends ItemBlock{
 
 	private final static String blockNames[] = {
-		"Mk. I", "Mk. II", "Mk. III"
+		"Mki", "Mki", "Mki"
 	};
 	public PBItemBlock(int id) {
 		super(id);
@@ -33,18 +34,13 @@ public class PBItemBlock extends ItemBlock{
 	}
 	
 	@Override
-	public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4) {
-		super.addInformation(par1ItemStack, par2EntityPlayer, par3List, par4);
-		par3List.add(blockNames[par1ItemStack.getItemDamage()]);
-	}
-	
-	@Override
-	public String getItemDisplayName(ItemStack stack) {
-		return "Project Bench";
+	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean bool) {
+		super.addInformation(stack, player, list, bool);
+		list.add(StatCollector.translateToLocal(getUnlocalizedName(stack))+blockNames[stack.getItemDamage()] +".description");
 	}
 	
 	@Override
 	public String getUnlocalizedName(ItemStack par1ItemStack) {
-		return this.getUnlocalizedName() + blockNames[par1ItemStack.getItemDamage()];
+		return this.getUnlocalizedName();
 	}
 }
