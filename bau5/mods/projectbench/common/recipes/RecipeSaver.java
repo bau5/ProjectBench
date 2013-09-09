@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
@@ -15,15 +14,10 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.event.ForgeSubscribe;
 import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 
@@ -84,7 +78,7 @@ public class RecipeSaver {
 			if(!f.exists()){
 				f.createNewFile();
 				if(ProjectBench.VERBOSE){
-					System.out.println("Project Bench: loading of saved disabled stacks halted, no save file.");
+					System.out.println("Project Bench: creating disabled recipes save file.");
 				}
 				RecipeManager.instance().initiateRecipeManager();
 				return;
@@ -102,7 +96,7 @@ public class RecipeSaver {
 					if(theStack != null){
 						RecipeItem rec = RecipeManager.instance().searchForRecipe(theStack, true);
 						if(rec != null){
-							if(RecipeCrafter.checkItemMatch(rec.result(), theStack, false)){
+							if(RecipeCrafter.checkItemMatch(rec.result(), theStack, true)){
 								if(ProjectBench.VERBOSE)
 									System.out.println("Project Bench: disabling " +rec.toString() +" from save.");
 								rec.forceDisable();

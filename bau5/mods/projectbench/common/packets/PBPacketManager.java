@@ -16,6 +16,7 @@ public class PBPacketManager {
 	 *   2			{@link MKIIStandardPacket}
 	 *   3     		{@link MkIIWindowClick}
 	 *   4			{@link RejectionPacket}
+	 *   5		    {@link RecipePacket}
 	 */
 	public static Packet getMkIPacket(TileEntityProjectBench tile) {
 		return (Packet250CustomPayload)new MkIStandardPacket(tile).makePacket();
@@ -33,6 +34,10 @@ public class PBPacketManager {
 		return (Packet250CustomPayload)new RejectionPacket(window_Id, action, validStack, b).makePacket();
 	}
 	
+	public static Packet getRecipePacket(ItemStack theStack, boolean isEnabled){
+		return (Packet250CustomPayload)new RecipePacket(theStack, isEnabled).makePacket();
+	}
+	
 	public static void handleMkIPacket(Packet250CustomPayload packet, Player player, ByteArrayDataInput bis){
 		new MkIStandardPacket().handlePacket(packet, player, bis);
 	}
@@ -47,5 +52,9 @@ public class PBPacketManager {
 
 	public static void handleRejectionPacket(Packet250CustomPayload packet, Player player, ByteArrayDataInput bis) {
 		new RejectionPacket().handlePacket(packet, player, bis);
+	}
+	
+	public static void handleRecipePacket(Packet250CustomPayload packet, Player player, ByteArrayDataInput bis) {
+		new RecipePacket().handlePacket(packet, player, bis);
 	}
 }
