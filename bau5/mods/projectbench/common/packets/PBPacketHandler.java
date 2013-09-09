@@ -47,6 +47,8 @@ public class PBPacketHandler implements IPacketHandler
 			return;
 		case 4: PBPacketManager.handleRejectionPacket(packet, player, bis);
 			return;
+		case 5: PBPacketManager.handleRecipePacket(packet, player, bis);
+			return;
 		}
 	}
 

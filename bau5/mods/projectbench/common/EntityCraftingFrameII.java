@@ -41,14 +41,14 @@ public class EntityCraftingFrameII extends EntityCraftingFrame
 	public boolean func_130002_c(EntityPlayer player) {
 		if(player == null || !ProjectBench.MKII_ENABLED)
 			return false;
-		if(player.getHeldItem() != null && !player.getHeldItem().getItem().hasContainerItem()){
+		if(player.getHeldItem() != null/* && !player.getHeldItem().getItem().hasContainerItem()*/){
 			ItemStack theStack = player.getHeldItem();
 			if(theStack.isItemDamaged()){
 				theStack = theStack.copy();
 				theStack.setItemDamage(0);
 			}
 			if(lastRecipe == null || !OreDictionary.itemMatches(lastRecipe.result(), theStack, false)){
-				lastRecipe = RecipeManager.instance().searchForRecipe(theStack);
+				lastRecipe = RecipeManager.instance().searchForRecipe(theStack, false);
 			}
 			if(lastRecipe == null)
 				return false;

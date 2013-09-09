@@ -10,7 +10,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.ChatMessageComponent;
-import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import bau5.mods.projectbench.common.recipes.RecipeManager.RecipeItem;
 
@@ -36,15 +35,14 @@ public class RecipePacket extends PBPacket {
 		int id = bis.readInt();
 		int stackSize = bis.readInt();
 		int meta = bis.readInt();
-		boolean enabled = (bis.readByte() == 1 ? true : false);
+		boolean enable = (bis.readByte() == 1 ? true : false);
 		RecipeItem rec = RecipeManager.instance().searchForRecipe(new ItemStack(id, stackSize, meta), true);
 		if(rec != null){
-			if(enabled)
+			if(enable)
 				rec.forceEnable();
 			else
 				rec.forceDisable();
-			if(ProjectBench.VERBOSE)
-				((ICommandSender)player).sendChatToPlayer(ChatMessageComponent.func_111066_d("Recipe " +rec.toString() +" has been disabled."));
+			((ICommandSender)player).sendChatToPlayer(ChatMessageComponent.func_111066_d("Recipe " +rec.toString() +" has been "+(enable ? "enabled." : "disabled.")));
 		}
 	}
 	

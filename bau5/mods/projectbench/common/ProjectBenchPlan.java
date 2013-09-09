@@ -41,7 +41,7 @@ public class ProjectBenchPlan extends Item {
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean bool) {
-		if(Keyboard.isKeyDown(42) && stack.stackTagCompound != null){
+		if((Keyboard.isKeyDown(42) || ItemStack.areItemStackTagsEqual(stack, ((ContainerProjectBench)player.openContainer).getPlanStack())) && stack.stackTagCompound != null){
 			NBTTagList tag = stack.stackTagCompound.getTagList("Components");
 			if(tag != null){
 				ItemStack[] stacks = new ItemStack[tag.tagCount()];

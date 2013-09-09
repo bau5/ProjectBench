@@ -35,7 +35,7 @@ public class RecipeCrafter {
             return false;
         }
 		if(target.itemID == input.itemID){
-			return (target.itemID == input.itemID && (target.getItemDamage() == OreDictionary.WILDCARD_VALUE || target.getItemDamage() == input.getItemDamage() ||(OreDictionary.getOreID(target) != -1 && OreDictionary.getOreID(target) != 0 && OreDictionary.getOreID(target) == OreDictionary.getOreID(input))) && (stackSize ? target.stackSize <= input.stackSize : true));
+			return (target.getItemDamage() == OreDictionary.WILDCARD_VALUE || target.getItemDamage() == input.getItemDamage()/* ||(OreDictionary.getOreID(target) != -1 && OreDictionary.getOreID(target) != 0 && OreDictionary.getOreID(target) == OreDictionary.getOreID(input))*/) && (stackSize ? target.stackSize <= input.stackSize : true);
 		}else{
 			if(target.getItemDamage() == OreDictionary.WILDCARD_VALUE){
 				int id = OreDictionary.getOreID(target);
@@ -220,7 +220,19 @@ public class RecipeCrafter {
 				continue;
 			}else{
 				if(checkItemMatch(stack, stackInInventory, false)){
-					if(stack.stackSize <= stackInInventory.stackSize){
+					if(stackInInventory.getItem().hasContainerItem()){
+						ItemStack contItem = stackInInventory.getItem().getContainerItemStack(stackInInventory);
+						if(contItem != null){
+							if(contItem.isItemStackDamageable()){
+								contItem.setItemDamage(contItem.getItemDamage() - 1);
+								stack.stackSize = 0;
+							}else{
+								decreaseStackSize(i, stack.stackSize);
+								stack.stackSize = 0;
+								addStackToInventory(contItem);
+							}
+						}
+					}else if(stack.stackSize <= stackInInventory.stackSize){
 						decreaseStackSize(i, stack.stackSize);
 						stack.stackSize = 0;
 					}/*else{
@@ -259,10 +271,22 @@ public class RecipeCrafter {
 			for(int i = tpbRef.inventoryStart; i < (tpbRef.inventoryStart + tpbRef.supplyMatrixSize); i++){
 				theStack = tpbRef.getStackInSlot(i);
 				if(theStack == null || (OreDictionary.itemMatches(theStack, stack, false) && (theStack.stackSize + stack.stackSize <= theStack.getMaxStackSize()))){
-					if(theStack != null)
+					if(theStack.stackSize + stack.stackSize <= theStack.getMaxStackSize())
 						theStack.stackSize += stack.stackSize;
 					else
 						tpbRef.setInventorySlotContents(i, stack);
+					return true;
+				}
+			}
+		}else if(tpbRefI != null){
+			for(int i = tpbRefI.getSupplyMatrixStart(); i < (tpbRefI.getSupplyMatrixStart() + tpbRefI.getSupplyMatrixSize()); i++){
+				theStack = tpbRefI.getStackInSlot(i);
+				if(theStack == null || (OreDictionary.itemMatches(theStack, stack, false) && (theStack.stackSize + stack.stackSize <= theStack.getMaxStackSize()))){
+					if(theStack != null){
+						if(theStack.stackSize + stack.stackSize <= theStack.getMaxStackSize())
+							theStack.stackSize += stack.stackSize;
+					}else
+						tpbRefI.setInventorySlotContents(i, stack);
 					return true;
 				}
 			}

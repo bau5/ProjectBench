@@ -48,16 +48,16 @@ public class CommandInspectRecipe extends CommandBase {
 				meta = Integer.parseInt(astring[1]);
 			theStack = new ItemStack(theID, 1, meta);
 		}
-		RecipeItem theRec = RecipeManager.instance().searchForRecipe(theStack);
+		RecipeItem theRec = RecipeManager.instance().searchForRecipe(theStack, true);
 		if(theRec == null){
 			sender.sendChatToPlayer(ChatMessageComponent.func_111066_d(StatCollector.translateToLocal(COMMAND_LOCALE +"err2") +" "+theStack.itemID +":" +theStack.getItemDamage() +"."));
 		}else{
 			ArrayList<ItemStack[]> ls = theRec.alternatives();
 			StringBuilder builder = new StringBuilder();
-			builder.append(StatCollector.translateToLocal(COMMAND_LOCALE +"part1") +" "+EnumChatFormatting.DARK_RED +theRec.result() +EnumChatFormatting.WHITE +"\n ");
-			builder.append(StatCollector.translateToLocal(COMMAND_LOCALE +"part2") +" "+ls.size() +"\n  ");
+			builder.append(StatCollector.translateToLocal(COMMAND_LOCALE +"part1") +" "+EnumChatFormatting.DARK_RED +theRec.result() +EnumChatFormatting.WHITE  +" Enabled? " +theRec.isEnabled() +"\n ");
+			builder.append(StatCollector.translateToLocal(COMMAND_LOCALE +"part2") +" "+ls.size() +"\n");
 			for(int i = 0; i < ls.size(); i++){
-				builder.append(" "+(i+1) +": ");
+				builder.append("   "+(i+1) +": ");
 				for(ItemStack stack : ls.get(i)){
 					builder.append(stack +" ");
 				}

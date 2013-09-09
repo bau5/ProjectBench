@@ -20,6 +20,7 @@ import org.lwjgl.opengl.GL11;
 
 import bau5.mods.projectbench.common.packets.PBPacketHandler;
 import bau5.mods.projectbench.common.packets.PBPacketManager;
+import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import bau5.mods.projectbench.common.tileentity.ContainerProjectBench;
 import bau5.mods.projectbench.common.tileentity.ContainerProjectBenchII;
@@ -137,28 +138,44 @@ public class ProjectBenchGui extends GuiContainer {
 		ContainerProjectBench cont = (ContainerProjectBench)inventorySlots;
 		if(cont.validPlanInSlot()){
 			ArrayList<ItemStack> theList = RecipeManager.instance().getRecipeItemsForPlan(cont.tileEntity.getPlanStack());
+			RecipeCrafter crafter = new RecipeCrafter();
+			ItemStack[] missingStacks = crafter.getMissingStacks(cont, cont.getPlanStack());
 			if(theList == null || theList.size() <= 0)
 				return;
-
 	        RenderHelper.enableGUIStandardItemLighting();
 			GL11.glTranslatef(0.0F, 0.0F, 32.0F);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
-	        GL11.glEnable(GL11.GL_BLEND);
-	        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 	        this.zLevel = 50.0F;
 	        itemRenderer.zLevel = 50.0F;
 			int index = 0;
 			for(int i = 0; i < 3; i++){
 				for(int j = 0; j < 3; j++){
+			        GL11.glEnable(GL11.GL_BLEND);
+					boolean _missing = false;
 					ItemStack stack = theList.get(index);
 					index++;
 					if(stack == null) continue;
 			        FontRenderer font = null;
 			        if (stack != null) font = stack.getItem().getFontRenderer(stack);
 			        if (font == null) font = fontRenderer;
+			        if(missingStacks.length > 0){
+			        	for(ItemStack missing : missingStacks){
+			        		if(RecipeCrafter.checkItemMatch(missing, stack, false) && missing.stackSize > 0){
+			        			missing.stackSize--;
+			        			_missing = true;
+			        			break;
+			        		}
+			        	}
+			        }
+			        int xLoc = (guiLeft + 30)+(j * 18);
+			        int yLoc =  (guiTop + 17)+(i * 18);
+			        if(_missing){
+				        GL11.glBlendFunc(770, 0);
+				        this.drawGradientRect(xLoc, yLoc, xLoc+16, yLoc+16, -1, -5);
+			        }else
+			        	GL11.glBlendFunc(770, 1);
 			        GL11.glPushMatrix();
-			        itemRenderer.renderItemAndEffectIntoGUI(font, this.mc.func_110434_K(), stack, (guiLeft + 30)+(j * 18), (guiTop + 17)+(i * 18));
-//			        itemRenderer.renderItemOverlayIntoGUI(font, this.mc.func_110434_K(), stack, 30, 17, "asdf");
+			        itemRenderer.renderItemAndEffectIntoGUI(font, this.mc.func_110434_K(), stack, xLoc, yLoc);
+			        itemRenderer.renderItemOverlayIntoGUI(font, this.mc.func_110434_K(), stack, xLoc, yLoc, "");
 			        GL11.glPopMatrix();
 				}
 			}

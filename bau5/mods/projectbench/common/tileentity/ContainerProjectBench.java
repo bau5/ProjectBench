@@ -8,7 +8,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.oredict.OreDictionary;
+import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 
@@ -119,12 +119,12 @@ public class ContainerProjectBench extends Container
 		for(int i = 0; i < 9; i++){
 			NBTTagCompound tag = new NBTTagCompound();
 			ItemStack stack = tileEntity.getStackInSlot(i);
-			int oreid = OreDictionary.getOreID(stack);
-			ItemStack oreStack = (oreid != -1) ? OreDictionary.getOres(oreid).get(0) : stack;
-			if(oreStack != null)
-				System.out.println(oreStack.getDisplayName());
-			if(oreStack != null)
-				tag = oreStack.writeToNBT(tag);
+//			int oreid = OreDictionary.getOreID(stack);
+//			ItemStack oreStack = (oreid != -1) ? ((OreDictionary.getOres(oreid).size() > 1) ? OreDictionary.getOres(oreid).get(1) :stack) : stack;
+//			if(oreStack != null)
+//				tag = oreStack.writeToNBT(tag);
+			if(stack!=null)
+				tag = stack.writeToNBT(tag);
 			list.appendTag(tag);
 		}
 		mainTag.setTag("Components", list);
@@ -204,44 +204,48 @@ public class ContainerProjectBench extends Container
 
         if (slot != null && slot.getHasStack())
         {
+        	boolean flag = false;
             ItemStack stack2 = slot.getStack();
             stack = stack2.copy();
-            
-            if (numSlot == 0)
-            {
-                if (!this.mergeItemStack(stack2, 10, 55, true))
-                {
-                    return null;
-                }
-                updateCrafting(true);
-            }
-            //Merge crafting matrix item with supply matrix inventory
-            else if(numSlot > 0 && numSlot <= 9)
-            {
-            	if(!this.mergeItemStack(stack2, 10, 28, false))
-            	{
-            		if(!this.mergeItemStack(stack2, 28, 64, false))
-            		{
-                		return null;
-            		}
-            	}
-            	updateCrafting(true);
-            }
-            //Merge Supply matrix item with player inventory
-            else if (numSlot >= 10 && numSlot <= 27)
-            {
-                if (!this.mergeItemStack(stack2, 28, 64, false))
-                {
-                    return null;
-                }
-            }
-            //Merge player inventory item with supply matrix
-            else if (numSlot >= 28 && numSlot < 64)
-            {
-                if (!this.mergeItemStack(stack2, 10, 28, false))
-                {
-                    return null;
-                }
+            if(stack2.getItem().equals(ProjectBench.instance.pbPlan))
+            	flag = this.mergeItemStack(stack2, 28, 29, false);
+            if(!flag){
+	            if (numSlot == 0)
+	            {
+	                if (!this.mergeItemStack(stack2, 10, 55, true))
+	                {
+	                    return null;
+	                }
+	                updateCrafting(true);
+	            }
+	            //Merge crafting matrix item with supply matrix inventory
+	            else if(numSlot > 0 && numSlot <= 9)
+	            {
+	            	if(!this.mergeItemStack(stack2, 10, 28, false))
+	            	{
+	            		if(!this.mergeItemStack(stack2, 28, 64, false))
+	            		{
+	                		return null;
+	            		}
+	            	}
+	            	updateCrafting(true);
+	            }
+	            //Merge Supply matrix item with player inventory
+	            else if (numSlot >= 10 && numSlot <= 27)
+	            {
+	                if (!this.mergeItemStack(stack2, 29, 65, false))
+	                {
+	                    return null;
+	                }
+	            }
+	            //Merge player inventory item with supply matrix
+	            else if (numSlot >= 28 && numSlot < 64)
+	            {
+	                if (!this.mergeItemStack(stack2, 10, 28, false))
+	                {
+	                    return null;
+	                }
+	            }
             }
 
             if (stack2.stackSize == 0)
