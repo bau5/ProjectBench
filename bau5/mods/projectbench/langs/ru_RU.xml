@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties version="1.0">
+        <!--Items-->
+    <entry key="item.pbupiMki.name">Улучшение Mk. I для проектного стола</entry>
+    <entry key="item.pbupiMki.description">Используется для улучшения верстака.</entry>
+    <entry key="item.pbupiiMkii.name">Улучшение Mk. II для проектного стола</entry>
+    <entry key="item.pbupiiMkii.description">Используется для улучшения проектного стола.</entry>
+    <entry key="item.craftingframe.name">Продвинутая крафт рамка</entry>
+    <entry key="item.craftingframeii.name">Крафт рамка</entry>
+    <entry key="item.pbplan.name.blank">Пустой план</entry>
+    <entry key="item.pbplan.name.broken">Сломанный план</entry>
+    <entry key="item.pbplan.name.used">План</entry>
+        <!--Blocks-->
+    <entry key="tile.bau5ProjectBench.name">Проектный стол</entry>
+    <entry key="tile.bau5ProjectBenchMki.description">Mk. I</entry>
+    <entry key="tile.bau5ProjectBenchMkii.description">Mk. II</entry>
+        <!--Guis-->
+    <entry key="gui.bau5ProjectBench.mki.name">Проектный стол</entry>
+    <entry key="gui.bau5ProjectBench.mkii.name">Проектный стол Mk. II</entry>
+        <!--Commands-->
+    <entry key="command.bau5ProjectBench.pbinspect.name">inspect</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.err1">Must be holding an item.</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.err2">Не найден рецепт для предмета</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.part1">Рецепт для</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.part2">Alts:</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.part3">ID предмета</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.part4">[meta]</entry>
+</properties>
