@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties version="1.0">
+        <!--Items-->
+    <entry key="item.pbupiMki.name">Nadgradnja za projektno mizo Mk. I</entry>
+    <entry key="item.pbupiMki.description">Uporabljeno za nadgradnjo delovne mize.</entry>
+    <entry key="item.pbupiiMkii.name">Nadgradnja za projektno mizo Mk. II</entry>
+    <entry key="item.pbupiiMkii.description">Uporabljeno za nadgradnjo projektne mize.</entry>
+    <entry key="item.craftingframe.name">Napredni delovni okvir</entry>
+    <entry key="item.craftingframeii.name">Delovni okvir</entry>
+    <entry key="item.pbplan.name.blank">Prazen načrt</entry>
+    <entry key="item.pbplan.name.broken">Pokvarjen načrt</entry>
+    <entry key="item.pbplan.name.used">Načrt</entry>
+        <!--Blocks-->
+    <entry key="tile.bau5ProjectBench.name">Projektna miza</entry>
+    <entry key="tile.bau5ProjectBenchMki.description">Mk. I</entry>
+    <entry key="tile.bau5ProjectBenchMkii.description">Mk. II</entry>
+        <!--Guis-->
+    <entry key="gui.bau5ProjectBench.mki.name">Projektna miza</entry>
+    <entry key="gui.bau5ProjectBench.mkii.name">Projektna miza Mk. II</entry>
+        <!--Commands-->
+    <entry key="command.bau5ProjectBench.pbinspect.name">preuči</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.err1">Mora držati predmet.</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.err2">Ne najdem recepta za predmet</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.part1">Recept za</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.part2">Alts:</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.part3">item ID</entry>
+    <entry key="command.bau5ProjectBench.pbinspect.part4">[meta]</entry>
+</properties>
