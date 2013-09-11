@@ -14,4 +14,9 @@ public class Reference {
 	
 	public static final String MOD_NAME = "Project Bench";
 	public static final String MOD_ID   = "bau5_ProjectBench";
+	public static final String[] SUPPORTED_LANGUAGES = {
+			"de_DE", "en_US", "ru_RU", "sl_SI"
+		};
+	public static final String LANG_LOCATION = "/bau5/mods/projectbench/langs/";
+		
 }

@@ -8,6 +8,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import bau5.mods.projectbench.common.packets.PBPacketHandler;
@@ -121,7 +122,7 @@ public class ProjectBench
 		initParts();
 	}
 	public void initParts(){
-		LanguageRegistry.instance().loadLocalization(new ResourceLocation("/bau5/mods/projectbench/langs/en_US.xml").func_110623_a(), "en_US", true);
+		loadLanguages();
 		projectBench = new ProjectBenchBlock(pbID, Material.wood).setCreativeTab(CreativeTabs.tabDecorations);
 		projectBenchUpgrade = new PBUpgradeItem(pbItemsID[0], 0).setUnlocalizedName("pbupi").setCreativeTab(CreativeTabs.tabMisc);
 		projectBenchUpgradeII = new PBUpgradeItem(pbItemsID[1], 1).setUnlocalizedName("pbupii").setCreativeTab(CreativeTabs.tabMisc);
@@ -136,14 +137,18 @@ public class ProjectBench
 		EntityRegistry.registerModEntity(EntityCraftingFrame.class, "craftingFrame", entityID[0], this, 15, Integer.MAX_VALUE, false);
 		entityID[1] = EntityRegistry.findGlobalUniqueEntityId();
 		if(entityID[1] == entityID[0]){
-			System.out.println("ProjectBench: Entity ID issue detected, resolving.");
 			entityID[1] = entityID[0] + 1;
 		}
 		EntityRegistry.registerModEntity(EntityCraftingFrameII.class, "craftingFrameII", entityID[1] +1, this, 15, Integer.MAX_VALUE, false);
 		proxy.registerRenderInformation();
-//		LanguageRegistry.addName(craftingFrame, "Advanced Crafting Frame");
-//		LanguageRegistry.addName(craftingFrameII, "Crafting Frame");
 		NetworkRegistry.instance().registerGuiHandler(this, proxy);
+	}
+	private void loadLanguages() {
+		for(String lang : Reference.SUPPORTED_LANGUAGES){
+			LanguageRegistry.instance().loadLocalization(new ResourceLocation(Reference.LANG_LOCATION +lang +".xml").func_110623_a(), lang, true);
+//			System.out.println(StatCollector.translateToLocal("command.bau5ProjectBench.pbinspect.name"));
+		}
+				
 	}
 	@EventHandler
 	public void initMain(FMLInitializationEvent ev)
@@ -177,9 +182,9 @@ public class ProjectBench
 	}
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent ev){
-		ev.registerServerCommand(new CommandInspectRecipe());
-		ev.registerServerCommand(new CommandPBGeneral());
 		if(MKII_ENABLED){
+			ev.registerServerCommand(new CommandInspectRecipe());
+			ev.registerServerCommand(new CommandPBGeneral());
 			RecipeSaver.readFromNBT();
 			if(ev.getServer().isDedicatedServer())
 				MinecraftForge.EVENT_BUS.register(new PlayerJoiningServerHandler());

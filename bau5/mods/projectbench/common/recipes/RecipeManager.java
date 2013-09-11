@@ -89,7 +89,6 @@ public class RecipeManager {
 	 */
 	private void verifyList(){
 		ArrayList<RecipeItem> goodList = new ArrayList<RecipeItem>();
-		
 		for(RecipeItem recipe : orderedRecipes){
 			if(recipe.result == null)
 				continue;
@@ -132,8 +131,6 @@ public class RecipeManager {
 	}
 	
 	public boolean checkForRecipe(RecipeItem rec){
-		if(rec.result.itemID == 5 && rec.result.getItemDamage() == 2)
-			System.out.println("check");
 		RecipeItem dup = null;
 		ItemStack result = rec.result();
 		int indexInList = 0;
@@ -185,6 +182,8 @@ public class RecipeManager {
 	 * 
 	 * @param result The resultant stack that we are looking
 	 * for a recipe for.
+	 * @param truth Whether to return a recipe that is disabled
+	 * or not
 	 * @return The RecipeItem that has the result of the input 
 	 * 
 	 * 

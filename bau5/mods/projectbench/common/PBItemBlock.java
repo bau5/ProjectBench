@@ -36,7 +36,7 @@ public class PBItemBlock extends ItemBlock{
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean bool) {
 		super.addInformation(stack, player, list, bool);
-		list.add(StatCollector.translateToLocal(getUnlocalizedName(stack))+blockNames[stack.getItemDamage()] +".description");
+		list.add(StatCollector.translateToLocal(getUnlocalizedName(stack)+blockNames[stack.getItemDamage()] +".description"));
 	}
 	
 	@Override

@@ -67,6 +67,6 @@ public class CommandPBGeneral extends CommandBase {
 	}
 	@Override
 	public int getRequiredPermissionLevel() {
-		return (MinecraftServer.getServer().isDedicatedServer() ? 5 : 4);
+		return (MinecraftServer.getServer().isDedicatedServer() ? 4 : 4);
 	}
 }
