@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties version="1.0">
+    <!-- Translator: Vexatos -->
         <!--Items-->
     <entry key="item.pbupiMki.name">Projektwerkbank-Upgrade Mk. I</entry>
     <entry key="item.pbupiMki.description">Genutzt, um eine Werkbank zu verbessern.</entry>
