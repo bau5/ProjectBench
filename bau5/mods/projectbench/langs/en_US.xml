@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties version="1.0">
-    <!-- Author: bau5 -->
         <!--Items-->
     <entry key="item.pbupiMki.name">Project Bench Upgrade Mk. I</entry>
     <entry key="item.pbupiMki.description">Used to upgrade a Crafting Bench.</entry>

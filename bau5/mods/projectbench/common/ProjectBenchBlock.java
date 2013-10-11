@@ -110,7 +110,7 @@ public class ProjectBenchBlock extends BlockContainer {
 		{	
 			return false;
 		}
-		if(te instanceof TEProjectBenchII && !ProjectBench.MKII_ENABLED)
+		if(!ProjectBench.MKII_ENABLED)
 			return false;
 		int meta = world.getBlockMetadata(x,y,z);
 		
@@ -210,8 +210,7 @@ public class ProjectBenchBlock extends BlockContainer {
     public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
     {
         par3List.add(new ItemStack(par1, 1, 0));
-        /*if(ProjectBench.DEV_ENV)*/
-        	par3List.add(new ItemStack(par1, 1, 1));
+        par3List.add(new ItemStack(par1, 1, 1));
     }
 	
 	@Override

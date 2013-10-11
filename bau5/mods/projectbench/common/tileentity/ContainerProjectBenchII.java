@@ -32,11 +32,13 @@ public class ContainerProjectBenchII extends Container
 		bindPlayerInventory(invPlayer);
 		detectAndSendChanges();
 		if(tileEntity.worldObj.isRemote){
-			lookForOutputs();
-			tileEntity.setRecipeMap(RecipeManager.instance().getPossibleRecipesMap(tileEntity.consolidateItemStacks(false)));
-		}
+			updateAll();}
 	}
-
+	public void updateAll(){
+		lookForOutputs();
+		tileEntity.setRecipeMap(RecipeManager.instance().getPossibleRecipesMap(tileEntity.consolidateItemStacks(false)));
+	
+	}
 	public void lookForOutputs(){
 		ItemStack[] stacks = tileEntity.consolidateItemStacks(true);
 		tileEntity.setListForDisplay(RecipeManager.instance().getValidRecipesByStacks(stacks));
@@ -98,8 +100,7 @@ public class ContainerProjectBenchII extends Container
 		}
 	}
 	@Override
-	public boolean canInteractWith(EntityPlayer player) 
-	{
+	public boolean canInteractWith(EntityPlayer player){
 		return tileEntity.isUseableByPlayer(player);
 	}
 	@Override
@@ -138,6 +139,8 @@ public class ContainerProjectBenchII extends Container
 				return null;
 			}
 		}else{
+			if(tileEntity.worldObj.isRemote)
+				updateAll();
 			ItemStack stack = super.slotClick(slot, fake, meta, player);		
 			return stack;
 		}
@@ -240,8 +243,6 @@ public class ContainerProjectBenchII extends Container
                     return null;
                 }
                 postSlotClick = true;
-                if(tileEntity.worldObj.isRemote)
-                	lookForOutputs();
             }
             //Merge player inventory item with supply matrix
             else if (numSlot >= 45 && numSlot <= 80)
@@ -251,8 +252,6 @@ public class ContainerProjectBenchII extends Container
                     return null;
                 }
                 postSlotClick = true;
-                if(tileEntity.worldObj.isRemote)
-                	lookForOutputs();
             }
 
             if (stack2.stackSize == 0)
@@ -284,7 +283,7 @@ public class ContainerProjectBenchII extends Container
 	@Override
 	public void detectAndSendChanges(){
 		super.detectAndSendChanges();
-		if(postSlotClick){
+		if(postSlotClick && tileEntity.worldObj.isRemote){
 			lookForOutputs();
 			postSlotClick = false;
 		}

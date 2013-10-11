@@ -154,6 +154,7 @@ public class RecipeCrafter {
 	public ItemStack[] getMissingStacks(ContainerProjectBench cpb, ItemStack thePlan){
 		ArrayList<ItemStack> list = new ArrayList<ItemStack>();
 		ItemStack is = cpb.tileEntity.getStackInSlot(27);
+		ItemStack[] builtStacks = new ItemStack[9];
 		if(is != null && ItemStack.areItemStacksEqual(is, thePlan) && ItemStack.areItemStackTagsEqual(is, thePlan)){
 			ItemStack[] plansItems = listToArray(RecipeManager.instance().getRecipeItemsForPlan(thePlan));
 			plansItems = consolidateItemStacks(plansItems);
@@ -165,8 +166,9 @@ public class RecipeCrafter {
 						if(plansItems[i].stackSize > supplyItems[j].stackSize){
 							missing.stackSize = plansItems[i].stackSize - supplyItems[j].stackSize;
 							list.add(missing);
-						}else
+						}else{
 							continue pi;
+						}
 					}
 				}
 				list.add(missing);

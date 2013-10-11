@@ -61,7 +61,7 @@ public class PBPacketHandler implements IPacketHandler
 		}
 	}
 
-	private void completeEmptyOfMatrix(EntityPlayerMP thePlayer) {
+	public static void completeEmptyOfMatrix(EntityPlayerMP thePlayer) {
         ArrayList itemListToSend = new ArrayList();
         ((ContainerProjectBench)thePlayer.openContainer).tileEntity.containerInit = true;
         for(int i = 0; i < 9; i++){

@@ -8,7 +8,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import bau5.mods.projectbench.common.packets.PBPacketHandler;
@@ -88,11 +87,11 @@ public class ProjectBench
 		{
 			config.load(); 
 			pbID = config.getBlock("Project Bench", 700).getInt(700);
-			pbItemsID[0] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. I Upgrade Item", 13070).getInt(13070);
-			pbItemsID[1] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. II Upgrade Item", 13071).getInt(13071);
-			pbItemsID[2] = config.getItem(Configuration.CATEGORY_ITEM, "Crafting Frame I", 13072).getInt(13072);
-			pbItemsID[3] = config.getItem(Configuration.CATEGORY_ITEM, "Auto-Crafting Frame", 13073).getInt(13073);
-			pbItemsID[4] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. I Plan", 13074).getInt(13074);
+			pbItemsID[0] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. I Upgrade Item", 18390).getInt(18390);
+			pbItemsID[1] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. II Upgrade Item", 18391).getInt(18391);
+			pbItemsID[2] = config.getItem(Configuration.CATEGORY_ITEM, "Crafting Frame I", 18392).getInt(18392);
+			pbItemsID[3] = config.getItem(Configuration.CATEGORY_ITEM, "Auto-Crafting Frame", 18393).getInt(18393);
+			pbItemsID[4] = config.getItem(Configuration.CATEGORY_ITEM, "Mk. I Plan", 18394).getInt(18394);
 			DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldRenderItem", true).getBoolean(true);
 			II_DO_RENDER = config.get(Configuration.CATEGORY_GENERAL, "shouldIIRenderItems", true).getBoolean(true);
 			RENDER_ALL = config.get(Configuration.CATEGORY_GENERAL, "shouldRenerStackSize", false).getBoolean(false);
@@ -146,7 +145,6 @@ public class ProjectBench
 	private void loadLanguages() {
 		for(String lang : Reference.SUPPORTED_LANGUAGES){
 			LanguageRegistry.instance().loadLocalization(new ResourceLocation(Reference.LANG_LOCATION +lang +".xml").func_110623_a(), lang, true);
-//			System.out.println(StatCollector.translateToLocal("command.bau5ProjectBench.pbinspect.name"));
 		}
 				
 	}

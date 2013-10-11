@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties version="1.0">
-	<!-- Translator: VeryBigBro -->
         <!--Items-->
     <entry key="item.pbupiMki.name">Улучшение Mk. I для проектного стола</entry>
     <entry key="item.pbupiMki.description">Используется для улучшения верстака.</entry>

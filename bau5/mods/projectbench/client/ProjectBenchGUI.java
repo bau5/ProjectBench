@@ -9,8 +9,11 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -18,14 +21,17 @@ import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 
+import bau5.mods.projectbench.common.ProjectBench;
 import bau5.mods.projectbench.common.packets.PBPacketHandler;
 import bau5.mods.projectbench.common.packets.PBPacketManager;
 import bau5.mods.projectbench.common.recipes.RecipeCrafter;
 import bau5.mods.projectbench.common.recipes.RecipeManager;
 import bau5.mods.projectbench.common.tileentity.ContainerProjectBench;
 import bau5.mods.projectbench.common.tileentity.ContainerProjectBenchII;
+import bau5.mods.projectbench.common.tileentity.LocalInventoryCrafting;
 import bau5.mods.projectbench.common.tileentity.TEProjectBenchII;
 import bau5.mods.projectbench.common.tileentity.TileEntityProjectBench;
+import cpw.mods.fml.common.ICraftingHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 
 /**
@@ -183,6 +189,15 @@ public class ProjectBenchGui extends GuiContainer {
 	        this.zLevel = 0.0F;
 	        itemRenderer.zLevel = 0.0F;
 		}
+	}
+
+	private void checkWithCraftingHandler(ContainerProjectBench contBench, ArrayList<ItemStack> theList) {
+		ItemStack[] stacks = theList.toArray(new ItemStack[9]);
+		LocalInventoryCrafting crafting = new LocalInventoryCrafting();
+		for(int i = 0; i < stacks.length; i++){
+			crafting.setInventorySlotContents(i, stacks[i]);
+		}
+		ItemStack rec = CraftingManager.getInstance().findMatchingRecipe(crafting, ProjectBench.proxy.getClientSideWorld());
 	}
 
 	@Override

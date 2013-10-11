@@ -130,6 +130,14 @@ public class TileEntityProjectBench extends TileEntity implements IInventory,ISi
 		return (getPlanStack() != null && getPlanStack().stackTagCompound != null && getPlanResult() != null);
 	}
 
+	public ItemStack getPlanResult() {
+		return (getPlanStack() != null ? ItemStack.loadItemStackFromNBT(getPlanStack().stackTagCompound.getCompoundTag("Result")) : null);
+	}
+	
+	public ItemStack getPlanStack() {
+		return inv[27];
+	}
+	
 	public boolean haveSuppliesForPlan() {
 		ArrayList<ItemStack> stacks = RecipeManager.instance().getRecipeItemsForPlan(getPlanStack());
 		if(stacks == null)
@@ -138,13 +146,6 @@ public class TileEntityProjectBench extends TileEntity implements IInventory,ISi
 		return helper.checkListAgainstList(helper.consolidateItemStacks(helper.orderItemStacksByID(helper.listToArray(stacks))), helper.consolidateItemStacks(helper.orderItemStacksByID(getSupplyInventoryItems())));
 	}
 	
-	public ItemStack getPlanResult() {
-		return (getPlanStack() != null ? ItemStack.loadItemStackFromNBT(getPlanStack().stackTagCompound.getCompoundTag("Result")) : null);
-	}
-	
-	public ItemStack getPlanStack() {
-		return inv[27];
-	}
 	
 	public ItemStack[] getSupplyInventoryItems(){
 		ItemStack[] is = new ItemStack[18];
