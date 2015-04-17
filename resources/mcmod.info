@@ -1,0 +1,16 @@
+[
+{
+  "modid": "projectbench",
+  "name": "Project Bench Updated",
+  "description": "Project Bench updated for 1.8.",
+  "version": "0.1",
+  "mcversion": "1.8",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["_bau5"],
+  "credits": "Eloraam for the original inspiration",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
