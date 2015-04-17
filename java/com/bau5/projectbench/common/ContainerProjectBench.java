@@ -24,7 +24,6 @@ public class ContainerProjectBench extends Container {
         int index = 0;
         addSlotToContainer(new SlotModifiedCrafting(tile.getCraftingItemsProvider(),
                             invPlayer.player, tile, tile.getCraftResult(), 0, 124, 35));
-        addSlotToContainer(new SlotPlan(tile, 0, 7, 35));
         for(i = 0; i < 3; i++){
             for(j = 0; j < 3; j++){
                 addSlotToContainer(new Slot(tile, index++, 30 + j * 18, 17 + i * 18));
@@ -39,6 +38,7 @@ public class ContainerProjectBench extends Container {
                 }
             }
         }
+        addSlotToContainer(new SlotPlan(tile, 27, 7, 35));
     }
 
 

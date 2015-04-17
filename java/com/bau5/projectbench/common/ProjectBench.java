@@ -40,7 +40,7 @@ public class ProjectBench {
         plan = new ItemPlan();
         GameRegistry.registerBlock(projectBench, ItemBlockProjectBench.class, "pb_block");
         GameRegistry.registerTileEntity(TileEntityProjectBench.class, "pb_te");
-
+        GameRegistry.registerItem(plan, "plan_", ProjectBench.MOD_ID);
 
         NetworkRegistry.INSTANCE.registerGuiHandler(ProjectBench.instance, proxy);
         network = NetworkRegistry.INSTANCE.newSimpleChannel("ProjectBench");
