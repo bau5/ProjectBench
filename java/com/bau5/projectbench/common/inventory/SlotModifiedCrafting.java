@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
 /**
- * Created by Rick on 4/16/2015.
+ * Created by bau5 on 4/16/2015.
  */
 public class SlotModifiedCrafting extends SlotCrafting {
 

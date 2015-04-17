@@ -2,15 +2,15 @@ package com.bau5.projectbench.common;
 
 import com.bau5.projectbench.client.TileEntityProjectBench;
 import com.bau5.projectbench.common.inventory.SlotModifiedCrafting;
+import com.bau5.projectbench.common.inventory.SlotPlan;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 
 /**
- * Created by Rick on 4/15/2015.
+ * Created by bau5 on 4/15/2015.
  */
 public class ContainerProjectBench extends Container {
 
@@ -24,6 +24,7 @@ public class ContainerProjectBench extends Container {
         int index = 0;
         addSlotToContainer(new SlotModifiedCrafting(tile.getCraftingItemsProvider(),
                             invPlayer.player, tile, tile.getCraftResult(), 0, 124, 35));
+        addSlotToContainer(new SlotPlan(tile, 0, 7, 35));
         for(i = 0; i < 3; i++){
             for(j = 0; j < 3; j++){
                 addSlotToContainer(new Slot(tile, index++, 30 + j * 18, 17 + i * 18));
@@ -45,6 +46,7 @@ public class ContainerProjectBench extends Container {
     public ItemStack slotClick(int slotId, int clickedButton, int mode, EntityPlayer playerIn) {
         if(slotId == 36 && mode == 6)
             mode = 0;
+        System.out.println(slotId);
         return super.slotClick(slotId, clickedButton, mode, playerIn);
     }
 

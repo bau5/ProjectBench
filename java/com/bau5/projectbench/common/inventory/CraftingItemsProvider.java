@@ -4,7 +4,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 /**
- * Created by Rick on 4/16/2015.
+ * Created by bau5 on 4/16/2015.
  */
 public class CraftingItemsProvider {
     private int supplyStart;

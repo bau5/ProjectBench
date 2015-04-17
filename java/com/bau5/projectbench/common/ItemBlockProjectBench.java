@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import java.util.List;
 
 /**
- * Created by Rick on 4/15/2015.
+ * Created by bau5 on 4/15/2015.
  */
 public class ItemBlockProjectBench extends ItemBlock {
 

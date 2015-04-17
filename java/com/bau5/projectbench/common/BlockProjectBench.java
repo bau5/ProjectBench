@@ -16,7 +16,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 /**
- * Created by Rick on 4/15/2015.
+ * Created by bau5 on 4/15/2015.
  */
 public class BlockProjectBench extends BlockContainer {
 

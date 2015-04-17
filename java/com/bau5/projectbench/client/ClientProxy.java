@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 /**
- * Created by Rick on 4/15/2015.
+ * Created by bau5 on 4/15/2015.
  */
 public class ClientProxy extends CommonProxy{
     @Override

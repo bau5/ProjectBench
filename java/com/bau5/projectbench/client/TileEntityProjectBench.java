@@ -26,7 +26,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 import java.util.List;
 
 /**
- * Created by Rick on 4/15/2015.
+ * Created by bau5 on 4/15/2015.
  */
 public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerListBox, IInventory{
 
@@ -48,7 +48,7 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
         }
     }
 
-    private ItemStack[] inventory = new ItemStack[27];
+    private ItemStack[] inventory = new ItemStack[28];
     private LocalInventoryCrafting crafter = new LocalInventoryCrafting();
     private IInventory craftResult = new InventoryCraftResult();
 
