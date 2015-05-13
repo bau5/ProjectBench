@@ -2,6 +2,7 @@ package com.bau5.projectbench.client;
 
 import com.bau5.projectbench.common.ProjectBench;
 import com.bau5.projectbench.common.inventory.CraftingItemsProvider;
+import com.bau5.projectbench.common.inventory.LocalInventoryCrafting;
 import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
@@ -34,24 +35,8 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
     private ItemStack result;
     private boolean usingPlan = false;
 
-    private class LocalInventoryCrafting extends InventoryCrafting {
-        public LocalInventoryCrafting() {
-            super(new Container() {
-                @Override
-                public boolean canInteractWith(EntityPlayer playerIn) {
-                    return false;
-                }
-            }, 3, 3);
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int index) {
-            return inventory[index];
-        }
-    }
-
     private ItemStack[] inventory = new ItemStack[28];
-    private LocalInventoryCrafting crafter = new LocalInventoryCrafting();
+    private LocalInventoryCrafting crafter = new LocalInventoryCrafting(this);
     private IInventory craftResult = new InventoryCraftResult();
     private int planIndex = getSizeInventory()-1;
 
