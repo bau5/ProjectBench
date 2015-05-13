@@ -7,6 +7,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import java.awt.*;
+
 /**
  * Created by bau5 on 4/17/2015.
  */
@@ -50,6 +52,8 @@ public class SimpleMessage implements IMessage {
         public IMessage onMessage(SimpleMessage message, MessageContext ctx) {
             switch(message.id){
                 case 0: emptyCraftMatrix(ctx.getServerHandler().playerEntity);
+                    break;
+                case 1: ((ContainerProjectBench)ctx.getServerHandler().playerEntity.openContainer).writePlan();
                     break;
             }
             return null;

@@ -37,10 +37,10 @@ public class ProjectBench {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         projectBench = new BlockProjectBench().setCreativeTab(CreativeTabs.tabDecorations);
-        plan = new ItemPlan();
+        plan = new ItemPlan()/*.setCreativeTab(CreativeTabs.tabMisc)*/;
         GameRegistry.registerBlock(projectBench, ItemBlockProjectBench.class, "pb_block");
         GameRegistry.registerTileEntity(TileEntityProjectBench.class, "pb_te");
-        GameRegistry.registerItem(plan, "plan_", ProjectBench.MOD_ID);
+        GameRegistry.registerItem(plan, "plan", ProjectBench.MOD_ID);
 
         NetworkRegistry.INSTANCE.registerGuiHandler(ProjectBench.instance, proxy);
         network = NetworkRegistry.INSTANCE.newSimpleChannel("ProjectBench");

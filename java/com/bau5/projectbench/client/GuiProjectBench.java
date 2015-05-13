@@ -3,10 +3,12 @@ package com.bau5.projectbench.client;
 import com.bau5.projectbench.common.ContainerProjectBench;
 import com.bau5.projectbench.common.ProjectBench;
 import com.bau5.projectbench.common.SimpleMessage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.DimensionManager;
@@ -28,8 +30,9 @@ public class GuiProjectBench extends GuiContainer{
     public void initGui() {
         ySize += 48;
         super.initGui();
-        buttonList.add(new Button(0, guiLeft + 10, guiTop +56));
-        buttonList.add(new Button(1, guiLeft + 10, guiTop +20));
+        buttonList.add(new Button(0, guiLeft + 10, guiTop +56, "v"));
+        //TODO Plan
+//        buttonList.add(new Button(1, guiLeft + 10, guiTop +20));
     }
 
     @Override
@@ -47,8 +50,20 @@ public class GuiProjectBench extends GuiContainer{
     }
 
     private class Button extends GuiButtonExt{
+        public Button(int id, int x, int y, String disp){
+            super(id, x, y, 12, 12, disp);
+        }
         public Button(int id, int x, int y){
             super(id, x, y, 10, 10, "");
+        }
+
+        @Override
+        public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+            if(id == 1) {
+                ItemStack stack = ((TileEntityProjectBench)tile).getStackInSlot(27);
+                this.enabled = stack != null && !stack.hasTagCompound();
+            }
+            super.drawButton(mc, mouseX, mouseY);
         }
 
         @Override
@@ -57,7 +72,5 @@ public class GuiProjectBench extends GuiContainer{
                 ProjectBench.network.sendToServer(new SimpleMessage(id, tile.getWorld().provider.getDimensionId(), tile.getPos()));
             }
         }
-
-
     }
 }

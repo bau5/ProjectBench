@@ -3,6 +3,7 @@ package com.bau5.projectbench.common;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.List;
 
@@ -12,20 +13,38 @@ import java.util.List;
 public class ItemPlan extends Item {
 
     public ItemPlan(){
+        setMaxStackSize(16);
         setHasSubtypes(true);
-        setMaxDamage(0);
-        setMaxStackSize(64);
-        setCreativeTab(CreativeTabs.tabMisc);
+        setUnlocalizedName("plan_");
     }
 
     @Override
     public String getUnlocalizedName(ItemStack stack) {
-        return stack.getMetadata() == 0 ? "item.plan_blank" : "item.plan_used";
+        String str = super.getUnlocalizedName(stack);
+        if(stack.hasTagCompound()) {
+            return str + "used";
+        }
+        return str + "blank";
+    }
+
+    @Override
+    public String getItemStackDisplayName(ItemStack stack) {
+        if(stack.hasTagCompound() && stack.getTagCompound().hasKey("Result")){
+            NBTTagCompound tag = (NBTTagCompound)stack.getTagCompound().getTag("Result");
+            if(tag != null) {
+                ItemStack result = ItemStack.loadItemStackFromNBT(tag);
+                if(result != null){
+                    return "Plan: " + result.getDisplayName();
+                }
+            }else{
+                return "Broken Plan";
+            }
+        }
+        return super.getItemStackDisplayName(stack);
     }
 
     @Override
     public void getSubItems(Item itemIn, CreativeTabs tab, List subItems) {
-        subItems.add(new ItemStack(this, 1, 0));
-        subItems.add(new ItemStack(this, 1, 1));
+        subItems.add(new ItemStack(itemIn, 1, 0));
     }
 }

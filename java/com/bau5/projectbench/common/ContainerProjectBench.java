@@ -6,8 +6,16 @@ import com.bau5.projectbench.common.inventory.SlotPlan;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by bau5 on 4/15/2015.
@@ -38,16 +46,57 @@ public class ContainerProjectBench extends Container {
                 }
             }
         }
-        addSlotToContainer(new SlotPlan(tile, 27, 7, 35));
+        //TODO Plan
+//        addSlotToContainer(new SlotPlan(tile, 27, 7, 35));
     }
 
 
     @Override
     public ItemStack slotClick(int slotId, int clickedButton, int mode, EntityPlayer playerIn) {
-        if(slotId == 36 && mode == 6)
-            mode = 0;
-        System.out.println(slotId);
-        return super.slotClick(slotId, clickedButton, mode, playerIn);
+        if(slotId == 36){
+            if(mode == 6)
+                mode = 0;
+            if(tile.isUsingPlan()){
+                ItemStack returnStack = null;
+                InventoryBasic copy = new InventoryBasic("local", false, 18);
+                for(int i = 0; i < 18; i++){
+                    copy.setInventorySlotContents(i, tile.getStackInSlot(i + 9));
+                }
+                ItemStack plan = tile.getPlan();
+                if(plan != null) {
+                    List<ItemStack> components = new ArrayList<ItemStack>();
+                    NBTTagList list = plan.getTagCompound().getTagList("Plan", 10);
+                    for (int i = 0; i < list.tagCount(); i++){
+                        components.add(ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i)));
+                    }
+                    boolean complete = true;
+                    for(ItemStack piece : components){
+                        for(int i = 0; i < copy.getSizeInventory(); i++){
+                            ItemStack stackInCopy = copy.getStackInSlot(i);
+                            if(stackInCopy != null && OreDictionary.itemMatches(piece, stackInCopy, false)){
+                                copy.decrStackSize(i, 1);
+                                complete = 0 == --piece.stackSize;
+                                break;
+                            }
+                            complete = false;
+                        }
+                    }
+                    if(complete){
+                        for(int i = 0; i < copy.getSizeInventory(); i++){
+                            tile.setInventorySlotContents(9 + i, copy.getStackInSlot(i));
+                        }
+                        returnStack = tile.getPlanResult();
+                    }
+                }
+                tile.forceUpdateRecipe();
+                System.out.println(returnStack);
+                return returnStack;
+            }
+            tile.forceUpdateRecipe();
+        }
+        ItemStack result = super.slotClick(slotId, clickedButton, mode, playerIn);
+
+        return result;
     }
 
     private void bindPlayerInventory(InventoryPlayer invPlayer) {
@@ -59,6 +108,29 @@ public class ContainerProjectBench extends Container {
         }
         for(i = 0; i < 9; i++){
             this.addSlotToContainer(new Slot(invPlayer, i, 8 + i*18, 179));
+        }
+    }
+
+    public void writePlan() {
+        ItemStack planStack = tile.getStackInSlot(27);
+        if(planStack != null && planStack.getItem().equals(ProjectBench.plan) && !planStack.hasTagCompound()){
+            NBTTagCompound stackTag = new NBTTagCompound();
+            NBTTagList list = new NBTTagList();
+            for(int i = 0; i < 9; i++){
+                ItemStack component = tile.getStackInSlot(i);
+                if(component != null){
+                    NBTTagCompound tag = new NBTTagCompound();
+                    tag.setByte("Slot", (byte)i);
+                    component.writeToNBT(tag);
+                    list.appendTag(tag);
+                }
+                if(component.getItem().getContainerItem() != null)
+                    return;
+            }
+            System.out.println("check");
+            stackTag.setTag("Result", tile.getResult().writeToNBT(new NBTTagCompound()));
+            stackTag.setTag("Plan", list);
+            planStack.setTagCompound(stackTag);
         }
     }
 

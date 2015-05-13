@@ -3,8 +3,6 @@ package com.bau5.projectbench.client;
 import com.bau5.projectbench.common.CommonProxy;
 import com.bau5.projectbench.common.ProjectBench;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemModelMesher;
-import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -23,13 +21,9 @@ public class ClientProxy extends CommonProxy{
 
     @Override
     public void registerRenderingInformation() {
-        ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-        mesher.register(
+        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
                 Item.getItemFromBlock(ProjectBench.projectBench), 0,
                 new ModelResourceLocation(ProjectBench.MOD_ID +":pb_block", "inventory"));
-        mesher.register(ProjectBench.plan, 0, new ModelResourceLocation(ProjectBench.MOD_ID +":plan_", "inventory"));
-        String str = ProjectBench.MOD_ID +":plan_";
-        ModelBakery.addVariantName(ProjectBench.plan, str +"blank", str +"used");
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityProjectBench.class, new ProjectBenchRenderer());
     }
 }

@@ -4,6 +4,7 @@ import com.bau5.projectbench.common.ProjectBench;
 import com.bau5.projectbench.common.inventory.CraftingItemsProvider;
 import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.Item;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.network.NetworkManager;
@@ -31,6 +32,7 @@ import java.util.List;
 public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerListBox, IInventory{
 
     private ItemStack result;
+    private boolean usingPlan = false;
 
     private class LocalInventoryCrafting extends InventoryCrafting {
         public LocalInventoryCrafting() {
@@ -51,13 +53,15 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
     private ItemStack[] inventory = new ItemStack[28];
     private LocalInventoryCrafting crafter = new LocalInventoryCrafting();
     private IInventory craftResult = new InventoryCraftResult();
+    private int planIndex = getSizeInventory()-1;
+
 
     private CraftingItemsProvider supplier = new CraftingItemsProvider(this, 9, 27);
 
     private boolean shouldUpdateRecipe = false;
 
     private void checkAndMarkForRecipeUpdate(int index){
-        if(index >= 0 && index < 9)
+        if((index >= 0 && index < 9) || index == planIndex)
             shouldUpdateRecipe = true;
     }
 
@@ -69,25 +73,53 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
         return shouldUpdateRecipe;
     }
 
+    public boolean isUsingPlan() {
+        return usingPlan;
+    }
+
     @Override
     public void update() {
         if(updateRecipe()){
             findRecipe();
+            if(getResult() == null && craftingMatrixIsEmpty()){
+                setResult(getPlanResult());
+            }
             shouldUpdateRecipe = false;
         }
     }
 
+    public ItemStack getPlanResult(){
+        ItemStack plan = getPlan();
+        if(plan != null && plan.hasTagCompound() && plan.getTagCompound().hasKey("Result")){
+            ItemStack result = ItemStack.loadItemStackFromNBT(plan.getTagCompound().getCompoundTag("Result"));
+            if(result != null)
+                usingPlan = true;
+            return result;
+        }
+        return null;
+    }
+
+    public boolean craftingMatrixIsEmpty(){
+        boolean flag = true;
+        for(int i = 0; i < 9; i++){
+            if(inventory[i] != null) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
+    }
+
     private void findRecipe() {
-//        System.out.println("Finding Recipe... ");
         for (int i = 0; i < 9; i++) {
             crafter.setInventorySlotContents(i, inventory[i]);
         }
         ItemStack result = CraftingManager.getInstance().findMatchingRecipe(crafter, worldObj);
-        if(result != null && ProjectBench.tryOreDictionary) {
+        if (result != null && ProjectBench.tryOreDictionary) {
             List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
             IRecipe using = null;
             for (IRecipe recipe : recipes) {
-                if(recipe.getRecipeOutput() != null) {
+                if (recipe.getRecipeOutput() != null) {
                     if (recipe.getRecipeOutput().isItemEqual(result)) {
                         using = recipe;
                         break;
@@ -96,14 +128,18 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
             }
             if (using instanceof ShapedOreRecipe || using instanceof ShapelessOreRecipe) {
                 supplier.supplyOreDictItems(true);
-            }else{
+            } else {
                 supplier.supplyOreDictItems(false);
             }
         }
         setResult(result);
-//        if(getResult() != null)
-//            System.out.println("Found " +getResult());
+        usingPlan = false;
     }
+
+    public ItemStack getPlan() {
+        return inventory[planIndex];
+    }
+
 
     public LocalInventoryCrafting getCrafter() {
         return crafter;
@@ -197,6 +233,29 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
         checkAndMarkForRecipeUpdate(index);
         this.markDirty();
     }
+
+    public boolean addStackToInventory(ItemStack item) {
+        int firstNull = -1;
+        for(int i = supplier.getSupplyStart(); i < supplier.getSupplyStop(); i++) {
+            if(firstNull == -1 && getStackInSlot(i) == null) {
+                firstNull = i;
+                continue;
+            }
+            if(ItemStack.areItemsEqual(item, getStackInSlot(i))
+                    && getStackInSlot(i).stackSize + item.stackSize < getStackInSlot(i).getMaxStackSize()){
+                ItemStack stack = getStackInSlot(i);
+                stack.stackSize += item.stackSize;
+                setInventorySlotContents(i, stack);
+                return true;
+            }
+        }
+        if(firstNull != -1){
+            setInventorySlotContents(firstNull, item);
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public Packet getDescriptionPacket() {
