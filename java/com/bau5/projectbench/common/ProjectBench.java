@@ -19,7 +19,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = ProjectBench.MOD_ID, name = ProjectBench.NAME, version = ProjectBench.VERSION)
 public class ProjectBench {
     public final static String MOD_ID = "projectbench";
-    public final static String VERSION = "0.1";
+    public final static String VERSION = "0.2.1";
     public final static String NAME = "Project Bench";
 
     @SidedProxy(clientSide = "com.bau5.projectbench.client.ClientProxy",
