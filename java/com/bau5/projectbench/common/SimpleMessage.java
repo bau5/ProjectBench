@@ -1,13 +1,12 @@
 package com.bau5.projectbench.common;
 
+import com.bau5.projectbench.client.TileEntityProjectBench;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-
-import java.awt.*;
 
 /**
  * Created by bau5 on 4/17/2015.
@@ -53,7 +52,9 @@ public class SimpleMessage implements IMessage {
             switch(message.id){
                 case 0: emptyCraftMatrix(ctx.getServerHandler().playerEntity);
                     break;
-                case 1: ((ContainerProjectBench)ctx.getServerHandler().playerEntity.openContainer).writePlan();
+                case 1:
+                    TileEntityProjectBench tile = ((ContainerProjectBench) ctx.getServerHandler().playerEntity.openContainer).getTileEntity();
+                    PlanHelper.writePlan(tile.getPlan(), tile);
                     break;
             }
             return null;

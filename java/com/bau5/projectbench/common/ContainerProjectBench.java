@@ -6,16 +6,8 @@ import com.bau5.projectbench.common.inventory.SlotPlan;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.oredict.OreDictionary;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by bau5 on 4/15/2015.
@@ -47,7 +39,7 @@ public class ContainerProjectBench extends Container {
             }
         }
         //TODO Plan
-//        addSlotToContainer(new SlotPlan(tile, 27, 7, 35));
+        addSlotToContainer(new SlotPlan(tile, 27, 7, 35));
     }
 
 
@@ -56,44 +48,8 @@ public class ContainerProjectBench extends Container {
         if(slotId == 36){
             if(mode == 6)
                 mode = 0;
-            if(tile.isUsingPlan()){
-                ItemStack returnStack = null;
-                InventoryBasic copy = new InventoryBasic("local", false, 18);
-                for(int i = 0; i < 18; i++){
-                    copy.setInventorySlotContents(i, tile.getStackInSlot(i + 9));
-                }
-                ItemStack plan = tile.getPlan();
-                if(plan != null) {
-                    List<ItemStack> components = new ArrayList<ItemStack>();
-                    NBTTagList list = plan.getTagCompound().getTagList("Plan", 10);
-                    for (int i = 0; i < list.tagCount(); i++){
-                        components.add(ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i)));
-                    }
-                    boolean complete = true;
-                    for(ItemStack piece : components){
-                        for(int i = 0; i < copy.getSizeInventory(); i++){
-                            ItemStack stackInCopy = copy.getStackInSlot(i);
-                            if(stackInCopy != null && OreDictionary.itemMatches(piece, stackInCopy, false)){
-                                copy.decrStackSize(i, 1);
-                                complete = 0 == --piece.stackSize;
-                                break;
-                            }
-                            complete = false;
-                        }
-                    }
-                    if(complete){
-                        for(int i = 0; i < copy.getSizeInventory(); i++){
-                            tile.setInventorySlotContents(9 + i, copy.getStackInSlot(i));
-                        }
-                        returnStack = tile.getPlanResult();
-                    }
-                }
-                tile.forceUpdateRecipe();
-                System.out.println(returnStack);
-                return returnStack;
-            }
-            tile.forceUpdateRecipe();
         }
+
         ItemStack result = super.slotClick(slotId, clickedButton, mode, playerIn);
 
         return result;
@@ -101,36 +57,13 @@ public class ContainerProjectBench extends Container {
 
     private void bindPlayerInventory(InventoryPlayer invPlayer) {
         int i, j;
-        for(i = 0; i < 3; i++){
-            for(j = 0; j < 9; j++){
-                this.addSlotToContainer(new Slot(invPlayer, j + i*9 + 9, 8 + j * 18, 121+ i * 18));
+        for (i = 0; i < 3; i++) {
+            for (j = 0; j < 9; j++) {
+                this.addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9, 8 + j * 18, 121 + i * 18));
             }
         }
-        for(i = 0; i < 9; i++){
-            this.addSlotToContainer(new Slot(invPlayer, i, 8 + i*18, 179));
-        }
-    }
-
-    public void writePlan() {
-        ItemStack planStack = tile.getStackInSlot(27);
-        if(planStack != null && planStack.getItem().equals(ProjectBench.plan) && !planStack.hasTagCompound()){
-            NBTTagCompound stackTag = new NBTTagCompound();
-            NBTTagList list = new NBTTagList();
-            for(int i = 0; i < 9; i++){
-                ItemStack component = tile.getStackInSlot(i);
-                if(component != null){
-                    NBTTagCompound tag = new NBTTagCompound();
-                    tag.setByte("Slot", (byte)i);
-                    component.writeToNBT(tag);
-                    list.appendTag(tag);
-                }
-                if(component.getItem().getContainerItem() != null)
-                    return;
-            }
-            System.out.println("check");
-            stackTag.setTag("Result", tile.getResult().writeToNBT(new NBTTagCompound()));
-            stackTag.setTag("Plan", list);
-            planStack.setTagCompound(stackTag);
+        for (i = 0; i < 9; i++) {
+            this.addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 179));
         }
     }
 
@@ -146,18 +79,31 @@ public class ContainerProjectBench extends Container {
         if (slot != null && slot.getHasStack()){
             ItemStack stack = slot.getStack();
             itemstack = stack.copy();
-            if(index >= 46 && index <= 63){
-                if(!this.mergeItemStack(stack, 0, 36, false))
-                    return null;
-            }else if(index >= 36 && index <= 45){
-                if(!this.mergeItemStack(stack, 46, 64, false)) {
-                    if (!this.mergeItemStack(stack, 0, 36, false)) {
+            boolean success = false;
+            if(stack.getItem().equals(ProjectBench.plan)){
+                if(!((Slot)inventorySlots.get(64)).getHasStack()){
+                    if(!this.mergeItemStack(stack, 64, 65, false))
                         return null;
-                    }
+                    success = true;
                 }
-            }else if (index >= 0 && index <= 35){
-               if(!this.mergeItemStack(stack, 46, 64, false))
-                   return null;
+            }
+            if(!success) {
+                if(index == 64){
+                    if(!this.mergeItemStack(stack, 46, 64, true))
+                        return null;
+                }else if (index >= 46 && index <= 63) {
+                    if (!this.mergeItemStack(stack, 0, 36, false))
+                        return null;
+                } else if (index >= 36 && index <= 45) {
+                    if (!this.mergeItemStack(stack, 46, 64, false)) {
+                        if (!this.mergeItemStack(stack, 0, 36, false)) {
+                            return null;
+                        }
+                    }
+                } else if (index >= 0 && index <= 35) {
+                    if (!this.mergeItemStack(stack, 46, 64, false))
+                        return null;
+                }
             }
 
             if(stack.stackSize == 0) {
@@ -173,7 +119,10 @@ public class ContainerProjectBench extends Container {
             slot.onPickupFromSlot(playerIn, stack);
         }
 
-
         return itemstack;
+    }
+
+    public TileEntityProjectBench getTileEntity() {
+        return tile;
     }
 }

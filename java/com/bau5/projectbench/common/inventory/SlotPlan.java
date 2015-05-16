@@ -17,6 +17,11 @@ public class SlotPlan extends Slot {
     }
 
     @Override
+    public int getSlotStackLimit() {
+        return 1;
+    }
+
+    @Override
     public ItemStack getStack() {
         return theTile.getStackInSlot(theTile.getSizeInventory() -1);
     }

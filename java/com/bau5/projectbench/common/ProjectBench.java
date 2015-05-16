@@ -4,6 +4,7 @@ import com.bau5.projectbench.client.TileEntityProjectBench;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -19,7 +20,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = ProjectBench.MOD_ID, name = ProjectBench.NAME, version = ProjectBench.VERSION)
 public class ProjectBench {
     public final static String MOD_ID = "projectbench";
-    public final static String VERSION = "0.2.1";
+    public final static String VERSION = "0.3";
     public final static String NAME = "Project Bench";
 
     @SidedProxy(clientSide = "com.bau5.projectbench.client.ClientProxy",
@@ -37,18 +38,23 @@ public class ProjectBench {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         projectBench = new BlockProjectBench().setCreativeTab(CreativeTabs.tabDecorations);
-        plan = new ItemPlan()/*.setCreativeTab(CreativeTabs.tabMisc)*/;
+        plan = new ItemPlan().setCreativeTab(CreativeTabs.tabMisc);
         GameRegistry.registerBlock(projectBench, ItemBlockProjectBench.class, "pb_block");
         GameRegistry.registerTileEntity(TileEntityProjectBench.class, "pb_te");
-        GameRegistry.registerItem(plan, "plan", ProjectBench.MOD_ID);
+        GameRegistry.registerItem(plan, "plan");
 
         NetworkRegistry.INSTANCE.registerGuiHandler(ProjectBench.instance, proxy);
         network = NetworkRegistry.INSTANCE.newSimpleChannel("ProjectBench");
         network.registerMessage(SimpleMessage.Handler.class, SimpleMessage.class, 0, Side.SERVER);
-        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(projectBench, 1, 0), new Object[] {
+
+        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(projectBench, 1, 0), new Object[]{
                 " G ", "ICI", "WHW", 'G', "blockGlass", 'I', "ingotIron", 'C', Blocks.crafting_table,
-                                     'W', "plankWood",  'H', Blocks.chest
+                'W', "plankWood", 'H', Blocks.chest
         }));
+        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(plan, 8, 0), new Object[]{
+                " PS", "PNP", "SP ", 'P', Items.paper, 'S', Items.stick, 'N', Items.gold_nugget
+        }));
+
         proxy.registerRenderingInformation();
     }
 }
