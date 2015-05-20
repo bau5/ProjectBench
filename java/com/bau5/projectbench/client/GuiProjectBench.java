@@ -1,19 +1,22 @@
 package com.bau5.projectbench.client;
 
-import com.bau5.projectbench.common.ContainerProjectBench;
 import com.bau5.projectbench.common.PlanHelper;
 import com.bau5.projectbench.common.ProjectBench;
 import com.bau5.projectbench.common.SimpleMessage;
+import com.bau5.projectbench.common.inventory.ContainerProjectBench;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 import org.lwjgl.input.Keyboard;
 
@@ -23,12 +26,12 @@ import java.util.ArrayList;
  * Created by bau5 on 4/15/2015.
  */
 public class GuiProjectBench extends GuiContainer {
-    private TileEntity tile;
+    private TileEntityProjectBench tile;
     private static final ResourceLocation gui_texture = new ResourceLocation("projectbench", "textures/gui/pbGUI.png");
+    private static final ResourceLocation other_texture = new ResourceLocation("projectbench", "textures/gui/parts.png");
 
-
-    public GuiProjectBench(InventoryPlayer inventory, TileEntity tileEntity) {
-        super(new ContainerProjectBench(inventory, (TileEntityProjectBench) tileEntity));
+    public GuiProjectBench(InventoryPlayer inventory, TileEntityProjectBench tileEntity) {
+        super(new ContainerProjectBench(inventory, tileEntity));
         tile = tileEntity;
         ySize += 48;
     }
@@ -37,7 +40,6 @@ public class GuiProjectBench extends GuiContainer {
     public void initGui() {
         super.initGui();
         buttonList.add(new Button(0, guiLeft + 10, guiTop + 56, "v"));
-        //TODO Plan
         buttonList.add(new Button(1, guiLeft + 10, guiTop + 20));
     }
 
@@ -88,17 +90,70 @@ public class GuiProjectBench extends GuiContainer {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        //TODO hold shift, makes plans display result over the top of them.
+
         GlStateManager.color(1.0F, 1.0F, 1.0f, 1.0F);
-        mc.getTextureManager().bindTexture(gui_texture);
         int k = (this.width - this.xSize) / 2;
         int l = (this.height - this.ySize) / 2;
+        mc.getTextureManager().bindTexture(gui_texture);
         this.drawTexturedModalRect(k, l, 0, 0, this.xSize, this.ySize + 10);
+        //Draw stacks for the plan
         drawPlanStacks(k, l);
+        //Render Fluid parts into gui
+        if(tile.getHasFluidUpgrade()) {
+            RenderHelper.enableGUIStandardItemLighting();
+            mc.getTextureManager().bindTexture(other_texture);
+            int xDisp = k + 148;
+            int xSize = 22;
+            int yDisp = l + 15;
+            int ySize = 54;
+            this.drawTexturedModalRect(xDisp, yDisp, 45, 0, xSize, ySize);
+            //Render the fluid itself in between the layers.
+            if(tile.getFluidInTank() != null){
+                FluidStack fstack = tile.getFluidInTank();
+                int amount = (fstack.amount / 1000) * 3;
+                int bucketSize = 3;
+                GlStateManager.bindTexture(mc.getTextureMapBlocks().getGlTextureId());
+                drawTexturedModelRectFromIconInverted(xDisp + 3, yDisp + ySize - 3, fstack.getFluid().getIcon(), xSize - 6, (amount < bucketSize * 4) ? amount : 12);
+                if(amount > 12){
+                    drawTexturedModelRectFromIconInverted(xDisp + 3, yDisp + ySize - 3 - 12, fstack.getFluid().getIcon(), xSize - 6, (amount < bucketSize * 8) ? amount - 12 : 12);
+                }
+                if(amount > 24){
+                    drawTexturedModelRectFromIconInverted(xDisp + 3, yDisp + ySize - 3 - 24, fstack.getFluid().getIcon(), xSize - 6, (amount < bucketSize * 12) ? amount - 24 : 12);
+                }
+                if(amount > 36){
+                    drawTexturedModelRectFromIconInverted(xDisp + 3, yDisp + ySize - 3 - 36, fstack.getFluid().getIcon(), xSize - 6, (amount < bucketSize * 16) ? amount - 36 : 12);
+                }
+
+            }
+
+            mc.getTextureManager().bindTexture(other_texture);
+            this.drawTexturedModalRect(xDisp + 3, yDisp, 67, 0, xSize - 7, ySize - 4);
+            //Tooltip if mouse is over tank
+            if(tile.getFluidInTank() != null){
+                if(mouseX > xDisp && mouseX < xDisp + xSize
+                        && mouseY > yDisp && mouseY < yDisp + ySize){
+                    FluidStack fstack = tile.getFluidInTank();
+                    ArrayList list = new ArrayList();
+                    list.add(fstack.amount + "mb of " +fstack.getLocalizedName());
+                    drawHoveringText(list, mouseX, mouseY);
+                }
+            }
+        }
+    }
+
+    public void drawTexturedModelRectFromIconInverted(int par1, int par2, TextureAtlasSprite par3Icon, int par4, int par5) {
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+        worldRenderer.startDrawingQuads();
+        worldRenderer.addVertexWithUV((double) (par1 + 0), (double) (par2 + 0), (double) this.zLevel, (double) par3Icon.getMinU(), (double) par3Icon.getMaxV());
+        worldRenderer.addVertexWithUV((double)(par1 + par4), (double)(par2 + 0), (double)this.zLevel, (double)par3Icon.getMaxU(), (double)par3Icon.getMaxV());
+        worldRenderer.addVertexWithUV((double) (par1 + par4), (double) (par2 - par5), (double) this.zLevel, (double) par3Icon.getMaxU(), (double) par3Icon.getMinV());
+        worldRenderer.addVertexWithUV((double) (par1 + 0), (double) (par2 - par5), (double) this.zLevel, (double) par3Icon.getMinU(), (double) par3Icon.getMinV());
+        tessellator.draw();
     }
 
     private void drawPlanStacks(int xSize, int ySize){
-        TileEntityProjectBench tpb = (TileEntityProjectBench) tile;
+        TileEntityProjectBench tpb = tile;
         if (tpb.getResult() != null && tpb.getPlan() != null) {
             ItemStack[] stacks = PlanHelper.getComponentsForPlan(tpb.getPlan());
             if (stacks != null) {
@@ -150,8 +205,8 @@ public class GuiProjectBench extends GuiContainer {
         @Override
         public void drawButton(Minecraft mc, int mouseX, int mouseY) {
             if(id == 1) {
-                ItemStack stack = ((TileEntityProjectBench)tile).getStackInSlot(27);
-                this.enabled = ((TileEntityProjectBench) tile).getResult() != null &&
+                ItemStack stack = tile.getStackInSlot(27);
+                this.enabled = tile.getResult() != null &&
                         stack != null && !stack.hasTagCompound() && stack.stackSize == 1;
             }
             super.drawButton(mc, mouseX, mouseY);

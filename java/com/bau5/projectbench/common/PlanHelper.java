@@ -50,8 +50,6 @@ public class PlanHelper {
                 if(component != null){
                     component = component.copy();
                     component.stackSize = 1;
-                    if(component.getItem().getContainerItem() != null)
-                        return;
                     NBTTagCompound tag = new NBTTagCompound();
                     tag.setByte("Slot", (byte)i);
                     component.writeToNBT(tag);

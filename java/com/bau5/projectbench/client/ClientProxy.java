@@ -17,7 +17,10 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 public class ClientProxy extends CommonProxy {
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-        return new GuiProjectBench(player.inventory, world.getTileEntity(new BlockPos(x, y, z)));
+        if(world.getTileEntity(new BlockPos(x, y, z))instanceof TileEntityProjectBench)
+            return new GuiProjectBench(player.inventory, (TileEntityProjectBench)world.getTileEntity(new BlockPos(x, y, z)));
+        else
+            return null;
     }
 
     @Override
@@ -32,7 +35,12 @@ public class ClientProxy extends CommonProxy {
                 ProjectBench.plan, 0,
                 new ModelResourceLocation(ProjectBench.MOD_ID + ":plan", "inventory"));
 
-        ModelBakery.addVariantName(ProjectBench.plan, "projectbench:plan","projectbench:planused");
+        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
+                ProjectBench.upgrade, 0,
+                new ModelResourceLocation(ProjectBench.MOD_ID + ":upgrade_fluid", "inventory"));
+
+        ModelBakery.addVariantName(ProjectBench.plan, "projectbench:plan", "projectbench:planused");
+        ModelBakery.addVariantName(ProjectBench.upgrade, "projectbench:upgrade_fluid");
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityProjectBench.class, new ProjectBenchRenderer());
     }

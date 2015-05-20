@@ -3,6 +3,8 @@ package com.bau5.projectbench.client;
 import com.bau5.projectbench.common.ProjectBench;
 import com.bau5.projectbench.common.inventory.CraftingItemsProvider;
 import com.bau5.projectbench.common.inventory.LocalInventoryCrafting;
+import com.bau5.projectbench.common.upgrades.FluidUpgrade;
+import com.bau5.projectbench.common.upgrades.IUpgrade;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
@@ -17,7 +19,9 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
+import net.minecraftforge.fluids.*;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -26,7 +30,8 @@ import java.util.List;
 /**
  * Created by bau5 on 4/15/2015.
  */
-public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerListBox, IInventory{
+public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerListBox, IInventory, IFluidHandler{
+    private FluidTank fluidTank = new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 16);
 
     private ItemStack result;
     private boolean usingPlan = false;
@@ -36,6 +41,7 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
     private IInventory craftResult = new InventoryCraftResult();
     private int planIndex = getSizeInventory()-1;
 
+    private IUpgrade upgrade = null;
 
     private CraftingItemsProvider supplier = new CraftingItemsProvider(this, 9, 27);
 
@@ -67,6 +73,22 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
             }
             shouldUpdateRecipe = false;
         }
+    }
+
+
+    public void performUpgrade(ItemStack upgradeItem) {
+        switch(upgradeItem.getMetadata()){
+            case 0: upgrade = new FluidUpgrade();
+                break;
+        }
+    }
+
+    public IUpgrade getUpgrade(){
+        return upgrade;
+    }
+
+    public boolean getCanAcceptUpgrade(){
+        return getUpgrade() == null;
     }
 
     public ItemStack getPlanResult(){
@@ -223,7 +245,7 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
                 continue;
             }
             if(ItemStack.areItemsEqual(item, getStackInSlot(i))
-                    && getStackInSlot(i).stackSize + item.stackSize < getStackInSlot(i).getMaxStackSize()){
+                    && getStackInSlot(i).stackSize + item.stackSize <= getStackInSlot(i).getMaxStackSize()){
                 ItemStack stack = getStackInSlot(i);
                 stack.stackSize += item.stackSize;
                 setInventorySlotContents(i, stack);
@@ -241,19 +263,38 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
     @Override
     public Packet getDescriptionPacket() {
         S35PacketUpdateTileEntity packet = null;
+        NBTTagCompound tag = new NBTTagCompound();
         if(getResult() != null) {
-            NBTTagCompound tag = new NBTTagCompound();
             tag.setTag("Result", result.writeToNBT(new NBTTagCompound()));
-            packet = new S35PacketUpdateTileEntity(pos, 0, tag);
         }
+        if(upgrade != null) {
+            tag.setInteger("Upgrade", upgrade.getType());
+            if(upgrade.getType() == 0){
+                if(getFluidInTank() != null)
+                    tag.setTag("Fluid", fluidTank.getFluid().writeToNBT(new NBTTagCompound()));
+            }
+        }
+        if(!tag.hasNoTags())
+            packet = new S35PacketUpdateTileEntity(pos, 0, tag);
         return packet;
     }
 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         super.onDataPacket(net, pkt);
-        if(pkt.getNbtCompound() != null && pkt.getNbtCompound().hasKey("Result")){
-            setResult(ItemStack.loadItemStackFromNBT(pkt.getNbtCompound().getCompoundTag("Result")));
+        NBTTagCompound tag = pkt.getNbtCompound();
+        if(tag == null)
+            return;
+        if(tag.hasKey("Result")){
+            setResult(ItemStack.loadItemStackFromNBT(tag.getCompoundTag("Result")));
+        }
+        if(tag.hasKey("Upgrade")){
+            int type = tag.getInteger("Upgrade");
+            switch(type){
+                case 0: upgrade = new FluidUpgrade();
+                    fluidTank.setFluid(FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("Fluid")));
+                    break;
+            }
         }
     }
 
@@ -274,6 +315,13 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
         if(getResult() != null){
             compound.setTag("Result", getResult().writeToNBT(new NBTTagCompound()));
         }
+        if(upgrade != null){
+            compound.setInteger("Upgrade", upgrade.getType());
+            if(upgrade.getType() == 0 && fluidTank.getFluid() != null){
+                NBTTagCompound fluidTag = getFluidInTank().writeToNBT(new NBTTagCompound());
+                compound.setTag("Fluid", fluidTag);
+            }
+        }
     }
 
     @Override
@@ -291,6 +339,17 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
 
         if(compound.hasKey("Result")){
             setResult(ItemStack.loadItemStackFromNBT(compound.getCompoundTag("Result")));
+        }
+        if(compound.hasKey("Upgrade")){
+            int type = compound.getInteger("Upgrade");
+            switch(type){
+                case 0: upgrade = new FluidUpgrade();
+                    if(compound.hasKey("Fluid")) {
+                        FluidStack fstack = FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("Fluid"));
+                        fluidTank.setFluid(fstack);
+                    }
+                    break;
+            }
         }
     }
 
@@ -352,5 +411,58 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
     @Override
     public IChatComponent getDisplayName() {
         return new ChatComponentText("Project Bench");
+    }
+
+    public boolean getHasFluidUpgrade(){
+        return upgrade != null && upgrade.getType() == 0;
+    }
+
+    @Override
+    public int fill(EnumFacing from, FluidStack resource, boolean doFill) {
+        if(!getHasFluidUpgrade())
+            return 0;
+        return fluidTank.fill(resource, doFill);
+    }
+
+    @Override
+    public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain) {
+        System.out.println("Drain");
+        if(!getHasFluidUpgrade())
+            return null;
+        if(resource.isFluidEqual(getFluidInTank())){
+            drain(from, resource.amount, doDrain);
+        }
+        return null;
+    }
+
+    @Override
+    public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain) {
+        if(!getHasFluidUpgrade())
+            return null;
+        return fluidTank.drain(maxDrain, doDrain);
+    }
+
+    @Override
+    public boolean canFill(EnumFacing from, Fluid fluid) {
+        return getHasFluidUpgrade();
+    }
+
+    @Override
+    public boolean canDrain(EnumFacing from, Fluid fluid) {
+        return getHasFluidUpgrade();
+    }
+
+    @Override
+    public FluidTankInfo[] getTankInfo(EnumFacing from) {
+        if(getFluidInTank() != null){
+            return new FluidTankInfo[]{
+                new FluidTankInfo(getFluidInTank(), FluidContainerRegistry.BUCKET_VOLUME * 16)
+            };
+        }
+        return new FluidTankInfo[0];
+    }
+
+    public FluidStack getFluidInTank(){
+        return fluidTank.getFluid();
     }
 }

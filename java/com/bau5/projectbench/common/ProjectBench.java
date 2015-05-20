@@ -8,19 +8,24 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 @Mod(modid = ProjectBench.MOD_ID, name = ProjectBench.NAME, version = ProjectBench.VERSION)
 public class ProjectBench {
     public final static String MOD_ID = "projectbench";
-    public final static String VERSION = "0.3";
+    public final static String VERSION = "0.4";
     public final static String NAME = "Project Bench";
 
     @SidedProxy(clientSide = "com.bau5.projectbench.client.ClientProxy",
@@ -34,14 +39,23 @@ public class ProjectBench {
     public static Block projectBench;
     public static boolean tryOreDictionary = false;
     public static Item plan;
+    public static Item upgrade;
 
     @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
+    public void preinit(FMLPreInitializationEvent ev){
+
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent ev) {
         projectBench = new BlockProjectBench().setCreativeTab(CreativeTabs.tabDecorations);
         plan = new ItemPlan().setCreativeTab(CreativeTabs.tabMisc);
+        upgrade = new ItemUpgrade().setCreativeTab(CreativeTabs.tabMisc);
+
         GameRegistry.registerBlock(projectBench, ItemBlockProjectBench.class, "pb_block");
         GameRegistry.registerTileEntity(TileEntityProjectBench.class, "pb_te");
         GameRegistry.registerItem(plan, "plan");
+        GameRegistry.registerItem(upgrade, "pb_upgrade");
 
         NetworkRegistry.INSTANCE.registerGuiHandler(ProjectBench.instance, proxy);
         network = NetworkRegistry.INSTANCE.newSimpleChannel("ProjectBench");
@@ -55,6 +69,22 @@ public class ProjectBench {
                 " PS", "PNP", "SP ", 'P', Items.paper, 'S', Items.stick, 'N', Items.gold_nugget
         }));
 
+        CraftingManager.getInstance().addRecipe(new ShapelessOreRecipe(
+                new ItemStack(Blocks.mossy_cobblestone, 1, 0),
+                new ItemStack(Blocks.cobblestone, 1, 0),
+                new ItemStack(Items.water_bucket, 1, 0)
+
+        ));
+
         proxy.registerRenderingInformation();
+    }
+
+    @Mod.EventHandler
+    public void onPostInit(FMLPostInitializationEvent ev){
+        FMLLog.info("Project Bench initialization complete. Fluids found:");
+        for(String name : FluidRegistry.getRegisteredFluids().keySet()){
+            FMLLog.info("\tPB: %s", name);
+        }
+        FMLLog.info("These fluids and their containers will be recognized by the Project Bench.");
     }
 }

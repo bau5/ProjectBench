@@ -1,6 +1,7 @@
 package com.bau5.projectbench.common;
 
 import com.bau5.projectbench.client.TileEntityProjectBench;
+import com.bau5.projectbench.common.inventory.ContainerProjectBench;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
