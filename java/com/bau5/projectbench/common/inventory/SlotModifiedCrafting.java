@@ -131,7 +131,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
                     }
                 }
             }
-            //Find any items left over in the grid (will only be items that take damage, instead of leaving.
+            //Find any items left over in the grid (will only be items that take damage, instead of leaving).
             //Add them back to the inventory.
             for(int i = 0; i < temp.getSizeInventory(); i++){
                 ItemStack leftOver = containerItems[i];

@@ -37,10 +37,13 @@ public class ClientProxy extends CommonProxy {
 
         Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
                 ProjectBench.upgrade, 0,
+                new ModelResourceLocation(ProjectBench.MOD_ID + ":upgrade_pb", "inventory"));
+        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
+                ProjectBench.upgrade, 1,
                 new ModelResourceLocation(ProjectBench.MOD_ID + ":upgrade_fluid", "inventory"));
 
         ModelBakery.addVariantName(ProjectBench.plan, "projectbench:plan", "projectbench:planused");
-        ModelBakery.addVariantName(ProjectBench.upgrade, "projectbench:upgrade_fluid");
+        ModelBakery.addVariantName(ProjectBench.upgrade, "projectbench:upgrade_pb", "projectbench:upgrade_fluid");
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityProjectBench.class, new ProjectBenchRenderer());
     }

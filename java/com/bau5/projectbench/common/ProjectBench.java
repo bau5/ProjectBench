@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -68,13 +69,22 @@ public class ProjectBench {
         CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(plan, 8, 0), new Object[]{
                 " PS", "PNP", "SP ", 'P', Items.paper, 'S', Items.stick, 'N', Items.gold_nugget
         }));
+        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 0), new Object[]{
+                " G ", "I I", "WHW", 'G', "blockGlass", 'I', "ingotIron",
+                                     'W', "plankWood", 'H', Blocks.chest
+        }));
+        int[] ids = OreDictionary.getOreIDs(new ItemStack(Blocks.stone));
+        String name = OreDictionary.getOreName(ids[0]);
+        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1), new Object[]{
+                "SGS", "GBG", "SGS", 'S', name, 'G', "blockGlass", 'B', Items.bucket
+        }));
 
-        CraftingManager.getInstance().addRecipe(new ShapelessOreRecipe(
+        /*CraftingManager.getInstance().addRecipe(new ShapelessOreRecipe(
                 new ItemStack(Blocks.mossy_cobblestone, 1, 0),
                 new ItemStack(Blocks.cobblestone, 1, 0),
                 new ItemStack(Items.water_bucket, 1, 0)
 
-        ));
+        ));*/
 
         proxy.registerRenderingInformation();
     }

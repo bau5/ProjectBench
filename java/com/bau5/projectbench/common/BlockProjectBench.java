@@ -6,6 +6,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
@@ -13,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -51,8 +53,8 @@ public class BlockProjectBench extends BlockContainer {
         TileEntityProjectBench tile = (TileEntityProjectBench) worldIn.getTileEntity(pos);
         ItemStack held = playerIn.getHeldItem();
         if(held != null && held.getItem() == ProjectBench.upgrade
-                && tile.getCanAcceptUpgrade()){
-            tile.performUpgrade(playerIn.getHeldItem());
+                && held.getMetadata() == 1 && tile.getCanAcceptUpgrade()){
+            tile.performUpgrade(held);
             held.stackSize--;
             return true;
         }
@@ -73,18 +75,25 @@ public class BlockProjectBench extends BlockContainer {
                         if(held.stackSize == 0){
                             playerIn.setCurrentItemOrArmor(0, held);
                         }
-                        playerIn.inventory.addItemStackToInventory(data.emptyContainer);
+                        if(data.emptyContainer != null){
+                            ItemStack containerCopy = data.emptyContainer.copy();
+                            if(containerCopy.stackSize == 0){
+                                containerCopy.stackSize = 1;
+                            }
+                            playerIn.inventory.addItemStackToInventory(containerCopy);
+                        }
                     }
                     return true;
                 }else{
-                    String message = "";
-                    if(tile.getFluidInTank().amount > 16000){
-                        message = "Tank is full.";
-                    }else{
-                        message = "Cannot accept this fluid.";
-                    }
-                    if(!worldIn.isRemote)
+                    if(!worldIn.isRemote) {
+                        String message = "" + EnumChatFormatting.GRAY;
+                        if (tile.getFluidInTank().amount > 16000) {
+                            message += "Tank is full.";
+                        } else {
+                            message += "Cannot accept this fluid.";
+                        }
                         playerIn.addChatComponentMessage(new ChatComponentText(message));
+                    }
                     return true;
                 }
             }
@@ -104,6 +113,15 @@ public class BlockProjectBench extends BlockContainer {
         {
             InventoryHelper.dropInventoryItems(worldIn, pos, (IInventory) tileentity);
             worldIn.updateComparatorOutputLevel(pos, this);
+        }
+
+        if(((TileEntityProjectBench)tileentity).getHasFluidUpgrade()){
+            EntityItem entityitem = new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(ProjectBench.upgrade, 1, 1));
+            float f3 = 0.05F;
+            entityitem.motionX = RANDOM.nextGaussian() * (double)f3;
+            entityitem.motionY = RANDOM.nextGaussian() * (double)f3 + 0.20000000298023224D;
+            entityitem.motionZ = RANDOM.nextGaussian() * (double)f3;
+            worldIn.spawnEntityInWorld(entityitem);
         }
 
         super.breakBlock(worldIn, pos, state);

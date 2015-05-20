@@ -78,7 +78,7 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
 
     public void performUpgrade(ItemStack upgradeItem) {
         switch(upgradeItem.getMetadata()){
-            case 0: upgrade = new FluidUpgrade();
+            case 1: upgrade = new FluidUpgrade();
                 break;
         }
     }
