@@ -1,6 +1,5 @@
 package com.bau5.projectbench.common;
 
-import com.bau5.projectbench.client.TileEntityProjectBench;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -15,7 +14,8 @@ public class PlanHelper {
         if(plan == null || !plan.hasTagCompound() || !plan.getTagCompound().hasKey("Result")){
             return null;
         }
-        return ItemStack.loadItemStackFromNBT(plan.getTagCompound().getCompoundTag("Result"));
+        result = ItemStack.loadItemStackFromNBT(plan.getTagCompound().getCompoundTag("Result"));
+        return result;
     }
 
     public static ItemStack[] getComponentsForPlan(ItemStack plan){

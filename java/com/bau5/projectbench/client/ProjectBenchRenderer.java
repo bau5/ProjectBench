@@ -1,5 +1,6 @@
 package com.bau5.projectbench.client;
 
+import com.bau5.projectbench.common.TileEntityProjectBench;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderItem;

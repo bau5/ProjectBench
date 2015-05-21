@@ -2,6 +2,7 @@ package com.bau5.projectbench.client;
 
 import com.bau5.projectbench.common.CommonProxy;
 import com.bau5.projectbench.common.ProjectBench;
+import com.bau5.projectbench.common.TileEntityProjectBench;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;

@@ -1,6 +1,5 @@
 package com.bau5.projectbench.common;
 
-import com.bau5.projectbench.client.TileEntityProjectBench;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockState;

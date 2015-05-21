@@ -1,11 +1,13 @@
 package com.bau5.projectbench.common.inventory;
 
-import com.bau5.projectbench.client.TileEntityProjectBench;
+import com.bau5.projectbench.common.OreDictRecipeHelper;
 import com.bau5.projectbench.common.PlanHelper;
+import com.bau5.projectbench.common.TileEntityProjectBench;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.SlotCrafting;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.util.EnumFacing;
@@ -14,6 +16,9 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.oredict.OreDictionary;
+import scala.reflect.internal.Trees;
+
+import java.util.ArrayList;
 
 /**
  * Created by bau5 on 4/16/2015.
@@ -40,11 +45,18 @@ public class SlotModifiedCrafting extends SlotCrafting {
                 copy.setInventorySlotContents(i, stack);
             }
             ItemStack[] components = PlanHelper.getComponentsForPlan(theTile.getPlan());
+            LocalInventoryCrafting crafting = new LocalInventoryCrafting();
+            crafting.setInventoryContents(components);
+            theTile.findMatchingRecipe(crafting, playerIn.worldObj);
+            if(!theTile.getCurrentRecipe().getRecipeOutput().getIsItemStackEqual(PlanHelper.getPlanResult(theTile.getPlan())))
+                return false;
             if(components != null) {
                 boolean complete = true;
+                int indexInRecipe = -1;
                 for(ItemStack piece : components){
                     if(piece == null)
                         continue;
+                    indexInRecipe++;
                     if(FluidContainerRegistry.isContainer(piece) && theTile.getFluidInTank() != null && theTile.getFluidInTank().isFluidEqual(piece)){
                         FluidStack fstack = FluidContainerRegistry.getFluidForFilledItem(piece);
                         if(fstack.amount <= theTile.getFluidInTank().amount){
@@ -52,11 +64,25 @@ public class SlotModifiedCrafting extends SlotCrafting {
                         }
                     }
                     if(piece.stackSize > 0) {
+                        ArrayList<ItemStack> alts = new ArrayList<ItemStack>();
+                        boolean useOreDict = OreDictRecipeHelper.getIsOreDictAndFill(theTile.getCurrentRecipe(), indexInRecipe, piece, alts);
                         for (int i = 0; i < copy.getSizeInventory(); i++) {
                             ItemStack stackInCopy = copy.getStackInSlot(i);
                             if (stackInCopy == null)
                                 continue;
-                            if (OreDictionary.itemMatches(piece, stackInCopy, false)
+                            if(useOreDict){
+                                boolean breakFlag = false;
+                                for(ItemStack alternativeStack : alts){
+                                    if(OreDictionary.itemMatches(alternativeStack, stackInCopy, false)){
+                                        copy.decrStackSize(i, 1);
+                                        piece.stackSize--;
+                                        breakFlag = true;
+                                        break;
+                                    }
+                                }
+                                if(breakFlag)
+                                    break;
+                            }else if (OreDictionary.itemMatches(piece, stackInCopy, false)
                                     || (OreDictionary.getOreIDs(piece).length == 0 && stackInCopy.getItem().equals(piece.getItem()))) {
                                 copy.decrStackSize(i, 1);
                                 piece.stackSize--;
@@ -104,10 +130,12 @@ public class SlotModifiedCrafting extends SlotCrafting {
             ItemStack[] containerItems = CraftingManager.getInstance().func_180303_b(temp, playerIn.worldObj);
             ForgeHooks.setCraftingPlayer(null);
             //Consume all items in grid
+            int indexInCrafting = -1;
             for(int craftingInv = 0; craftingInv < components.length; craftingInv++){
                 ItemStack piece = temp.getStackInSlot(craftingInv);
                 if(piece == null)
                     continue;
+                indexInCrafting++;
                 if(FluidContainerRegistry.isContainer(piece) && theTile.getFluidInTank() != null && theTile.getFluidInTank().isFluidEqual(piece)){
                     FluidStack fstack = FluidContainerRegistry.getFluidForFilledItem(piece);
                     if(fstack.amount <= theTile.getFluidInTank().amount){
@@ -119,11 +147,25 @@ public class SlotModifiedCrafting extends SlotCrafting {
                         continue;
                     }
                 }
+                ArrayList<ItemStack> alts = new ArrayList<ItemStack>();
+                boolean useOreDict = OreDictRecipeHelper.getIsOreDictAndFill(theTile.getCurrentRecipe(), indexInCrafting, piece, alts);
                 for(int i = provider.getSupplyStart(); i < provider.getSupplyStop(); i++){
                     ItemStack stackInInventory = provider.getStackFromSupplier(i);
                     if(stackInInventory == null)
                         continue;
-                    if(OreDictionary.itemMatches(piece, stackInInventory, false)
+                    if(useOreDict){
+                        boolean breakFlag = false;
+                        for(ItemStack alternativeStack : alts){
+                            if(OreDictionary.itemMatches(alternativeStack, stackInInventory, false)){
+                                theTile.decrStackSize(i, 1);
+                                temp.decrStackSize(craftingInv, 1);
+                                breakFlag = true;
+                                break;
+                            }
+                        }
+                        if(breakFlag)
+                            break;
+                    }else if(OreDictionary.itemMatches(piece, stackInInventory, false)
                             || (OreDictionary.getOreIDs(piece).length == 0 && piece.getItem().equals(stackInInventory.getItem()))){
                         theTile.decrStackSize(i, 1);
                         temp.decrStackSize(craftingInv, 1);
@@ -151,15 +193,51 @@ public class SlotModifiedCrafting extends SlotCrafting {
             ForgeHooks.setCraftingPlayer(playerIn);
             ItemStack[] containerItems = CraftingManager.getInstance().func_180303_b(theTile.getCrafter(), playerIn.worldObj);
             ForgeHooks.setCraftingPlayer(null);
+            int indexInRecipe = -1;
             for (int i = 0; i < containerItems.length; ++i) {
                 ItemStack stackInSlot = theTile.getStackInSlot(i);
                 ItemStack containerItem = containerItems[i];
                 boolean found = false;
                 if (stackInSlot != null) {
+                    ItemStack match = stackInSlot;
                     if (stackInSlot.stackSize == 1) {
+                        //Begin check for OreRecipe, set that up
+                        indexInRecipe++;
+                        ArrayList<ItemStack> alts = new ArrayList<ItemStack>();
+                        boolean useOreDict = OreDictRecipeHelper.getIsOreDictAndFill(theTile.getCurrentRecipe(), indexInRecipe, match, alts);
+
+//                        boolean useOreDict = false;
+//                        if(theTile.getCurrentRecipe() instanceof ShapedOreRecipe) {
+//                            Object[] inputList = ((ShapedOreRecipe) theTile.getCurrentRecipe()).getInput();
+//                            if (inputList[indexInRecipe] instanceof ItemStack) {
+//                                useOreDict = false;
+//                            }else {
+//                                int[] ids2 = OreDictionary.getOreIDs(match);
+//                                for (int id : ids2) {
+//                                    alts.addAll(OreDictionary.getOres(OreDictionary.getOreName(id)));
+//                                }
+//                                useOreDict = true;
+//                            }
+//                        }else if(theTile.getCurrentRecipe() instanceof ShapelessOreRecipe){
+//                            List<Object> inputList = ((ShapelessOreRecipe)theTile.getCurrentRecipe()).getInput();
+//                            if(inputList != null){
+//                                if(inputList.get(indexInRecipe) instanceof ItemStack){
+//                                    useOreDict = false;
+//                                }else{
+//                                    int[] ids2 = OreDictionary.getOreIDs(match);
+//                                    for(int id : ids2){
+//                                        alts.addAll(OreDictionary.getOres(OreDictionary.getOreName(id)));
+//                                    }
+//                                    useOreDict = true;
+//                                }
+//                            }
+//                        }
+                        //End Ore dict check
+                        //Begin Search for match
                         for (int supplyInv = provider.getSupplyStart(); supplyInv < provider.getSupplyStop(); supplyInv++) {
                             ItemStack supplyStack = provider.getStackFromSupplier(supplyInv);
-                            ItemStack match = stackInSlot;
+                            if(supplyStack == null)
+                                continue;
                             if (containerItem != null) {
                                 if(theTile.getHasFluidUpgrade() && theTile.getFluidInTank() != null ){
                                     FluidStack fromCrafting = FluidContainerRegistry.getFluidForFilledItem(stackInSlot);
@@ -179,13 +257,21 @@ public class SlotModifiedCrafting extends SlotCrafting {
                                     break;
                                 }
                             }
-                            if (provider.useOreDictionary()) {
-                                match = stackInSlot.copy();
-                                int[] ids = OreDictionary.getOreIDs(match);
-                                if (ids.length > 0)
-                                    match.setItemDamage(OreDictionary.WILDCARD_VALUE);
-                            }
-                            if (supplyStack != null && OreDictionary.itemMatches(match, supplyStack, false)) {
+                            if(supplyStack != null && useOreDict){  //Use ore dict if this item in the recipe does.
+                                for(ItemStack alternativeStack : alts){
+                                    if(OreDictionary.itemMatches(alternativeStack, supplyStack, !useOreDict)){
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if(!found){
+                                    found = OreDictionary.itemMatches(match, supplyStack, !useOreDict);
+                                }
+                                if(found){
+                                    theTile.decrStackSize(supplyInv, 1);
+                                    theTile.forceUpdateRecipe();
+                                }
+                            }else if (supplyStack != null && OreDictionary.itemMatches(match, supplyStack, useOreDict)) {
                                 theTile.decrStackSize(supplyInv, 1);
                                 found = true;
                                 theTile.forceUpdateRecipe();

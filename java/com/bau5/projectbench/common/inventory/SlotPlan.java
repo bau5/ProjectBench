@@ -1,6 +1,6 @@
 package com.bau5.projectbench.common.inventory;
 
-import com.bau5.projectbench.client.TileEntityProjectBench;
+import com.bau5.projectbench.common.TileEntityProjectBench;
 import com.bau5.projectbench.common.ProjectBench;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;

@@ -1,6 +1,5 @@
 package com.bau5.projectbench.common;
 
-import com.bau5.projectbench.client.TileEntityProjectBench;
 import com.bau5.projectbench.common.inventory.ContainerProjectBench;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
