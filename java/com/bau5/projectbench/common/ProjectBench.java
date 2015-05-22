@@ -3,6 +3,7 @@ package com.bau5.projectbench.common;
 import com.bau5.projectbench.common.item.ItemBlockProjectBench;
 import com.bau5.projectbench.common.item.ItemPlan;
 import com.bau5.projectbench.common.item.ItemUpgrade;
+import com.bau5.projectbench.common.utils.Config;
 import com.bau5.projectbench.common.utils.Reference;
 import com.bau5.projectbench.common.utils.VersionCheckEventHandler;
 import com.bau5.projectbench.common.utils.VersionChecker;
@@ -14,7 +15,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
@@ -39,16 +39,16 @@ public class ProjectBench{
     public static ProjectBench instance;
     public static SimpleNetworkWrapper network;
 
-    public static boolean VERSION_CHECK = true;
-
     public static Block projectBench;
     public static boolean tryOreDictionary = true;
     public static Item plan;
     public static Item upgrade;
 
+    public Config config;
+
     @Mod.EventHandler
     public void preinit(FMLPreInitializationEvent ev){
-        loadConfig(ev);
+        config = new Config(ev);
         registerItemsAndBlocks(ev);
         registerRecipes();
     }
@@ -64,7 +64,7 @@ public class ProjectBench{
     @Mod.EventHandler
     public void onPostInit(FMLPostInitializationEvent ev){
         if(ev.getSide() == Side.CLIENT){
-            if(VERSION_CHECK) {
+            if(Config.VERSION_CHECK) {
                 VersionChecker.go();
                 MinecraftForge.EVENT_BUS.register(new VersionCheckEventHandler());
             }else{
@@ -86,7 +86,6 @@ public class ProjectBench{
         GameRegistry.registerTileEntity(TileEntityProjectBench.class, "pb_te");
         GameRegistry.registerItem(plan, "plan");
         GameRegistry.registerItem(upgrade, "pb_upgrade");
-
     }
 
     private void registerRecipes(){
@@ -104,17 +103,5 @@ public class ProjectBench{
         CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1), new Object[]{
                 "SGS", "GBG", "SGS", 'S', "stone", 'G', "blockGlass", 'B', Items.bucket
         }));
-    }
-
-    private void loadConfig(FMLPreInitializationEvent ev){
-        Configuration config = new Configuration(ev.getSuggestedConfigurationFile());
-        try{
-            VERSION_CHECK = config.get(Configuration.CATEGORY_GENERAL, "Version Check", true, "Set to false to disable version checking at start up.").getBoolean(true);
-        }catch(Exception ex){
-            FMLLog.info("[Project Bench] Failed loading configuration file.");
-            ex.printStackTrace();
-        }finally{
-            config.save();
-        }
     }
 }

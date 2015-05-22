@@ -41,7 +41,7 @@ public class GuiProjectBench extends GuiContainer {
     public void initGui() {
         super.initGui();
         buttonList.add(new Button(0, guiLeft + 10, guiTop + 56, "v"));
-        buttonList.add(new Button(1, guiLeft + 10, guiTop + 20));
+        buttonList.add(new Button(1, guiLeft + 11, guiTop + 20));
     }
 
     @Override

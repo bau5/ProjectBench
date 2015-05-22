@@ -5,7 +5,7 @@ package com.bau5.projectbench.common.utils;
  */
 public class Reference {
     public static final String MOD_ID  = "projectbench";
-    public static final String VERSION = "0.4.2";
+    public static final String VERSION = "0.4.3";
     public static final String NAME    = "Project Bench";
 
     public static final String PROXY_SERVER = "com.bau5.projectbench.common.CommonProxy";
