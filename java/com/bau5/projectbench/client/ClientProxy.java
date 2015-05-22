@@ -3,6 +3,7 @@ package com.bau5.projectbench.client;
 import com.bau5.projectbench.common.CommonProxy;
 import com.bau5.projectbench.common.ProjectBench;
 import com.bau5.projectbench.common.TileEntityProjectBench;
+import com.bau5.projectbench.common.utils.Reference;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -26,22 +27,23 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void registerRenderingInformation() {
+        String inv = "inventory";
         Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
                 Item.getItemFromBlock(ProjectBench.projectBench), 0,
-                new ModelResourceLocation(ProjectBench.MOD_ID + ":pb_block", "inventory"));
+                new ModelResourceLocation(Reference.MOD_ID + ":pb_block", inv));
         Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
                 ProjectBench.plan, 1,
-                new ModelResourceLocation(ProjectBench.MOD_ID + ":planused", "inventory"));
+                new ModelResourceLocation(Reference.MOD_ID + ":planused", inv));
         Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
                 ProjectBench.plan, 0,
-                new ModelResourceLocation(ProjectBench.MOD_ID + ":plan", "inventory"));
+                new ModelResourceLocation(Reference.MOD_ID + ":plan", inv));
 
         Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
                 ProjectBench.upgrade, 0,
-                new ModelResourceLocation(ProjectBench.MOD_ID + ":upgrade_pb", "inventory"));
+                new ModelResourceLocation(Reference.MOD_ID + ":upgrade_pb", inv));
         Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
                 ProjectBench.upgrade, 1,
-                new ModelResourceLocation(ProjectBench.MOD_ID + ":upgrade_fluid", "inventory"));
+                new ModelResourceLocation(Reference.MOD_ID + ":upgrade_fluid", inv));
 
         ModelBakery.addVariantName(ProjectBench.plan, "projectbench:plan", "projectbench:planused");
         ModelBakery.addVariantName(ProjectBench.upgrade, "projectbench:upgrade_pb", "projectbench:upgrade_fluid");

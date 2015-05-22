@@ -4,6 +4,7 @@ import com.bau5.projectbench.common.inventory.CraftingItemsProvider;
 import com.bau5.projectbench.common.inventory.LocalInventoryCrafting;
 import com.bau5.projectbench.common.upgrades.FluidUpgrade;
 import com.bau5.projectbench.common.upgrades.IUpgrade;
+import com.bau5.projectbench.common.utils.PlanHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
@@ -25,11 +26,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.*;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import org.lwjgl.Sys;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by bau5 on 4/15/2015.
@@ -98,8 +96,8 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
 
     public ItemStack getPlanResult(){
         ItemStack plan = getPlan();
-        if(plan != null && plan.hasTagCompound() && plan.getTagCompound().hasKey("Result")){
-            ItemStack result = ItemStack.loadItemStackFromNBT(plan.getTagCompound().getCompoundTag("Result"));
+        if(plan != null){
+            ItemStack result = PlanHelper.getPlanResult(plan);
             if(result != null)
                 usingPlan = true;
             return result;
@@ -122,32 +120,7 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
         for (int i = 0; i < 9; i++) {
             crafter.setInventorySlotContents(i, inventory[i]);
         }
-//        ItemStack result = CraftingManager.getInstance().findMatchingRecipe(crafter, worldObj);
         ItemStack result = findMatchingRecipe(crafter, worldObj);
-        if (result != null && ProjectBench.tryOreDictionary) {
-            System.out.println("Result: " +result);
-            IRecipe using = currentRecipe;
-            if (using instanceof ShapedOreRecipe || using instanceof ShapelessOreRecipe) {
-                supplier.supplyOreDictItems(true);
-                if (using instanceof ShapedOreRecipe){
-                    ShapedOreRecipe rec = (ShapedOreRecipe)using;
-                    Object[] input = rec.getInput();
-                    System.out.println(" Pieces (shaped):");
-                    for(Object obj : input){
-                        System.out.println("  " +obj);
-                    }
-                }else{
-                    ShapelessOreRecipe rec = (ShapelessOreRecipe)using;
-                    ArrayList<Object> input = rec.getInput();
-                    System.out.println(" Pieces (shapeless):");
-                    for(Object obj : input){
-                        System.out.println("  " +obj);
-                    }
-                }
-            } else {
-                supplier.supplyOreDictItems(false);
-            }
-        }
         if(result == null)
             currentRecipe = null;
         setResult(result);
@@ -470,7 +443,6 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
 
     @Override
     public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain) {
-        System.out.println("Drain");
         if(!getHasFluidUpgrade())
             return null;
         if(resource.isFluidEqual(getFluidInTank())){

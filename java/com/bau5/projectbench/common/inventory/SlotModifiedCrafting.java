@@ -1,13 +1,12 @@
 package com.bau5.projectbench.common.inventory;
 
-import com.bau5.projectbench.common.OreDictRecipeHelper;
-import com.bau5.projectbench.common.PlanHelper;
 import com.bau5.projectbench.common.TileEntityProjectBench;
+import com.bau5.projectbench.common.utils.OreDictRecipeHelper;
+import com.bau5.projectbench.common.utils.PlanHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.SlotCrafting;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.util.EnumFacing;
@@ -16,7 +15,6 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.oredict.OreDictionary;
-import scala.reflect.internal.Trees;
 
 import java.util.ArrayList;
 
@@ -111,7 +109,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
             //Set plan recipe to temporary matrix
             LocalInventoryCrafting temp = new LocalInventoryCrafting();
             temp.setInventoryContents(components);
-            //Find any items that will take damage instead of being "consumed"
+            //Find any item that will take damage instead of being "consumed"
             for(int craftingInv = 0; craftingInv < temp.getSizeInventory(); craftingInv++){
                 ItemStack craftingStacks = temp.getStackInSlot(craftingInv);
                 if(craftingStacks != null){
@@ -129,7 +127,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
             ForgeHooks.setCraftingPlayer(playerIn);
             ItemStack[] containerItems = CraftingManager.getInstance().func_180303_b(temp, playerIn.worldObj);
             ForgeHooks.setCraftingPlayer(null);
-            //Consume all items in grid
+            //Consume all item in grid
             int indexInCrafting = -1;
             for(int craftingInv = 0; craftingInv < components.length; craftingInv++){
                 ItemStack piece = temp.getStackInSlot(craftingInv);
@@ -173,7 +171,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
                     }
                 }
             }
-            //Find any items left over in the grid (will only be items that take damage, instead of leaving).
+            //Find any item left over in the grid (will only be item that take damage, instead of leaving).
             //Add them back to the inventory.
             for(int i = 0; i < temp.getSizeInventory(); i++){
                 ItemStack leftOver = containerItems[i];
@@ -299,6 +297,5 @@ public class SlotModifiedCrafting extends SlotCrafting {
             }
         }
         theTile.forceUpdateRecipe();
-        provider.supplyOreDictItems(false);
     }
 }

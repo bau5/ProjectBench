@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 public class CraftingItemsProvider {
     private int supplyStart;
     private int supplyStop;
-    private boolean useOreDict = false;
     private IInventory provider;
 
     public CraftingItemsProvider(IInventory inv, int first, int last){
@@ -29,13 +28,5 @@ public class CraftingItemsProvider {
     public ItemStack getStackFromSupplier(int supplyInv) {
         ItemStack stack = provider.getStackInSlot(supplyInv);
         return stack;
-    }
-
-    public void supplyOreDictItems(boolean should) {
-        useOreDict = should;
-    }
-
-    public boolean useOreDictionary() {
-        return useOreDict;
     }
 }
