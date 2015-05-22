@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties version="1.0">  
-  <entry key = "0.4.2"> Added version checking.</entry>
+  <entry key = "0.4.2">Added version checking.</entry>
+  <entry key = "1.4.2">This is just a test.</entry>
 </properties>
