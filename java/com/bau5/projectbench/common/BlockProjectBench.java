@@ -86,7 +86,7 @@ public class BlockProjectBench extends BlockContainer {
                 }else{
                     if(!worldIn.isRemote) {
                         String message = "" + EnumChatFormatting.GRAY;
-                        if (tile.getFluidInTank().amount > 16000) {
+                        if (tile.getFluidInTank().amount >= 16000) {
                             message += "Tank is full.";
                         } else {
                             message += "Cannot accept this fluid.";
