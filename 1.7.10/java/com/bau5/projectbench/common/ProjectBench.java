@@ -103,8 +103,8 @@ public class ProjectBench{
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1), new Object[]{
                 "SGS", "GBG", "SGS", 'S', "stone", 'G', "blockGlass", 'B', Items.bucket
         }));
-        GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.mossy_cobblestone, 1, 0),
+        /*GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.mossy_cobblestone, 1, 0),
                 new ItemStack(Items.water_bucket, 1, 0), new ItemStack(Blocks.cobblestone)
-        ));
+        ));*/
     }
 }

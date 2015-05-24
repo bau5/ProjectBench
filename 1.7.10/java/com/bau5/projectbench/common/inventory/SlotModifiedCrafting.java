@@ -10,7 +10,6 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
@@ -186,14 +185,9 @@ public class SlotModifiedCrafting extends SlotCrafting {
             }
         }else {
             FMLCommonHandler.instance().firePlayerCraftingEvent(playerIn, stack, theTile.getCrafter());
-//            ForgeHooks.setCraftingPlayer(playerIn);
-//            ItemStack[] containerItems = CraftingManager.getInstance().func_180303_b(theTile.getCrafter(), playerIn.worldObj);
-//            ForgeHooks.setCraftingPlayer(null);
             int indexInRecipe = -1;
-//            for (int i = 0; i < containerItems.length; ++i) {
             for(int i = 0; i < 9; i++){
                 ItemStack stackInSlot = theTile.getStackInSlot(i);
-//                ItemStack containerItem = containerItems[i];
                 boolean found = false;
                 if (stackInSlot != null) {
                     ItemStack match = stackInSlot;
@@ -204,8 +198,8 @@ public class SlotModifiedCrafting extends SlotCrafting {
                             FluidStack fromTank = theTile.getFluidInTank();
                             if(fromCrafting != null && fromTank.amount > 0 && fromTank.isFluidEqual(fromCrafting)){
                                 theTile.drain(ForgeDirection.UP, fromCrafting.amount, true);
+                                found = true;
                             }
-                            found = true;
                         }
                         //Begin check for OreRecipe, set that up
                         indexInRecipe++;

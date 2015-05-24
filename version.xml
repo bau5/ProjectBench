@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties version="1.0">  
-  <entry key = "Minecraft 1.8">0.4.2|minor</entry>
+  <entry key = "Minecraft 1.8">0.5.0|major</entry>
   <entry key = "Minecraft 1.7.10">0.5.0|major</entry>
 </properties>
