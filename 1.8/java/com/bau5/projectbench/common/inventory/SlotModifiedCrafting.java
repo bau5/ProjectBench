@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -171,6 +172,9 @@ public class SlotModifiedCrafting extends SlotCrafting {
                             if (OreDictionary.itemMatches(alternativeStack, stackInInventory, false)) {
                                 theTile.decrStackSize(i, 1);
                                 temp.decrStackSize(craftingInv, 1);
+                                if(FluidContainerRegistry.isContainer(piece)){
+                                    temp.setInventorySlotContents(craftingInv, FluidContainerRegistry.drainFluidContainer(piece.copy()));
+                                }
                                 breakFlag = true;
                                 break;
                             }
@@ -180,6 +184,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
                     }else if(OreDictionary.itemMatches(piece, stackInInventory, false)){
                         theTile.decrStackSize(i, 1);
                         temp.decrStackSize(craftingInv, 1);
+                        break;
                     }
                 }
             }
