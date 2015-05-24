@@ -2,4 +2,6 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties version="1.0">  
   <entry key = "0.4.2">Added version checking.</entry>
+	<entry key = "1.8|0.5">Back ported to 1.7.10. More config options.</entry>
+	<entry key = "1.7.10|0.5">Initial 1.7.10 version.</entry>
 </properties>
