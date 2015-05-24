@@ -33,6 +33,8 @@ import java.util.Iterator;
  * Created by bau5 on 4/15/2015.
  */
 public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerListBox, IInventory, IFluidHandler{
+    private int fluidUpdateTick = 0;
+
     private FluidTank fluidTank = new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 16);
 
     private ItemStack result;
@@ -49,6 +51,7 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
     private CraftingItemsProvider supplier = new CraftingItemsProvider(this, 9, 27);
 
     private boolean shouldUpdateRecipe = false;
+    private boolean shouldSendNetworkUpdate = false;
 
     private void checkAndMarkForRecipeUpdate(int index){
         if((index >= 0 && index < 9) || index == planIndex)
@@ -74,16 +77,26 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
             if(getResult() == null && craftingMatrixIsEmpty()){
                 setResult(getPlanResult());
             }
+            worldObj.markBlockForUpdate(this.getPos());
             shouldUpdateRecipe = false;
+        }
+        if(++fluidUpdateTick >= 20 && sendNetworkUpdate()){
+            worldObj.markBlockForUpdate(this.getPos());
+            shouldSendNetworkUpdate = false;
+            fluidUpdateTick = 0;
         }
     }
 
+    private boolean sendNetworkUpdate() {
+        return shouldSendNetworkUpdate;
+    }
 
     public void performUpgrade(ItemStack upgradeItem) {
         switch(upgradeItem.getMetadata()){
             case 1: upgrade = new FluidUpgrade();
                 break;
         }
+        shouldSendNetworkUpdate = true;
     }
 
     public IUpgrade getUpgrade(){
@@ -436,18 +449,20 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
 
     @Override
     public int fill(EnumFacing from, FluidStack resource, boolean doFill) {
-        if(!getHasFluidUpgrade())
+        if(!getHasFluidUpgrade()|| !canFill(from, resource.getFluid()))
             return 0;
+        shouldSendNetworkUpdate = true;
         return fluidTank.fill(resource, doFill);
     }
 
     @Override
     public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain) {
-        if(!getHasFluidUpgrade())
+        if(!getHasFluidUpgrade() && fluidTank.getFluidAmount() > 0)
             return null;
         if(resource.isFluidEqual(getFluidInTank())){
             drain(from, resource.amount, doDrain);
         }
+        shouldSendNetworkUpdate = true;
         return null;
     }
 
@@ -455,6 +470,7 @@ public class TileEntityProjectBench extends TileEntity implements IUpdatePlayerL
     public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain) {
         if(!getHasFluidUpgrade())
             return null;
+        shouldSendNetworkUpdate = true;
         return fluidTank.drain(maxDrain, doDrain);
     }
 

@@ -83,7 +83,7 @@ public class VersionChecker implements Runnable{
             URL remoteChangesURL = new URL(changesURL);
             remoteChangesStream = remoteChangesURL.openStream();
             changesProperties.loadFromXML(remoteChangesStream);
-            String changesFromRemote = changesProperties.getProperty(Reference.REMOTE_VERSION);
+            String changesFromRemote = changesProperties.getProperty(Loader.MC_VERSION +"-" +Reference.REMOTE_VERSION);
             if(changesFromRemote != null){
                 FMLLog.info("[Project Bench] Latest Changes: " + changesFromRemote);
                 Reference.CHANGES = changesFromRemote;

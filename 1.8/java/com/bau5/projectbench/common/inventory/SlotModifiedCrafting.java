@@ -6,6 +6,7 @@ import com.bau5.projectbench.common.utils.PlanHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -46,7 +47,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
             LocalInventoryCrafting crafting = new LocalInventoryCrafting();
             crafting.setInventoryContents(components);
             theTile.findMatchingRecipe(crafting, playerIn.worldObj);
-            if(!theTile.getCurrentRecipe().getRecipeOutput().getIsItemStackEqual(PlanHelper.getPlanResult(theTile.getPlan())))
+            if(theTile.getCurrentRecipe() != null && !theTile.getCurrentRecipe().getRecipeOutput().getIsItemStackEqual(PlanHelper.getPlanResult(theTile.getPlan())))
                 return false;
             if(components != null) {
                 boolean complete = true;
@@ -100,6 +101,27 @@ public class SlotModifiedCrafting extends SlotCrafting {
         return super.canTakeStack(playerIn);
     }
 
+    private ItemStack[] fireCraftingEvents(EntityPlayer playerIn, ItemStack stack, InventoryCrafting inv){
+        FMLCommonHandler.instance().firePlayerCraftingEvent(playerIn, stack, inv);
+        ForgeHooks.setCraftingPlayer(playerIn);
+        ItemStack[] containerItems = CraftingManager.getInstance().func_180303_b(inv, playerIn.worldObj);
+        ForgeHooks.setCraftingPlayer(null);
+        return containerItems;
+    }
+
+    private boolean isFluid(ItemStack container){
+        return FluidContainerRegistry.isContainer(container) && theTile.getFluidInTank() != null
+                && theTile.getFluidInTank().isFluidEqual(container);
+    }
+
+    private boolean isDamagedInCrafting(ItemStack piece){
+        return piece.stackSize > 1 && piece.getMaxDamage() > 0;
+    }
+
+    private boolean itemEquals(ItemStack stack1, ItemStack stack2){
+        return stack1.getItem().equals(stack2.getItem());
+    }
+
     @Override
     public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack) {
         this.onCrafting(stack);
@@ -109,24 +131,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
             //Set plan recipe to temporary matrix
             LocalInventoryCrafting temp = new LocalInventoryCrafting();
             temp.setInventoryContents(components);
-            //Find any item that will take damage instead of being "consumed"
-            for(int craftingInv = 0; craftingInv < temp.getSizeInventory(); craftingInv++){
-                ItemStack craftingStacks = temp.getStackInSlot(craftingInv);
-                if(craftingStacks != null){
-                    for(int providerInv = provider.getSupplyStart(); providerInv < provider.getSupplyStop(); providerInv++){
-                        ItemStack providerStack = provider.getStackFromSupplier(providerInv);
-                        if(providerStack != null && (!FluidContainerRegistry.isFilledContainer(providerStack)
-                                && OreDictionary.getOreIDs(craftingStacks).length == 0 && craftingStacks.getItem().equals(providerStack.getItem()))){
-                            temp.setInventorySlotContents(craftingInv, providerStack);  //Set the temp matrix with the actual item that will be used, preservers damage value
-                            break;
-                        }
-                    }
-                }
-            }
-            FMLCommonHandler.instance().firePlayerCraftingEvent(playerIn, stack, temp);
-            ForgeHooks.setCraftingPlayer(playerIn);
-            ItemStack[] containerItems = CraftingManager.getInstance().func_180303_b(temp, playerIn.worldObj);
-            ForgeHooks.setCraftingPlayer(null);
+            ItemStack[] containerItems = fireCraftingEvents(playerIn, stack, temp);
             //Consume all item in grid
             int indexInCrafting = -1;
             for(int craftingInv = 0; craftingInv < components.length; craftingInv++){
@@ -134,7 +139,8 @@ public class SlotModifiedCrafting extends SlotCrafting {
                 if(piece == null)
                     continue;
                 indexInCrafting++;
-                if(FluidContainerRegistry.isContainer(piece) && theTile.getFluidInTank() != null && theTile.getFluidInTank().isFluidEqual(piece)){
+                //Try first to use the tank, if it's a fluid component
+                if(isFluid(piece)){
                     FluidStack fstack = FluidContainerRegistry.getFluidForFilledItem(piece);
                     if(fstack.amount <= theTile.getFluidInTank().amount){
                         theTile.drain(EnumFacing.UP, fstack.amount, true);
@@ -151,23 +157,29 @@ public class SlotModifiedCrafting extends SlotCrafting {
                     ItemStack stackInInventory = provider.getStackFromSupplier(i);
                     if(stackInInventory == null)
                         continue;
-                    if(useOreDict){
+                    if(itemEquals(piece, stackInInventory) && isDamagedInCrafting(piece)){      //Item that takes damage and is duplicated in crafting grid.
+                        if(piece.getItemDamage() > 1){                                          //Old plans didn't handle this correctly, set damage to one for correct damaging.
+                            piece.setItemDamage(1);
+                        }
+                        stackInInventory.setItemDamage(stackInInventory.getItemDamage() + piece.getItemDamage());
+                        temp.decrStackSize(craftingInv, piece.stackSize);                       //The second item is copied back to the tile inventory later.
+                        break;
+                    }
+                    if(useOreDict) {
                         boolean breakFlag = false;
-                        for(ItemStack alternativeStack : alts){
-                            if(OreDictionary.itemMatches(alternativeStack, stackInInventory, false)){
+                        for (ItemStack alternativeStack : alts) {
+                            if (OreDictionary.itemMatches(alternativeStack, stackInInventory, false)) {
                                 theTile.decrStackSize(i, 1);
                                 temp.decrStackSize(craftingInv, 1);
                                 breakFlag = true;
                                 break;
                             }
                         }
-                        if(breakFlag)
+                        if (breakFlag)
                             break;
-                    }else if(OreDictionary.itemMatches(piece, stackInInventory, false)
-                            || (OreDictionary.getOreIDs(piece).length == 0 && piece.getItem().equals(stackInInventory.getItem()))){
+                    }else if(OreDictionary.itemMatches(piece, stackInInventory, false)){
                         theTile.decrStackSize(i, 1);
                         temp.decrStackSize(craftingInv, 1);
-                        break;
                     }
                 }
             }
@@ -187,10 +199,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
                 }
             }
         }else {
-            FMLCommonHandler.instance().firePlayerCraftingEvent(playerIn, stack, theTile.getCrafter());
-            ForgeHooks.setCraftingPlayer(playerIn);
-            ItemStack[] containerItems = CraftingManager.getInstance().func_180303_b(theTile.getCrafter(), playerIn.worldObj);
-            ForgeHooks.setCraftingPlayer(null);
+            ItemStack[] containerItems = fireCraftingEvents(playerIn, stack, theTile.getCrafter());
             int indexInRecipe = -1;
             for (int i = 0; i < containerItems.length; ++i) {
                 ItemStack stackInSlot = theTile.getStackInSlot(i);
@@ -203,33 +212,6 @@ public class SlotModifiedCrafting extends SlotCrafting {
                         indexInRecipe++;
                         ArrayList<ItemStack> alts = new ArrayList<ItemStack>();
                         boolean useOreDict = OreDictRecipeHelper.getIsOreDictAndFill(theTile.getCurrentRecipe(), indexInRecipe, match, alts);
-
-//                        boolean useOreDict = false;
-//                        if(theTile.getCurrentRecipe() instanceof ShapedOreRecipe) {
-//                            Object[] inputList = ((ShapedOreRecipe) theTile.getCurrentRecipe()).getInput();
-//                            if (inputList[indexInRecipe] instanceof ItemStack) {
-//                                useOreDict = false;
-//                            }else {
-//                                int[] ids2 = OreDictionary.getOreIDs(match);
-//                                for (int id : ids2) {
-//                                    alts.addAll(OreDictionary.getOres(OreDictionary.getOreName(id)));
-//                                }
-//                                useOreDict = true;
-//                            }
-//                        }else if(theTile.getCurrentRecipe() instanceof ShapelessOreRecipe){
-//                            List<Object> inputList = ((ShapelessOreRecipe)theTile.getCurrentRecipe()).getInput();
-//                            if(inputList != null){
-//                                if(inputList.get(indexInRecipe) instanceof ItemStack){
-//                                    useOreDict = false;
-//                                }else{
-//                                    int[] ids2 = OreDictionary.getOreIDs(match);
-//                                    for(int id : ids2){
-//                                        alts.addAll(OreDictionary.getOres(OreDictionary.getOreName(id)));
-//                                    }
-//                                    useOreDict = true;
-//                                }
-//                            }
-//                        }
                         //End Ore dict check
                         //Begin Search for match
                         for (int supplyInv = provider.getSupplyStart(); supplyInv < provider.getSupplyStop(); supplyInv++) {
@@ -242,8 +224,8 @@ public class SlotModifiedCrafting extends SlotCrafting {
                                     FluidStack fromTank = theTile.getFluidInTank();
                                     if(fromCrafting != null && fromTank.amount > 0 && fromTank.isFluidEqual(fromCrafting)){
                                         theTile.drain(EnumFacing.UP, fromCrafting.amount, true);
+                                        found = true;
                                     }
-                                    found = true;
                                     break;
                                 }
                                 if (!found && ItemStack.areItemsEqual(stackInSlot, supplyStack)) {
