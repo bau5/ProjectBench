@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import org.lwjgl.opengl.GL11;
 
+
 /**
  * Created by bau5 on 4/15/2015.
  */
@@ -24,14 +25,14 @@ public class ProjectBenchRenderer extends TileEntitySpecialRenderer {
     private static double bounce_speed = Config.BOUNCE_SPEED;
     private static double render_height = Config.RENDER_HEIGHT;
 
-    public ProjectBenchRenderer(){
+    public ProjectBenchRenderer() {
         renderItems = Minecraft.getMinecraft().getRenderItem();
     }
 
     @Override
     public void renderTileEntityAt(TileEntity p_180535_1_, double posX, double posZ, double p_180535_6_, float p_180535_8_, int p_180535_9_) {
-        TileEntityProjectBench tile = (TileEntityProjectBench)p_180535_1_;
-        if(render && tile.getResult() != null) {
+        TileEntityProjectBench tile = (TileEntityProjectBench) p_180535_1_;
+        if (render && tile.getResult() != null) {
             GL11.glPushMatrix();
             GL11.glEnable(32826);
             float light = tile.getWorld().getLightFromNeighbors(tile.getPos().add(0, 1, 0));
@@ -43,10 +44,12 @@ public class ProjectBenchRenderer extends TileEntitySpecialRenderer {
 
             GL11.glScalef(0.4F, 0.4F, 0.4F);
             GL11.glTranslated(0, render_height, 0);
-            if(spin)
-                GL11.glRotatef(rotation / (float)Config.ROTATION_SPEED, 0F, 1.0F, 0F);
-            if(bounce)
-                GL11.glTranslatef(0.0F, (float)((.1*bounce_height) * Math.sin((double)rotation/(300 * bounce_speed))), 0.0F);
+            if (spin) {
+                GL11.glRotatef(rotation / (float) Config.ROTATION_SPEED, 0F, 1.0F, 0F);
+            }
+            if (bounce) {
+                GL11.glTranslatef(0.0F, (float) ((.1 * bounce_height) * Math.sin((double) rotation / (300 * bounce_speed))), 0.0F);
+            }
             renderItems.renderItemModel(tile.getResult());
             GL11.glPopMatrix();
         }

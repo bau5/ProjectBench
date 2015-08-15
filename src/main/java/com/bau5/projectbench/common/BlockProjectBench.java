@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
+
 /**
  * Created by bau5 on 4/15/2015.
  */
@@ -45,46 +46,48 @@ public class BlockProjectBench extends BlockContainer {
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ) {
-        if(playerIn.isSneaking())
+        if (playerIn.isSneaking()) {
             return false;
-        if(worldIn.getTileEntity(pos) == null || !(worldIn.getTileEntity(pos) instanceof TileEntityProjectBench))
+        }
+        if (worldIn.getTileEntity(pos) == null || ! (worldIn.getTileEntity(pos) instanceof TileEntityProjectBench)) {
             return false;
+        }
         TileEntityProjectBench tile = (TileEntityProjectBench) worldIn.getTileEntity(pos);
         ItemStack held = playerIn.getHeldItem();
-        if(held != null && held.getItem() == ProjectBench.upgrade
-                && held.getMetadata() == 1 && tile.getCanAcceptUpgrade()){
+        if (held != null && held.getItem() == ProjectBench.upgrade
+                && held.getMetadata() == 1 && tile.getCanAcceptUpgrade()) {
             tile.performUpgrade(held);
             held.stackSize--;
             return true;
         }
         FluidStack fstack = FluidContainerRegistry.getFluidForFilledItem(held);
-        if(fstack != null){
-            if(tile.canFill(EnumFacing.UP, fstack.getFluid())){
-                if(tile.fill(EnumFacing.UP, fstack, true) > 0){
+        if (fstack != null) {
+            if (tile.canFill(EnumFacing.UP, fstack.getFluid())) {
+                if (tile.fill(EnumFacing.UP, fstack, true) > 0) {
                     FluidContainerRegistry.FluidContainerData data = null;
-                    for(FluidContainerRegistry.FluidContainerData container : FluidContainerRegistry.getRegisteredFluidContainerData()){
-                        if(container.filledContainer.getItem() == held.getItem()
-                                && (tile.getFluidInTank() == null || tile.getFluidInTank().isFluidEqual(container.fluid))){
+                    for (FluidContainerRegistry.FluidContainerData container : FluidContainerRegistry.getRegisteredFluidContainerData()) {
+                        if (container.filledContainer.getItem() == held.getItem()
+                                && (tile.getFluidInTank() == null || tile.getFluidInTank().isFluidEqual(container.fluid))) {
                             data = container;
                             break;
                         }
                     }
-                    if(!playerIn.capabilities.isCreativeMode){
+                    if (! playerIn.capabilities.isCreativeMode) {
                         held.stackSize -= 1;
-                        if(held.stackSize == 0){
+                        if (held.stackSize == 0) {
                             playerIn.setCurrentItemOrArmor(0, held);
                         }
-                        if(data.emptyContainer != null){
+                        if (data.emptyContainer != null) {
                             ItemStack containerCopy = data.emptyContainer.copy();
-                            if(containerCopy.stackSize == 0){
+                            if (containerCopy.stackSize == 0) {
                                 containerCopy.stackSize = 1;
                             }
                             playerIn.inventory.addItemStackToInventory(containerCopy);
                         }
                     }
                     return true;
-                }else{
-                    if(!worldIn.isRemote) {
+                } else {
+                    if (! worldIn.isRemote) {
                         String message = "" + EnumChatFormatting.GRAY;
                         if (tile.getFluidInTank().amount >= 16000) {
                             message += "Tank is full.";
@@ -97,29 +100,27 @@ public class BlockProjectBench extends BlockContainer {
                 }
             }
         }
-        if(!worldIn.isRemote){
+        if (! worldIn.isRemote) {
             playerIn.openGui(ProjectBench.instance, 0, worldIn, pos.getX(), pos.getY(), pos.getZ());
         }
         return true;
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
-    {
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
         TileEntity tileentity = worldIn.getTileEntity(pos);
 
-        if (tileentity instanceof IInventory)
-        {
+        if (tileentity instanceof IInventory) {
             InventoryHelper.dropInventoryItems(worldIn, pos, (IInventory) tileentity);
             worldIn.updateComparatorOutputLevel(pos, this);
         }
 
-        if(((TileEntityProjectBench)tileentity).getHasFluidUpgrade()){
+        if (((TileEntityProjectBench) tileentity).getHasFluidUpgrade()) {
             EntityItem entityitem = new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(ProjectBench.upgrade, 1, 1));
             float f3 = 0.05F;
-            entityitem.motionX = RANDOM.nextGaussian() * (double)f3;
-            entityitem.motionY = RANDOM.nextGaussian() * (double)f3 + 0.20000000298023224D;
-            entityitem.motionZ = RANDOM.nextGaussian() * (double)f3;
+            entityitem.motionX = RANDOM.nextGaussian() * (double) f3;
+            entityitem.motionY = RANDOM.nextGaussian() * (double) f3 + 0.20000000298023224D;
+            entityitem.motionZ = RANDOM.nextGaussian() * (double) f3;
             worldIn.spawnEntityInWorld(entityitem);
         }
 

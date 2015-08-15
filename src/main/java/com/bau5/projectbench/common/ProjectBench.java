@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
+
 @Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION)
 public class ProjectBench{
 
@@ -39,16 +40,15 @@ public class ProjectBench{
     public static ProjectBench instance;
     public static SimpleNetworkWrapper network;
 
-    public static Block projectBench;
-    public static boolean tryOreDictionary = true;
-    public static Item plan;
-    public static Item upgrade;
+    public final static Block projectBench = new BlockProjectBench();
+    public final static Item plan = new ItemPlan();
+    public final static Item upgrade  = new ItemUpgrade();
 
-    public Config config;
+    public final Config config = new Config();
 
     @Mod.EventHandler
-    public void preinit(FMLPreInitializationEvent ev){
-        config = new Config(ev);
+    public void preinit(FMLPreInitializationEvent ev) {
+        config.initConfigFile(ev);
         registerItemsAndBlocks(ev);
         registerRecipes();
     }
@@ -62,47 +62,46 @@ public class ProjectBench{
     }
 
     @Mod.EventHandler
-    public void onPostInit(FMLPostInitializationEvent ev){
-        if(ev.getSide() == Side.CLIENT){
-            if(Config.VERSION_CHECK) {
+    public void onPostInit(FMLPostInitializationEvent ev) {
+        if (ev.getSide() == Side.CLIENT) {
+            if (Config.VERSION_CHECK) {
                 VersionChecker.go();
                 MinecraftForge.EVENT_BUS.register(new VersionCheckEventHandler());
-            }else{
+            } else {
                 FMLLog.info("[Project Bench] Version checking disabled.");
             }
         }
         FMLLog.info("[Project Bench] Initialization complete. Fluids found:");
-        for(String name : FluidRegistry.getRegisteredFluids().keySet()){
+        for (String name : FluidRegistry.getRegisteredFluids().keySet()) {
             FMLLog.info("\t%s", name);
         }
         FMLLog.info("These fluids and their containers will be recognized by the Project Bench.");
     }
 
-    private void registerItemsAndBlocks(FMLPreInitializationEvent ev){
-        projectBench = new BlockProjectBench().setCreativeTab(CreativeTabs.tabDecorations);
-        plan = new ItemPlan().setCreativeTab(CreativeTabs.tabMisc);
-        upgrade = new ItemUpgrade().setCreativeTab(CreativeTabs.tabMisc);
+    private void registerItemsAndBlocks(FMLPreInitializationEvent ev) {
+        projectBench.setCreativeTab(CreativeTabs.tabDecorations);
+        plan.setCreativeTab(CreativeTabs.tabMisc);
+        upgrade.setCreativeTab(CreativeTabs.tabMisc);
         GameRegistry.registerBlock(projectBench, ItemBlockProjectBench.class, "pb_block");
         GameRegistry.registerTileEntity(TileEntityProjectBench.class, "pb_te");
         GameRegistry.registerItem(plan, "plan");
         GameRegistry.registerItem(upgrade, "pb_upgrade");
     }
 
-    private void registerRecipes(){
-        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(projectBench, 1, 0), new Object[]{
+    private void registerRecipes() {
+        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(projectBench, 1, 0),
                 " G ", "ICI", "WHW", 'G', "blockGlass", 'I', "ingotIron", 'C', Blocks.crafting_table,
                 'W', "plankWood", 'H', Blocks.chest
-        }));
-        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(plan, 8, 0), new Object[]{
+        ));
+        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(plan, 8, 0),
                 " PS", "PNP", "SP ", 'P', Items.paper, 'S', Items.stick, 'N', Items.gold_nugget
-        }));
-        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 0), new Object[]{
+        ));
+        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 0),
                 " G ", "I I", "WHW", 'G', "blockGlass", 'I', "ingotIron",
                 'W', "plankWood", 'H', Blocks.chest
-        }));
-        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1), new Object[]{
+        ));
+        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1),
                 "SGS", "GBG", "SGS", 'S', "stone", 'G', "blockGlass", 'B', Items.bucket
-        }));
-//        CraftingManager.getInstance().addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.mossy_cobblestone), new ItemStack(Blocks.cobblestone), new ItemStack(Items.water_bucket)));
+        ));
     }
 }

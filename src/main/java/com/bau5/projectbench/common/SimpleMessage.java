@@ -18,9 +18,9 @@ public class SimpleMessage implements IMessage {
     private int dim;
     private int x, y, z;
 
-    public SimpleMessage(){}
+    public SimpleMessage() {}
 
-    public SimpleMessage(int id, int dimension, BlockPos pos){
+    public SimpleMessage(int id, int dimension, BlockPos pos) {
         this.id = id;
         x = pos.getX();
         y = pos.getY();
@@ -46,12 +46,13 @@ public class SimpleMessage implements IMessage {
         buf.writeInt(dim);
     }
 
-    public static class Handler implements IMessageHandler<SimpleMessage, IMessage>{
+    public static class Handler implements IMessageHandler<SimpleMessage, IMessage> {
 
         @Override
         public IMessage onMessage(SimpleMessage message, MessageContext ctx) {
-            switch(message.id){
-                case 0: emptyCraftMatrix(ctx.getServerHandler().playerEntity);
+            switch (message.id) {
+                case 0:
+                    emptyCraftMatrix(ctx.getServerHandler().playerEntity);
                     break;
                 case 1:
                     TileEntityProjectBench tile = ((ContainerProjectBench) ctx.getServerHandler().playerEntity.openContainer).getTileEntity();
@@ -62,9 +63,10 @@ public class SimpleMessage implements IMessage {
         }
 
         private void emptyCraftMatrix(EntityPlayerMP thePlayer) {
-            if(!(thePlayer.openContainer instanceof ContainerProjectBench))
+            if (! (thePlayer.openContainer instanceof ContainerProjectBench)) {
                 return;
-            for(int i = 0; i < 9; i++) {
+            }
+            for (int i = 0; i < 9; i++) {
                 thePlayer.openContainer.transferStackInSlot(thePlayer, 37 + i);
             }
         }

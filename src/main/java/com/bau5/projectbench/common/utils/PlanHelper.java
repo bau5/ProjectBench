@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+
 /**
  * Created by bau5 on 5/15/2015.
  */
@@ -14,29 +15,31 @@ public class PlanHelper {
     public static final String result = "Result";
     public static final String title = "Plan";
 
-    public static ItemStack getPlanResult(ItemStack plan){
+    public static ItemStack getPlanResult(ItemStack plan) {
         ItemStack result = null;
-        if(plan == null || !plan.hasTagCompound() || !plan.getTagCompound().hasKey(PlanHelper.result)){
+        if (plan == null || ! plan.hasTagCompound() || ! plan.getTagCompound().hasKey(PlanHelper.result)) {
             return null;
         }
         result = ItemStack.loadItemStackFromNBT(plan.getTagCompound().getCompoundTag(PlanHelper.result));
         return result;
     }
 
-    public static ItemStack[] getComponentsForPlan(ItemStack plan){
-        if(plan == null || !plan.hasTagCompound())
+    public static ItemStack[] getComponentsForPlan(ItemStack plan) {
+        if (plan == null || ! plan.hasTagCompound()) {
             return null;
-        if(!plan.hasTagCompound())
+        }
+        if (! plan.hasTagCompound()) {
             return null;
+        }
         NBTTagList list = plan.getTagCompound().getTagList(PlanHelper.title, 10);
-        if(list == null || list.tagCount() == 0){
+        if (list == null || list.tagCount() == 0) {
             return null;
         }
         ItemStack[] stacks = new ItemStack[9];
-        for(int i = 0; i < list.tagCount(); i++){
+        for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound tag = list.getCompoundTagAt(i);
             int index = tag.getByte("Slot") & 255;
-            if(index >= 0  && index < 9) {
+            if (index >= 0 && index < 9) {
                 stacks[index] = ItemStack.loadItemStackFromNBT(tag);
             }
         }
@@ -45,21 +48,22 @@ public class PlanHelper {
 
     public static void writePlan(ItemStack plan, TileEntityProjectBench tile) {
         ItemStack planStack = tile.getStackInSlot(27);
-        if(tile.getResult() == null)
+        if (tile.getResult() == null) {
             return;
-        if(planStack != null && planStack.getItem().equals(ProjectBench.plan) && !planStack.hasTagCompound()){
+        }
+        if (planStack != null && planStack.getItem().equals(ProjectBench.plan) && ! planStack.hasTagCompound()) {
             NBTTagCompound stackTag = new NBTTagCompound();
             NBTTagList list = new NBTTagList();
-            for(int i = 0; i < 9; i++){
+            for (int i = 0; i < 9; i++) {
                 ItemStack component = tile.getStackInSlot(i);
-                if(component != null){
+                if (component != null) {
                     component = component.copy();
                     component.stackSize = 1;
-                    if(component.getMaxDamage() > 0 && component.getItemDamage() != 0){
+                    if (component.getMaxDamage() > 0 && component.getItemDamage() != 0) {
                         component.setItemDamage(0);
                     }
                     NBTTagCompound tag = new NBTTagCompound();
-                    tag.setByte("Slot", (byte)i);
+                    tag.setByte("Slot", (byte) i);
                     component.writeToNBT(tag);
                     list.appendTag(tag);
                 }

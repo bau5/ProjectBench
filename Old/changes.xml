@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
-<properties version="1.0">  
-  <entry key = "1.7.4">Fixed inventory wipe.</entry>
-  <entry key = "2.0dev14">Fixed recipes with 0 component stack sizes, letting you craft free things.</entry>
-</properties>

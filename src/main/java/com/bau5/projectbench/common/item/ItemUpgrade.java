@@ -14,16 +14,17 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
+
 /**
  * Created by bau5 on 5/18/2015.
  */
-public class ItemUpgrade extends Item{
+public class ItemUpgrade extends Item {
 
     public static final String[] names = {
             "Project Bench", "Fluid"
     };
 
-    public ItemUpgrade(){
+    public ItemUpgrade() {
         setMaxStackSize(4);
         setHasSubtypes(true);
         setUnlocalizedName("pb_upgrade");
@@ -32,13 +33,14 @@ public class ItemUpgrade extends Item{
     @Override
     public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
         IBlockState blockState = world.getBlockState(pos);
-        if(stack.getMetadata() == 0 && blockState != null && blockState.getBlock() == Blocks.crafting_table){
-            if(!world.isRemote) {
+        if (stack.getMetadata() == 0 && blockState != null && blockState.getBlock() == Blocks.crafting_table) {
+            if (! world.isRemote) {
                 IBlockState newState = ProjectBench.projectBench.getDefaultState();
                 world.setBlockState(pos, newState, 3);
                 newState.getBlock().onBlockAdded(world, pos, newState);
-                if(!player.capabilities.isCreativeMode)
+                if (! player.capabilities.isCreativeMode) {
                     player.getHeldItem().stackSize--;
+                }
                 return true;
             }
         }
@@ -47,17 +49,19 @@ public class ItemUpgrade extends Item{
 
     @Override
     public String getUnlocalizedName(ItemStack stack) {
-        return (super.getUnlocalizedName(stack) + "_" +names[stack.getMetadata()]).toLowerCase();
+        return (super.getUnlocalizedName(stack) + "_" + names[stack.getMetadata()]).toLowerCase();
     }
 
     @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List tooltip, boolean advanced) {
         super.addInformation(stack, playerIn, tooltip, advanced);
         String more = "" + EnumChatFormatting.GRAY;
-        switch(stack.getMetadata()){
-            case 0: more += "Used to upgrade crafting table to Project Bench.";
+        switch (stack.getMetadata()) {
+            case 0:
+                more += "Used to upgrade crafting table to Project Bench.";
                 break;
-            case 1: more += "Used to upgrade Project Bench to handle fluids.";
+            case 1:
+                more += "Used to upgrade Project Bench to handle fluids.";
                 break;
         }
         tooltip.add(more);
