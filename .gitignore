@@ -1,3 +1,13 @@
 .Trashes
 Thumbs.db
 .DS_Store
+.gradle/
+.idea/
+ProjectBench.iml
+ProjectBench.ipr
+ProjectBench.iws
+classes/
+eclipse/
+gradle/
+gradlew
+logs/
