@@ -5,10 +5,12 @@ import com.bau5.projectbench.common.TileEntityProjectBench;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+
 /**
  * Created by bau5 on 4/17/2015.
  */
 public class SlotPlan extends Slot {
+
     private TileEntityProjectBench theTile;
 
     public SlotPlan(TileEntityProjectBench tile, int id, int x, int y) {
@@ -23,7 +25,7 @@ public class SlotPlan extends Slot {
 
     @Override
     public ItemStack getStack() {
-        return theTile.getStackInSlot(theTile.getSizeInventory() -1);
+        return theTile.getStackInSlot(theTile.getSizeInventory() - 1);
     }
 
     @Override

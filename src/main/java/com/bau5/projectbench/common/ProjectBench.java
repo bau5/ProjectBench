@@ -26,13 +26,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
+
 
 @Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION)
-public class ProjectBench{
+public class ProjectBench {
 
     @SidedProxy(clientSide = Reference.PROXY_CLIENT,
-                serverSide = Reference.PROXY_SERVER)
+            serverSide = Reference.PROXY_SERVER)
     public static CommonProxy proxy;
 
     @Mod.Instance(Reference.MOD_ID)
@@ -47,7 +47,7 @@ public class ProjectBench{
     public Config config;
 
     @Mod.EventHandler
-    public void preinit(FMLPreInitializationEvent ev){
+    public void preinit(FMLPreInitializationEvent ev) {
         config = new Config(ev);
         registerItemsAndBlocks(ev);
         registerRecipes();
@@ -62,23 +62,23 @@ public class ProjectBench{
     }
 
     @Mod.EventHandler
-    public void onPostInit(FMLPostInitializationEvent ev){
-        if(ev.getSide() == Side.CLIENT){
-            if(Config.VERSION_CHECK) {
+    public void onPostInit(FMLPostInitializationEvent ev) {
+        if (ev.getSide() == Side.CLIENT) {
+            if (Config.VERSION_CHECK) {
                 VersionChecker.go();
                 MinecraftForge.EVENT_BUS.register(new VersionCheckEventHandler());
-            }else{
+            } else {
                 FMLLog.info("[Project Bench] Version checking disabled.");
             }
         }
         FMLLog.info("[Project Bench] Initialization complete. Fluids found:");
-        for(String name : FluidRegistry.getRegisteredFluids().keySet()){
+        for (String name : FluidRegistry.getRegisteredFluids().keySet()) {
             FMLLog.info("\t%s", name);
         }
         FMLLog.info("These fluids and their containers will be recognized by the Project Bench.");
     }
 
-    private void registerItemsAndBlocks(FMLPreInitializationEvent ev){
+    private void registerItemsAndBlocks(FMLPreInitializationEvent ev) {
         projectBench = new BlockProjectBench().setCreativeTab(CreativeTabs.tabDecorations);
         plan = new ItemPlan().setCreativeTab(CreativeTabs.tabMisc);
         upgrade = new ItemUpgrade().setCreativeTab(CreativeTabs.tabMisc);
@@ -88,19 +88,19 @@ public class ProjectBench{
         GameRegistry.registerItem(upgrade, "pb_upgrade");
     }
 
-    private void registerRecipes(){
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(projectBench, 1, 0), new Object[]{
+    private void registerRecipes() {
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(projectBench, 1, 0), new Object[] {
                 " G ", "ICI", "WHW", 'G', "blockGlass", 'I', "ingotIron", 'C', Blocks.crafting_table,
                 'W', "plankWood", 'H', Blocks.chest
         }));
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(plan, 8, 0), new Object[]{
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(plan, 8, 0), new Object[] {
                 " PS", "PNP", "SP ", 'P', Items.paper, 'S', Items.stick, 'N', Items.gold_nugget
         }));
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 0), new Object[]{
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 0), new Object[] {
                 " G ", "I I", "WHW", 'G', "blockGlass", 'I', "ingotIron",
                 'W', "plankWood", 'H', Blocks.chest
         }));
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1), new Object[]{
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1), new Object[] {
                 "SGS", "GBG", "SGS", 'S', "stone", 'G', "blockGlass", 'B', Items.bucket
         }));
         /*GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.mossy_cobblestone, 1, 0),

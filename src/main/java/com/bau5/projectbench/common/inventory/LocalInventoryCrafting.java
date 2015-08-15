@@ -6,10 +6,12 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 
+
 public class LocalInventoryCrafting extends InventoryCrafting {
+
     private IInventory parent;
 
-    public LocalInventoryCrafting(){
+    public LocalInventoryCrafting() {
         super(new Container() {
             @Override
             public boolean canInteractWith(EntityPlayer playerIn) {
@@ -23,28 +25,30 @@ public class LocalInventoryCrafting extends InventoryCrafting {
         parent = parentInventory;
     }
 
-    public void setInventoryContents(ItemStack[] stacks){
-        if(stacks.length != getSizeInventory()){
+    public void setInventoryContents(ItemStack[] stacks) {
+        if (stacks.length != getSizeInventory()) {
             return;
         }
-        for(int i = 0; i < stacks.length; i++) {
+        for (int i = 0; i < stacks.length; i++) {
             this.setInventorySlotContents(i, stacks[i]);
         }
     }
 
     @Override
     public ItemStack getStackInSlot(int index) {
-        if(parent != null)
+        if (parent != null) {
             return parent.getStackInSlot(index);
-        else
+        } else {
             return super.getStackInSlot(index);
+        }
     }
 
     @Override
     public void setInventorySlotContents(int index, ItemStack stack) {
-        if(parent != null)
+        if (parent != null) {
             parent.setInventorySlotContents(index, stack);
-        else
+        } else {
             super.setInventorySlotContents(index, stack);
+        }
     }
 }

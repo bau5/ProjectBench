@@ -14,10 +14,11 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
+
 /**
  * Created by bau5 on 5/18/2015.
  */
-public class ItemUpgrade extends Item{
+public class ItemUpgrade extends Item {
 
     public IIcon[] icons;
 
@@ -25,7 +26,7 @@ public class ItemUpgrade extends Item{
             "Project Bench", "Fluid"
     };
 
-    public ItemUpgrade(){
+    public ItemUpgrade() {
         setMaxStackSize(4);
         setHasSubtypes(true);
         setUnlocalizedName("pb_upgrade");
@@ -34,13 +35,14 @@ public class ItemUpgrade extends Item{
     @Override
     public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
         Block blck = world.getBlock(x, y, z);
-        if(stack.getItemDamage() == 0 && blck != null && blck == Blocks.crafting_table){
-            if(!world.isRemote) {
+        if (stack.getItemDamage() == 0 && blck != null && blck == Blocks.crafting_table) {
+            if (! world.isRemote) {
                 Block projectBench = ProjectBench.projectBench;
                 world.setBlock(x, y, z, projectBench, 0, 3);
                 projectBench.onBlockAdded(world, x, y, z);
-                if(!player.capabilities.isCreativeMode)
+                if (! player.capabilities.isCreativeMode) {
                     player.getHeldItem().stackSize--;
+                }
                 return true;
             }
         }
@@ -66,17 +68,19 @@ public class ItemUpgrade extends Item{
 
     @Override
     public String getUnlocalizedName(ItemStack stack) {
-        return (super.getUnlocalizedName(stack) + "_" +names[stack.getItemDamage()]).toLowerCase();
+        return (super.getUnlocalizedName(stack) + "_" + names[stack.getItemDamage()]).toLowerCase();
     }
 
     @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List tooltip, boolean advanced) {
         super.addInformation(stack, playerIn, tooltip, advanced);
         String more = "" + EnumChatFormatting.GRAY;
-        switch(stack.getItemDamage()){
-            case 0: more += "Used to upgrade crafting table to Project Bench.";
+        switch (stack.getItemDamage()) {
+            case 0:
+                more += "Used to upgrade crafting table to Project Bench.";
                 break;
-            case 1: more += "Used to upgrade Project Bench to handle fluids.";
+            case 1:
+                more += "Used to upgrade Project Bench to handle fluids.";
                 break;
         }
         tooltip.add(more);

@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
+
 /**
  * Created by bau5 on 4/15/2015.
  */
@@ -29,8 +30,9 @@ public class ItemBlockProjectBench extends ItemBlock {
 
     @Override
     public String getItemStackDisplayName(ItemStack stack) {
-        if(stack.getItemDamage() > names.length-1)
+        if (stack.getItemDamage() > names.length - 1) {
             return "malformed";
+        }
         return names[stack.getItemDamage()];
     }
 }

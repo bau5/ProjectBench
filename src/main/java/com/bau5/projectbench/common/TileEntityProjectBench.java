@@ -27,10 +27,12 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.Iterator;
 
+
 /**
  * Created by bau5 on 4/15/2015.
  */
-public class TileEntityProjectBench extends TileEntity implements IInventory, IFluidHandler{
+public class TileEntityProjectBench extends TileEntity implements IInventory, IFluidHandler {
+
     private int fluidUpdateTick = 0;
 
     private FluidTank fluidTank = new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 16);
@@ -42,7 +44,7 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
     private ItemStack[] inventory = new ItemStack[28];
     private LocalInventoryCrafting crafter = new LocalInventoryCrafting(this);
     private IInventory craftResult = new InventoryCraftResult();
-    private int planIndex = getSizeInventory()-1;
+    private int planIndex = getSizeInventory() - 1;
 
     private IUpgrade upgrade = null;
 
@@ -51,16 +53,17 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
     private boolean shouldUpdateRecipe = false;
     private boolean shouldSendNetworkUpdate = false;
 
-    private void checkAndMarkForRecipeUpdate(int index){
-        if((index >= 0 && index < 9) || index == planIndex)
+    private void checkAndMarkForRecipeUpdate(int index) {
+        if ((index >= 0 && index < 9) || index == planIndex) {
             shouldUpdateRecipe = true;
+        }
     }
 
     public void forceUpdateRecipe() {
         shouldUpdateRecipe = true;
     }
 
-    public boolean updateRecipe(){
+    public boolean updateRecipe() {
         return shouldUpdateRecipe;
     }
 
@@ -70,15 +73,15 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
 
     @Override
     public void updateEntity() {
-        if(updateRecipe()){
+        if (updateRecipe()) {
             findRecipe();
-            if(getResult() == null && craftingMatrixIsEmpty()){
+            if (getResult() == null && craftingMatrixIsEmpty()) {
                 setResult(getPlanResult());
             }
             worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
             shouldUpdateRecipe = false;
         }
-        if(++fluidUpdateTick >= 20 && sendNetworkUpdate()){
+        if (++ fluidUpdateTick >= 20 && sendNetworkUpdate()) {
             worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
             shouldSendNetworkUpdate = false;
             fluidUpdateTick = 0;
@@ -91,36 +94,38 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
 
 
     public void performUpgrade(ItemStack upgradeItem) {
-        switch(upgradeItem.getItemDamage()){
-            case 1: upgrade = new FluidUpgrade();
+        switch (upgradeItem.getItemDamage()) {
+            case 1:
+                upgrade = new FluidUpgrade();
                 break;
         }
         shouldSendNetworkUpdate = true;
     }
 
-    public IUpgrade getUpgrade(){
+    public IUpgrade getUpgrade() {
         return upgrade;
     }
 
-    public boolean getCanAcceptUpgrade(){
+    public boolean getCanAcceptUpgrade() {
         return getUpgrade() == null;
     }
 
-    public ItemStack getPlanResult(){
+    public ItemStack getPlanResult() {
         ItemStack plan = getPlan();
-        if(plan != null){
+        if (plan != null) {
             ItemStack result = PlanHelper.getPlanResult(plan);
-            if(result != null)
+            if (result != null) {
                 usingPlan = true;
+            }
             return result;
         }
         return null;
     }
 
-    public boolean craftingMatrixIsEmpty(){
+    public boolean craftingMatrixIsEmpty() {
         boolean flag = true;
-        for(int i = 0; i < 9; i++){
-            if(inventory[i] != null) {
+        for (int i = 0; i < 9; i++) {
+            if (inventory[i] != null) {
                 flag = false;
                 break;
             }
@@ -133,38 +138,36 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
             crafter.setInventorySlotContents(i, inventory[i]);
         }
         ItemStack result = findMatchingRecipe(crafter, worldObj);
-        if(result == null)
+        if (result == null) {
             currentRecipe = null;
+        }
         setResult(result);
         usingPlan = false;
     }
 
-    public ItemStack findMatchingRecipe(InventoryCrafting inventoryCrafting, World worldIn)
-    {
+    public ItemStack findMatchingRecipe(InventoryCrafting inventoryCrafting, World worldIn) {
         Iterator iterator = CraftingManager.getInstance().getRecipeList().iterator();
         IRecipe irecipe;
 
-        do
-        {
-            if (!iterator.hasNext())
-            {
+        do {
+            if (! iterator.hasNext()) {
                 return null;
             }
 
-            irecipe = (IRecipe)iterator.next();
+            irecipe = (IRecipe) iterator.next();
         }
-        while (!irecipe.matches(inventoryCrafting, worldIn));
+        while (! irecipe.matches(inventoryCrafting, worldIn));
 
         currentRecipe = irecipe;
 
         return irecipe.getCraftingResult(inventoryCrafting);
     }
 
-    public IRecipe getCurrentRecipe(){
+    public IRecipe getCurrentRecipe() {
         return currentRecipe;
     }
 
-    public boolean isOreRecipe(){
+    public boolean isOreRecipe() {
         return currentRecipe instanceof ShapedOreRecipe || currentRecipe instanceof ShapelessOreRecipe;
     }
 
@@ -199,31 +202,24 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
         return inventory.length;
     }
 
-    public ItemStack getStackInSlot(int index)
-    {
+    public ItemStack getStackInSlot(int index) {
         return this.inventory[index];
     }
 
-    public ItemStack decrStackSize(int index, int count)
-    {
-        if (this.inventory[index] != null)
-        {
+    public ItemStack decrStackSize(int index, int count) {
+        if (this.inventory[index] != null) {
             ItemStack itemstack;
 
-            if (this.inventory[index].stackSize <= count)
-            {
+            if (this.inventory[index].stackSize <= count) {
                 itemstack = this.inventory[index];
                 this.inventory[index] = null;
                 this.markDirty();
                 checkAndMarkForRecipeUpdate(index);
                 return itemstack;
-            }
-            else
-            {
+            } else {
                 itemstack = this.inventory[index].splitStack(count);
 
-                if (this.inventory[index].stackSize == 0)
-                {
+                if (this.inventory[index].stackSize == 0) {
                     this.inventory[index] = null;
                 }
 
@@ -231,34 +227,26 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
                 checkAndMarkForRecipeUpdate(index);
                 return itemstack;
             }
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    public ItemStack getStackInSlotOnClosing(int index)
-    {
-        if (this.inventory[index] != null)
-        {
+    public ItemStack getStackInSlotOnClosing(int index) {
+        if (this.inventory[index] != null) {
             ItemStack itemstack = this.inventory[index];
             this.inventory[index] = null;
             checkAndMarkForRecipeUpdate(index);
             return itemstack;
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    public void setInventorySlotContents(int index, ItemStack stack)
-    {
+    public void setInventorySlotContents(int index, ItemStack stack) {
         this.inventory[index] = stack;
 
-        if (stack != null && stack.stackSize > this.getInventoryStackLimit())
-        {
+        if (stack != null && stack.stackSize > this.getInventoryStackLimit()) {
             stack.stackSize = this.getInventoryStackLimit();
         }
 
@@ -277,21 +265,21 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
     }
 
     public boolean addStackToInventory(ItemStack item) {
-        int firstNull = -1;
-        for(int i = supplier.getSupplyStart(); i < supplier.getSupplyStop(); i++) {
-            if(firstNull == -1 && getStackInSlot(i) == null) {
+        int firstNull = - 1;
+        for (int i = supplier.getSupplyStart(); i < supplier.getSupplyStop(); i++) {
+            if (firstNull == - 1 && getStackInSlot(i) == null) {
                 firstNull = i;
                 continue;
             }
-            if(OreDictionary.itemMatches(item, getStackInSlot(i), true)
-                    && getStackInSlot(i).stackSize + item.stackSize <= getStackInSlot(i).getMaxStackSize()){
+            if (OreDictionary.itemMatches(item, getStackInSlot(i), true)
+                    && getStackInSlot(i).stackSize + item.stackSize <= getStackInSlot(i).getMaxStackSize()) {
                 ItemStack stack = getStackInSlot(i);
                 stack.stackSize += item.stackSize;
                 setInventorySlotContents(i, stack);
                 return true;
             }
         }
-        if(firstNull != -1){
+        if (firstNull != - 1) {
             setInventorySlotContents(firstNull, item);
             return true;
         }
@@ -303,18 +291,20 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
     public Packet getDescriptionPacket() {
         S35PacketUpdateTileEntity packet = null;
         NBTTagCompound tag = new NBTTagCompound();
-        if(getResult() != null) {
+        if (getResult() != null) {
             tag.setTag("Result", result.writeToNBT(new NBTTagCompound()));
         }
-        if(upgrade != null) {
+        if (upgrade != null) {
             tag.setInteger("Upgrade", upgrade.getType());
-            if(upgrade.getType() == 0){
-                if(getFluidInTank() != null)
+            if (upgrade.getType() == 0) {
+                if (getFluidInTank() != null) {
                     tag.setTag("Fluid", fluidTank.getFluid().writeToNBT(new NBTTagCompound()));
+                }
             }
         }
-        if(!tag.hasNoTags())
+        if (! tag.hasNoTags()) {
             packet = new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tag);
+        }
         return packet;
     }
 
@@ -322,15 +312,17 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         super.onDataPacket(net, pkt);
         NBTTagCompound tag = pkt.func_148857_g();
-        if(tag == null)
+        if (tag == null) {
             return;
-        if(tag.hasKey("Result")){
+        }
+        if (tag.hasKey("Result")) {
             setResult(ItemStack.loadItemStackFromNBT(tag.getCompoundTag("Result")));
         }
-        if(tag.hasKey("Upgrade")){
+        if (tag.hasKey("Upgrade")) {
             int type = tag.getInteger("Upgrade");
-            switch(type){
-                case 0: upgrade = new FluidUpgrade();
+            switch (type) {
+                case 0:
+                    upgrade = new FluidUpgrade();
                     fluidTank.setFluid(FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("Fluid")));
                     break;
             }
@@ -342,21 +334,21 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
         super.writeToNBT(compound);
         NBTTagList list = new NBTTagList();
 
-        for(int i = 0; i < this.inventory.length; ++i){
-            if(this.inventory[i] != null){
+        for (int i = 0; i < this.inventory.length; ++ i) {
+            if (this.inventory[i] != null) {
                 NBTTagCompound tag = new NBTTagCompound();
-                tag.setByte("Slot", (byte)i);
+                tag.setByte("Slot", (byte) i);
                 inventory[i].writeToNBT(tag);
                 list.appendTag(tag);
             }
         }
         compound.setTag("Items", list);
-        if(getResult() != null){
+        if (getResult() != null) {
             compound.setTag("Result", getResult().writeToNBT(new NBTTagCompound()));
         }
-        if(upgrade != null){
+        if (upgrade != null) {
             compound.setInteger("Upgrade", upgrade.getType());
-            if(upgrade.getType() == 0 && fluidTank.getFluid() != null){
+            if (upgrade.getType() == 0 && fluidTank.getFluid() != null) {
                 NBTTagCompound fluidTag = getFluidInTank().writeToNBT(new NBTTagCompound());
                 compound.setTag("Fluid", fluidTag);
             }
@@ -368,22 +360,23 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
         super.readFromNBT(compound);
         NBTTagList list = compound.getTagList("Items", 10);
 
-        for(int i = 0; i < list.tagCount(); ++i){
+        for (int i = 0; i < list.tagCount(); ++ i) {
             NBTTagCompound tag = list.getCompoundTagAt(i);
-            int j = tag. getByte("Slot") & 255;
-            if(j >= 0 && j < this.inventory.length){
-               setInventorySlotContents(j, ItemStack.loadItemStackFromNBT(tag));
+            int j = tag.getByte("Slot") & 255;
+            if (j >= 0 && j < this.inventory.length) {
+                setInventorySlotContents(j, ItemStack.loadItemStackFromNBT(tag));
             }
         }
 
-        if(compound.hasKey("Result")){
+        if (compound.hasKey("Result")) {
             setResult(ItemStack.loadItemStackFromNBT(compound.getCompoundTag("Result")));
         }
-        if(compound.hasKey("Upgrade")){
+        if (compound.hasKey("Upgrade")) {
             int type = compound.getInteger("Upgrade");
-            switch(type){
-                case 0: upgrade = new FluidUpgrade();
-                    if(compound.hasKey("Fluid")) {
+            switch (type) {
+                case 0:
+                    upgrade = new FluidUpgrade();
+                    if (compound.hasKey("Fluid")) {
                         FluidStack fstack = FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("Fluid"));
                         fluidTank.setFluid(fstack);
                     }
@@ -417,23 +410,25 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
         return true;
     }
 
-    public boolean getHasFluidUpgrade(){
+    public boolean getHasFluidUpgrade() {
         return upgrade != null && upgrade.getType() == 0;
     }
 
     @Override
     public int fill(ForgeDirection dir, FluidStack resource, boolean doFill) {
-        if(!getHasFluidUpgrade() || !canFill(dir, resource.getFluid()))
+        if (! getHasFluidUpgrade() || ! canFill(dir, resource.getFluid())) {
             return 0;
+        }
         shouldSendNetworkUpdate = true;
         return fluidTank.fill(resource, doFill);
     }
 
     @Override
     public FluidStack drain(ForgeDirection dir, FluidStack resource, boolean doDrain) {
-        if(!getHasFluidUpgrade() && fluidTank.getFluidAmount() > 0)
+        if (! getHasFluidUpgrade() && fluidTank.getFluidAmount() > 0) {
             return null;
-        if(resource.isFluidEqual(getFluidInTank())){
+        }
+        if (resource.isFluidEqual(getFluidInTank())) {
             drain(dir, resource.amount, doDrain);
         }
         shouldSendNetworkUpdate = true;
@@ -442,8 +437,9 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
 
     @Override
     public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
-        if(!getHasFluidUpgrade())
+        if (! getHasFluidUpgrade()) {
             return null;
+        }
         shouldSendNetworkUpdate = true;
         return fluidTank.drain(maxDrain, doDrain);
     }
@@ -460,15 +456,15 @@ public class TileEntityProjectBench extends TileEntity implements IInventory, IF
 
     @Override
     public FluidTankInfo[] getTankInfo(ForgeDirection from) {
-        if(getFluidInTank() != null){
-            return new FluidTankInfo[]{
-                new FluidTankInfo(getFluidInTank(), FluidContainerRegistry.BUCKET_VOLUME * 16)
+        if (getFluidInTank() != null) {
+            return new FluidTankInfo[] {
+                    new FluidTankInfo(getFluidInTank(), FluidContainerRegistry.BUCKET_VOLUME * 16)
             };
         }
         return new FluidTankInfo[0];
     }
 
-    public FluidStack getFluidInTank(){
+    public FluidStack getFluidInTank() {
         return fluidTank.getFluid();
     }
 }

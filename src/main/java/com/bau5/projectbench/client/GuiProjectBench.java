@@ -22,10 +22,12 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 
+
 /**
  * Created by bau5 on 4/15/2015.
  */
 public class GuiProjectBench extends GuiContainer {
+
     private TileEntityProjectBench tile;
     private static final ResourceLocation gui_texture = new ResourceLocation("projectbench", "textures/gui/pbGUI.png");
     private static final ResourceLocation other_texture = new ResourceLocation("projectbench", "textures/gui/parts.png");
@@ -46,16 +48,16 @@ public class GuiProjectBench extends GuiContainer {
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         this.fontRendererObj.drawString("Project Bench", 8, 6, 4210752);
-        for(Object obj : buttonList){
-            if(obj instanceof Button) {
-                ((Button)obj).drawButtonToolTip(-20, 50);
+        for (Object obj : buttonList) {
+            if (obj instanceof Button) {
+                ((Button) obj).drawButtonToolTip(- 20, 50);
             }
         }
-        if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)){
-            for(int i = 0; i < inventorySlots.inventorySlots.size(); i++){
-                Slot slot = (Slot)inventorySlots.inventorySlots.get(i);
+        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+            for (int i = 0; i < inventorySlots.inventorySlots.size(); i++) {
+                Slot slot = (Slot) inventorySlots.inventorySlots.get(i);
                 ItemStack stack = slot.getStack();
-                if(stack != null && stack.getItem().equals(ProjectBench.plan) && stack.getItemDamage() == 1){
+                if (stack != null && stack.getItem().equals(ProjectBench.plan) && stack.getItemDamage() == 1) {
                     GL11.glPushMatrix();
                     GL11.glEnable(GL11.GL_BLEND);
                     GL11.glBlendFunc(768, 1);
@@ -65,12 +67,13 @@ public class GuiProjectBench extends GuiContainer {
                     FontRenderer font = null;
                     if (stack != null) {
                         font = stack.getItem().getFontRenderer(stack);
-                        if (font == null)
+                        if (font == null) {
                             font = fontRendererObj;
+                        }
                         int x = slot.xDisplayPosition;
                         int y = slot.yDisplayPosition;
                         ItemStack out = PlanHelper.getPlanResult(stack);
-                        this.drawGradientRect(x, y, x + 16, y + 16, -2130706433, -2130706433);
+                        this.drawGradientRect(x, y, x + 16, y + 16, - 2130706433, - 2130706433);
                         float old = itemRender.zLevel;
                         itemRender.zLevel = 200;
                         itemRender.renderItemAndEffectIntoGUI(font, mc.getTextureManager(), out, x, y);
@@ -97,7 +100,7 @@ public class GuiProjectBench extends GuiContainer {
         //Draw stacks for the plan
         drawPlanStacks(k, l);
         //Render Fluid parts into gui
-        if(tile.getHasFluidUpgrade()) {
+        if (tile.getHasFluidUpgrade()) {
             RenderHelper.enableGUIStandardItemLighting();
             mc.getTextureManager().bindTexture(other_texture);
             int xDisp = k + 148;
@@ -106,19 +109,19 @@ public class GuiProjectBench extends GuiContainer {
             int ySize = 54;
             this.drawTexturedModalRect(xDisp, yDisp, 45, 0, xSize, ySize);
             //Render the fluid itself in between the layers.
-            if(tile.getFluidInTank() != null){
+            if (tile.getFluidInTank() != null) {
                 FluidStack fstack = tile.getFluidInTank();
                 int amount = (fstack.amount / 1000) * 3;
                 int bucketSize = 3;
                 mc.getTextureManager().bindTexture(mc.getTextureManager().getResourceLocation(fstack.getFluid().getSpriteNumber()));
                 drawTexturedModelRectFromIconInverted(xDisp + 3, yDisp + ySize - 3, fstack.getFluid().getIcon(), xSize - 6, (amount < bucketSize * 4) ? amount : 12);
-                if(amount > 12){
+                if (amount > 12) {
                     drawTexturedModelRectFromIconInverted(xDisp + 3, yDisp + ySize - 3 - 12, fstack.getFluid().getIcon(), xSize - 6, (amount < bucketSize * 8) ? amount - 12 : 12);
                 }
-                if(amount > 24){
+                if (amount > 24) {
                     drawTexturedModelRectFromIconInverted(xDisp + 3, yDisp + ySize - 3 - 24, fstack.getFluid().getIcon(), xSize - 6, (amount < bucketSize * 12) ? amount - 24 : 12);
                 }
-                if(amount > 36){
+                if (amount > 36) {
                     drawTexturedModelRectFromIconInverted(xDisp + 3, yDisp + ySize - 3 - 36, fstack.getFluid().getIcon(), xSize - 6, (amount < bucketSize * 16) ? amount - 36 : 12);
                 }
 
@@ -127,12 +130,12 @@ public class GuiProjectBench extends GuiContainer {
             mc.getTextureManager().bindTexture(other_texture);
             this.drawTexturedModalRect(xDisp + 3, yDisp, 67, 0, xSize - 7, ySize - 4);
             //Tooltip if mouse is over tank
-            if(tile.getFluidInTank() != null){
-                if(mouseX > xDisp && mouseX < xDisp + xSize
-                        && mouseY > yDisp && mouseY < yDisp + ySize){
+            if (tile.getFluidInTank() != null) {
+                if (mouseX > xDisp && mouseX < xDisp + xSize
+                        && mouseY > yDisp && mouseY < yDisp + ySize) {
                     FluidStack fstack = tile.getFluidInTank();
                     ArrayList list = new ArrayList();
-                    list.add(fstack.amount + "mb of " +fstack.getLocalizedName());
+                    list.add(fstack.amount + "mb of " + fstack.getLocalizedName());
                     drawHoveringText(list, mouseX, mouseY, fontRendererObj);
                 }
             }
@@ -143,13 +146,13 @@ public class GuiProjectBench extends GuiContainer {
         Tessellator tessellator = Tessellator.instance;
         tessellator.startDrawingQuads();
         tessellator.addVertexWithUV((double) (par1 + 0), (double) (par2 + 0), (double) this.zLevel, (double) icon.getMinU(), (double) icon.getMaxV());
-        tessellator.addVertexWithUV((double)(par1 + par4), (double)(par2 + 0), (double)this.zLevel, (double)icon.getMaxU(), (double)icon.getMaxV());
+        tessellator.addVertexWithUV((double) (par1 + par4), (double) (par2 + 0), (double) this.zLevel, (double) icon.getMaxU(), (double) icon.getMaxV());
         tessellator.addVertexWithUV((double) (par1 + par4), (double) (par2 - par5), (double) this.zLevel, (double) icon.getMaxU(), (double) icon.getMinV());
         tessellator.addVertexWithUV((double) (par1 + 0), (double) (par2 - par5), (double) this.zLevel, (double) icon.getMinU(), (double) icon.getMinV());
         tessellator.draw();
     }
 
-    private void drawPlanStacks(int xSize, int ySize){
+    private void drawPlanStacks(int xSize, int ySize) {
         TileEntityProjectBench tpb = tile;
         if (tpb.getResult() != null && tpb.getPlan() != null) {
             ItemStack[] stacks = PlanHelper.getComponentsForPlan(tpb.getPlan());
@@ -168,11 +171,12 @@ public class GuiProjectBench extends GuiContainer {
                             GL11.glBlendFunc(768, 1);
                             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                             font = stack.getItem().getFontRenderer(stack);
-                            if (font == null)
+                            if (font == null) {
                                 font = fontRendererObj;
+                            }
                             itemRender.renderItemAndEffectIntoGUI(font, mc.getTextureManager(), stack, xLoc, yLoc);
                             itemRender.renderItemOverlayIntoGUI(font, mc.getTextureManager(), stack, xLoc, yLoc, "");
-                            this.drawGradientRect(xLoc, yLoc, xLoc + 16, yLoc + 16, -2130706433, -2130706433);
+                            this.drawGradientRect(xLoc, yLoc, xLoc + 16, yLoc + 16, - 2130706433, - 2130706433);
                             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                             GL11.glDisable(GL11.GL_BLEND);
                             GL11.glEnable(GL11.GL_LIGHTING);
@@ -185,33 +189,36 @@ public class GuiProjectBench extends GuiContainer {
     }
 
     private class Button extends GuiButtonExt {
+
         private float hoverTime = 0;
-        public Button(int id, int x, int y, String disp){
+
+        public Button(int id, int x, int y, String disp) {
             super(id, x, y, 12, 12, disp);
         }
-        public Button(int id, int x, int y){
+
+        public Button(int id, int x, int y) {
             super(id, x, y, 10, 10, "");
         }
 
         @Override
         public void drawButton(Minecraft mc, int mouseX, int mouseY) {
-            if(id == 1) {
+            if (id == 1) {
                 ItemStack stack = tile.getStackInSlot(27);
                 this.enabled = tile.getResult() != null &&
-                        stack != null && !stack.hasTagCompound() && stack.stackSize == 1;
+                        stack != null && ! stack.hasTagCompound() && stack.stackSize == 1;
             }
             super.drawButton(mc, mouseX, mouseY);
-            if(getHoverState(isMouseOver(mouseX, mouseY)) == 2){
+            if (getHoverState(isMouseOver(mouseX, mouseY)) == 2) {
                 hoverTime++;
-            }else{
-                if(hoverTime > 0){
+            } else {
+                if (hoverTime > 0) {
                     hoverTime = 0;
                 }
             }
         }
 
-        public void drawButtonToolTip(int mouseX, int mouseY){
-            if(hoverTime > 40) {
+        public void drawButtonToolTip(int mouseX, int mouseY) {
+            if (hoverTime > 40) {
                 ArrayList list = new ArrayList();
                 zLevel = 400.0F;
                 if (id == 0) {
@@ -226,12 +233,12 @@ public class GuiProjectBench extends GuiContainer {
 
         @Override
         public void mouseReleased(int mouseX, int mouseY) {
-            if(getHoverState(isMouseOver(mouseX, mouseY)) == 2){
+            if (getHoverState(isMouseOver(mouseX, mouseY)) == 2) {
                 ProjectBench.network.sendToServer(new SimpleMessage(id, tile.getWorldObj().provider.dimensionId, tile.xCoord, tile.yCoord, tile.zCoord));
             }
         }
 
-        public boolean isMouseOver(int mouseX, int mouseY){
+        public boolean isMouseOver(int mouseX, int mouseY) {
             return mouseX >= xPosition && mouseX <= xPosition + width
                     && mouseY >= yPosition && mouseY <= yPosition + height;
         }

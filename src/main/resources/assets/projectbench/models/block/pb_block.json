@@ -1,7 +1,7 @@
 {
   "parent": "block/cube_bottom_top",
   "textures": {
-    "up":   "projectbench:blocks/pb_top",
+    "up": "projectbench:blocks/pb_top",
     "down": "projectbench:blocks/pb_bottom",
     "side": "projectbench:blocks/pb_side"
   }
