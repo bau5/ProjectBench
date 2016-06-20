@@ -1,3 +1,21 @@
+
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+idea/
+
+
+# Gradle
+.gradle/
+run/
+out/
+build/
+
+eclipse/
+
+# System
 .Trashes
 Thumbs.db
 .DS_Store
