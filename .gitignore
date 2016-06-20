@@ -1,18 +1,14 @@
-
-
 # IntelliJ
 *.iml
 *.ipr
 *.iws
 idea/
 
-
 # Gradle
 .gradle/
 run/
 out/
 build/
-
 eclipse/
 
 # System
