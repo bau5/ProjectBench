@@ -37,7 +37,7 @@ public class GuiProjectBench extends GuiContainer {
     public GuiProjectBench(InventoryPlayer inventory, TileEntityProjectBench tileEntity) {
         super(new ContainerProjectBench(inventory, tileEntity));
         tile = tileEntity;
-        ySize += 48;
+        ySize += 60;
     }
 
     @Override
@@ -98,8 +98,19 @@ public class GuiProjectBench extends GuiContainer {
         int k = (this.width - this.xSize) / 2;
         int l = (this.height - this.ySize) / 2;
 
+        int inventoryStart = 76;
+        int inventorySize = ((tile.getSizeInventory() - 9) / 9) * 19;
+
         mc.getTextureManager().bindTexture(gui_texture);
-        this.drawTexturedModalRect(k, l, 0, 0, this.xSize, this.ySize + 10);
+        this.drawTexturedModalRect(k, l, 0, 0, this.xSize, inventoryStart);
+
+        if (tile.getSizeInventory() > 9) {
+            for (int i = 0; i < inventorySize / 19; i++) {
+                this.drawTexturedModalRect(k, l + inventoryStart + 19 * i, 0, inventoryStart, this.xSize, 19);
+            }
+        }
+
+        this.drawTexturedModalRect(k, l + inventoryStart + inventorySize, 0, inventoryStart + 38, this.xSize, this.ySize);
 
         //Draw stacks for the plan
         drawPlanStacks(k, l);

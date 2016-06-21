@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
  */
 public class ContainerProjectBench extends Container {
     private TileEntityProjectBench tile;
+    private int planSlot = -1;
 
     public ContainerProjectBench(InventoryPlayer invPlayer, TileEntityProjectBench tpb){
         this.tile = tpb;
@@ -23,26 +24,23 @@ public class ContainerProjectBench extends Container {
         int index = 0;
         addSlotToContainer(new SlotModifiedCrafting(tile.getCraftingItemsProvider(),
                             invPlayer.player, tile, tile.getCraftResult(), 0, 124, 35));
-        for(i = 0; i < 3; i++){
-            for(j = 0; j < 3; j++){
-                addSlotToContainer(new Slot(tile, index++, 30 + j * 18, 17 + i * 18));
-            }
+
+        for (i = 0; i < 9; i++) {
+            addSlotToContainer(new Slot(tile, index++, 30 + (i % 3) * 18, 17 + (i / 3) * 18));
         }
-        for(i = 0; i < 2; i++){
+
+        for(i = 0; i < tile.getCraftingItemsProvider().getSize() / 9; i++){
             for(j = 0; j < 9; j++){
-                if(i == 1){
-                    addSlotToContainer(new Slot(tile, 18 + j, 8 + j * 18, (i * 2 -1) + 77 + i * 18));
-                }else{
-                    addSlotToContainer(new Slot(tile, 9 + j, 8 + j * 18, 77 + i * 18));
-                }
+                addSlotToContainer(new Slot(tile, index++, 8 + j * 18, 77 + i * 19));
             }
         }
-        addSlotToContainer(new SlotPlan(tile, 27, 7, 35));
+        planSlot = index;
+        addSlotToContainer(new SlotPlan(tile, planSlot, 7, 35));
     }
 
     @Override
     public ItemStack func_184996_a(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
-        if(slotId == 36 && clickTypeIn == ClickType.PICKUP_ALL){
+        if(slotId == planSlot && clickTypeIn == ClickType.PICKUP_ALL){
             clickTypeIn = ClickType.PICKUP;
         }
 
@@ -51,13 +49,17 @@ public class ContainerProjectBench extends Container {
 
     private void bindPlayerInventory(InventoryPlayer invPlayer) {
         int i, j;
+        int yOffset = 0;
+        if (tile.getCraftingItemsProvider().getSize() > 27) {
+            yOffset = 38;
+        }
         for (i = 0; i < 3; i++) {
             for (j = 0; j < 9; j++) {
-                this.addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9, 8 + j * 18, 121 + i * 18));
+                this.addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9, 8 + j * 18, 121 + i * 18 + yOffset));
             }
         }
         for (i = 0; i < 9; i++) {
-            this.addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 179));
+            this.addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18, 179 + yOffset));
         }
     }
 

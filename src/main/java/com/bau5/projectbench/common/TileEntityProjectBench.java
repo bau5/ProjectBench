@@ -52,7 +52,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
     private IUpgrade upgrade = null;
 
-    private CraftingItemsProvider supplier = new CraftingItemsProvider(this, 9, 27);
+    private CraftingItemsProvider provider = new CraftingItemsProvider(this, 9, 27);
 
     private boolean shouldUpdateRecipe = false;
     private boolean shouldSendNetworkUpdate = false;
@@ -108,10 +108,14 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
                 inventorySize += ((InventorySizeUpgrade) upgrade).getAdditionalSlotCount();
                 ItemStack[] newItems = new ItemStack[inventorySize];
-                for (int i = 0; i < newItems.length; i++) {
-                    newItems[i] = inventory[i].copy();
+                for (int i = 0; i < inventory.length; i++) {
+                    if (inventory[i] != null) {
+                        newItems[i] = inventory[i].copy();
+                    }
                 }
                 inventory = newItems;
+
+                provider = new CraftingItemsProvider(this, 9, 45);
 
                 setInventorySlotContents(0, getStackInSlot(0));
 
@@ -213,7 +217,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     }
 
     public CraftingItemsProvider getCraftingItemsProvider() {
-        return supplier;
+        return provider;
     }
 
     @Override
@@ -295,7 +299,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
     public boolean addStackToInventory(ItemStack item) {
         int firstNull = -1;
-        for(int i = supplier.getSupplyStart(); i < supplier.getSupplyStop(); i++) {
+        for(int i = provider.getSupplyStart(); i < provider.getSupplyStop(); i++) {
             if(firstNull == -1 && getStackInSlot(i) == null) {
                 firstNull = i;
                 continue;

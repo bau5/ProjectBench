@@ -25,6 +25,10 @@ public class CraftingItemsProvider {
         return supplyStart;
     }
 
+    public int getSize() {
+        return supplyStop - supplyStart;
+    }
+
     public ItemStack getStackFromSupplier(int supplyInv) {
         ItemStack stack = provider.getStackInSlot(supplyInv);
         return stack;
