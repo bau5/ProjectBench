@@ -31,6 +31,8 @@ public class Config {
             RENDER_BOUNCE = getBoolSetting("Bounce", true);
             RENDER_SPIN = getBoolSetting("Spin", true);
 
+            DEBUG_RECIPE   = getBoolSetting("Debug Recipe", false);
+
             RENDER_HEIGHT  = getDoubleSetting("Item Render Height", 0.5, 0, 1);
             ROTATION_SPEED = getDoubleSetting("Rotation Speed", 7, 0.1, 20);
             BOUNCE_HEIGHT  = getDoubleSetting("Bounce Height", 1, 0.1, 9);
@@ -79,6 +81,9 @@ public class Config {
         settings.put("Spin", new String[]{boolCat,
                 str + "spin of item rendered above Project Bench"});
 
+        settings.put("Debug Recipe", new String[]{boolCat,
+                str + "the debug recipe."});
+
         //ints
         final String intCat = "Feature Modifiers";
         settings.put("Item Render Height", new String[]{ intCat,
@@ -109,8 +114,11 @@ public class Config {
     public static boolean RENDER_BOUNCE = true;
     public static boolean RENDER_SPIN   = true;
 
+    public static boolean DEBUG_RECIPE  = true;
+
     public static double ROTATION_SPEED = 7;
     public static double RENDER_HEIGHT  = 0.5;
     public static double BOUNCE_HEIGHT  = 7;
     public static double BOUNCE_SPEED   = 7;
+
 }

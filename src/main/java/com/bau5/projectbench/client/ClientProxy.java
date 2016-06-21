@@ -49,7 +49,7 @@ public class ClientProxy extends CommonProxy {
                 new ModelResourceLocation(Reference.MOD_ID + ":upgrade_fluid", inv));
         Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
                 ProjectBench.upgrade, 2,
-                new ModelResourceLocation(Reference.MOD_ID + ":upgrade_fluid", inv));
+                new ModelResourceLocation(Reference.MOD_ID + ":upgrade_inventory", inv));
 
         ModelBakery.registerItemVariants(ProjectBench.plan, new ResourceLocation("projectbench:plan"), new ResourceLocation("projectbench:planused"));
         ModelBakery.registerItemVariants(ProjectBench.upgrade, new ResourceLocation("projectbench:upgrade_pb"), new ResourceLocation("projectbench:upgrade_fluid"), new ResourceLocation("projectbench:upgrade_inventory"));

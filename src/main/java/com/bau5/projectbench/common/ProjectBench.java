@@ -27,6 +27,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION)
 public class ProjectBench{
@@ -103,6 +104,12 @@ public class ProjectBench{
         CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1),
             "SGS", "GBG", "SGS", 'S', "stone", 'G', "blockGlass", 'B', Items.bucket
         ));
-//        CraftingManager.getInstance().addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.mossy_cobblestone), new ItemStack(Blocks.cobblestone), new ItemStack(Items.water_bucket)));
+        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 2),
+            " I ", "ICI", " I ", 'I', Items.iron_ingot, 'C', Blocks.chest
+        ));
+
+        if (Config.DEBUG_RECIPE) {
+            CraftingManager.getInstance().addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.mossy_cobblestone), new ItemStack(Blocks.cobblestone), new ItemStack(Items.water_bucket)));
+        }
     }
 }
