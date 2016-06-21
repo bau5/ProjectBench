@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -54,10 +55,11 @@ public class BlockProjectBench extends BlockContainer {
 
         TileEntityProjectBench tile = (TileEntityProjectBench) worldIn.getTileEntity(pos);
         ItemStack held = playerIn.getHeldItem(hand);
-        if(held != null && held.getItem() == ProjectBench.upgrade
-                && held.getMetadata() == 1 && tile.getCanAcceptUpgrade()){
+        if(held != null && held.getItem() == ProjectBench.upgrade && tile.getCanAcceptUpgrade()){
             tile.performUpgrade(held);
-            held.stackSize--;
+            if (!playerIn.capabilities.isCreativeMode) {
+                held.stackSize--;
+            }
             return true;
         }
 
@@ -108,8 +110,7 @@ public class BlockProjectBench extends BlockContainer {
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
-    {
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
         TileEntity tileentity = worldIn.getTileEntity(pos);
 
         if (tileentity instanceof IInventory)
