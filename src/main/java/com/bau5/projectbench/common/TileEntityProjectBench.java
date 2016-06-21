@@ -4,6 +4,7 @@ import com.bau5.projectbench.common.inventory.CraftingItemsProvider;
 import com.bau5.projectbench.common.inventory.LocalInventoryCrafting;
 import com.bau5.projectbench.common.upgrades.FluidUpgrade;
 import com.bau5.projectbench.common.upgrades.IUpgrade;
+import com.bau5.projectbench.common.upgrades.InventorySizeUpgrade;
 import com.bau5.projectbench.common.utils.PlanHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -42,7 +43,9 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     private IRecipe currentRecipe;
     private boolean usingPlan = false;
 
-    private ItemStack[] inventory = new ItemStack[28];
+    private int inventorySize = 28;
+    private ItemStack[] inventory = new ItemStack[inventorySize];
+
     private LocalInventoryCrafting crafter = new LocalInventoryCrafting(this);
     private IInventory craftResult = new InventoryCraftResult();
     private int planIndex = getSizeInventory() - 1;
@@ -55,8 +58,9 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     private boolean shouldSendNetworkUpdate = false;
 
     private void checkAndMarkForRecipeUpdate(int index){
-        if((index >= 0 && index < 9) || index == planIndex)
+        if((index >= 0 && index < 9) || index == planIndex) {
             shouldUpdateRecipe = true;
+        }
     }
 
     public void forceUpdateRecipe() {
@@ -96,7 +100,21 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
     public void performUpgrade(ItemStack upgradeItem) {
         switch(upgradeItem.getMetadata()){
-            case 1: upgrade = new FluidUpgrade();
+            case 1:
+                upgrade = new FluidUpgrade();
+                break;
+            case 2:
+                upgrade = new InventorySizeUpgrade();
+
+                inventorySize += ((InventorySizeUpgrade) upgrade).getAdditionalSlotCount();
+                ItemStack[] newItems = new ItemStack[inventorySize];
+                for (int i = 0; i < newItems.length; i++) {
+                    newItems[i] = inventory[i].copy();
+                }
+                inventory = newItems;
+
+                setInventorySlotContents(0, getStackInSlot(0));
+
                 break;
         }
         shouldSendNetworkUpdate = true;

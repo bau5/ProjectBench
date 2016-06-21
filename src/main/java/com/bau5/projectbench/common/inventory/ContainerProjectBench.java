@@ -13,7 +13,6 @@ import net.minecraft.item.ItemStack;
  * Created by bau5 on 4/15/2015.
  */
 public class ContainerProjectBench extends Container {
-
     private TileEntityProjectBench tile;
 
     public ContainerProjectBench(InventoryPlayer invPlayer, TileEntityProjectBench tpb){
@@ -66,6 +65,8 @@ public class ContainerProjectBench extends Container {
     public boolean canInteractWith(EntityPlayer playerIn) {
         return true;
     }
+
+    @Override
     public ItemStack transferStackInSlot(EntityPlayer playerIn, int index)
     {
         ItemStack itemstack = null;

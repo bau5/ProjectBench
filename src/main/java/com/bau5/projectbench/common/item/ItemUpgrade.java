@@ -23,7 +23,7 @@ import java.util.List;
 public class ItemUpgrade extends Item{
 
     public static final String[] names = {
-            "Project Bench", "Fluid"
+            "Project Bench", "Fluid", "Inventory Size"
     };
 
     public ItemUpgrade(){
@@ -64,6 +64,8 @@ public class ItemUpgrade extends Item{
                 break;
             case 1: more += "Used to upgrade Project Bench to handle fluids.";
                 break;
+            case 2: more += "Used to upgrade Project Bench with more inventory slots.";
+                break;
         }
         tooltip.add(more);
     }
@@ -77,5 +79,6 @@ public class ItemUpgrade extends Item{
     public void getSubItems(Item itemIn, CreativeTabs tab, List subItems) {
         subItems.add(new ItemStack(this, 1, 0));
         subItems.add(new ItemStack(this, 1, 1));
+        subItems.add(new ItemStack(this, 1, 2));
     }
 }

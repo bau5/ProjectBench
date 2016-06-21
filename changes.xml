@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties version="1.0">  
-  <entry key = "0.5.0">Bug fixes. Version for MC 1.7.10 released.</entry>
+	<entry key = "0.5.0">Bug fixes. Version for MC 1.7.10 released.</entry>
 	<entry key = "1.8-0.5.0">Back ported to 1.7.10. More config options.</entry>
 	<entry key = "1.7.10-0.5.0">Initial 1.7.10 version.</entry>
 </properties>

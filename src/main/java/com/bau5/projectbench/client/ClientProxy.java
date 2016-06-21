@@ -20,10 +20,11 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 public class ClientProxy extends CommonProxy {
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-        if(world.getTileEntity(new BlockPos(x, y, z))instanceof TileEntityProjectBench)
-            return new GuiProjectBench(player.inventory, (TileEntityProjectBench)world.getTileEntity(new BlockPos(x, y, z)));
-        else
+        if(world.getTileEntity(new BlockPos(x, y, z))instanceof TileEntityProjectBench) {
+            return new GuiProjectBench(player.inventory, (TileEntityProjectBench) world.getTileEntity(new BlockPos(x, y, z)));
+        } else {
             return null;
+        }
     }
 
     @Override
@@ -46,9 +47,12 @@ public class ClientProxy extends CommonProxy {
         Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
                 ProjectBench.upgrade, 1,
                 new ModelResourceLocation(Reference.MOD_ID + ":upgrade_fluid", inv));
+        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
+                ProjectBench.upgrade, 2,
+                new ModelResourceLocation(Reference.MOD_ID + ":upgrade_fluid", inv));
 
         ModelBakery.registerItemVariants(ProjectBench.plan, new ResourceLocation("projectbench:plan"), new ResourceLocation("projectbench:planused"));
-        ModelBakery.registerItemVariants(ProjectBench.upgrade, new ResourceLocation("projectbench:upgrade_pb"), new ResourceLocation("projectbench:upgrade_fluid"));
+        ModelBakery.registerItemVariants(ProjectBench.upgrade, new ResourceLocation("projectbench:upgrade_pb"), new ResourceLocation("projectbench:upgrade_fluid"), new ResourceLocation("projectbench:upgrade_inventory"));
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityProjectBench.class, new ProjectBenchRenderer());
     }
