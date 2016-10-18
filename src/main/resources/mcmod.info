@@ -2,9 +2,9 @@
 {
   "modid": "projectbench",
   "name": "Project Bench Updated",
-  "description": "Project Bench updated for 1.9.",
-  "version": "0.5.0",
-  "mcversion": "1.9",
+  "description": "Project Bench updated for 1.10.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
   "authorList": ["_bau5"],

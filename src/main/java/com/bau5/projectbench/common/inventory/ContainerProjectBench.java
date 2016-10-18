@@ -9,6 +9,8 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nullable;
+
 /**
  * Created by bau5 on 4/15/2015.
  */
@@ -38,13 +40,14 @@ public class ContainerProjectBench extends Container {
         addSlotToContainer(new SlotPlan(tile, planSlot, 7, 35));
     }
 
+    @Nullable
     @Override
-    public ItemStack func_184996_a(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
+    public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
         if(slotId == planSlot && clickTypeIn == ClickType.PICKUP_ALL){
             clickTypeIn = ClickType.PICKUP;
         }
 
-        return super.func_184996_a(slotId, dragType, clickTypeIn, player);
+        return super.slotClick(slotId, dragType, clickTypeIn, player);
     }
 
     private void bindPlayerInventory(InventoryPlayer invPlayer) {

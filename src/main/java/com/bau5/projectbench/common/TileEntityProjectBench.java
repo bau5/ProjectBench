@@ -6,6 +6,7 @@ import com.bau5.projectbench.common.upgrades.FluidUpgrade;
 import com.bau5.projectbench.common.upgrades.IUpgrade;
 import com.bau5.projectbench.common.upgrades.InventorySizeUpgrade;
 import com.bau5.projectbench.common.utils.PlanHelper;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCraftResult;
@@ -17,7 +18,6 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -25,10 +25,16 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.*;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Iterator;
 
 /**
@@ -37,7 +43,7 @@ import java.util.Iterator;
 public class TileEntityProjectBench extends TileEntity implements ITickable, IInventory, IFluidHandler {
     private int fluidUpdateTick = 0;
 
-    private FluidTank fluidTank = new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 16);
+    private FluidTank fluidTank = new FluidTank(Fluid.BUCKET_VOLUME * 16);
 
     private ItemStack result;
     private IRecipe currentRecipe;
@@ -67,30 +73,28 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         shouldUpdateRecipe = true;
     }
 
-    public boolean updateRecipe(){
-        return shouldUpdateRecipe;
-    }
-
     public boolean isUsingPlan() {
         return usingPlan;
     }
 
     @Override
     public void update() {
-        if(updateRecipe()){
+        if(shouldUpdateRecipe){
             findRecipe();
-            if(getResult() == null && craftingMatrixIsEmpty()){
+            if(getResult() == null && isCraftingMatrixEmpty()){
                 setResult(getPlanResult());
             }
-//            worldObj.markBlockForUpdate(this.getPos());
             worldObj.scheduleUpdate(this.getPos(), this.getBlockType(), 0);
             shouldUpdateRecipe = false;
+            markDirty();
+            worldObj.notifyBlockOfStateChange(pos, ProjectBench.projectBench);
         }
         if(++fluidUpdateTick >= 20 && sendNetworkUpdate()){
-//            worldObj.markBlockForUpdate(this.getPos());
             worldObj.scheduleUpdate(this.getPos(), this.getBlockType(), 0);
             shouldSendNetworkUpdate = false;
             fluidUpdateTick = 0;
+            markDirty();
+            worldObj.notifyBlockOfStateChange(pos, ProjectBench.projectBench);
         }
     }
 
@@ -120,19 +124,17 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
                 setInventorySlotContents(0, getStackInSlot(0));
 
                 break;
+            default:
+                break;
         }
         shouldSendNetworkUpdate = true;
     }
 
-    public IUpgrade getUpgrade(){
-        return upgrade;
-    }
-
     public boolean getCanAcceptUpgrade(){
-        return getUpgrade() == null;
+        return upgrade == null;
     }
 
-    public ItemStack getPlanResult(){
+    private ItemStack getPlanResult(){
         ItemStack plan = getPlan();
         if(plan != null){
             ItemStack result = PlanHelper.getPlanResult(plan);
@@ -143,7 +145,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         return null;
     }
 
-    public boolean craftingMatrixIsEmpty(){
+    private boolean isCraftingMatrixEmpty(){
         boolean flag = true;
         for(int i = 0; i < 9; i++){
             if(inventory[i] != null) {
@@ -190,14 +192,9 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         return currentRecipe;
     }
 
-    public boolean isOreRecipe(){
-        return currentRecipe instanceof ShapedOreRecipe || currentRecipe instanceof ShapelessOreRecipe;
-    }
-
     public ItemStack getPlan() {
         return inventory[planIndex];
     }
-
 
     public LocalInventoryCrafting getCrafter() {
         return crafter;
@@ -266,24 +263,10 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
     @Override
     public ItemStack removeStackFromSlot(int index) {
-        return ItemStackHelper.func_188383_a(inventory, index);
+        return ItemStackHelper.getAndRemove(inventory, index);
     }
 
-    public ItemStack getStackInSlotOnClosing(int index)
-    {
-        if (this.inventory[index] != null)
-        {
-            ItemStack itemstack = this.inventory[index];
-            this.inventory[index] = null;
-            checkAndMarkForRecipeUpdate(index);
-            return itemstack;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
+    @Override
     public void setInventorySlotContents(int index, ItemStack stack)
     {
         this.inventory[index] = stack;
@@ -304,9 +287,9 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
                 firstNull = i;
                 continue;
             }
-            if(ItemStack.areItemsEqual(item, getStackInSlot(i))
-                    && getStackInSlot(i).stackSize + item.stackSize <= getStackInSlot(i).getMaxStackSize()){
-                ItemStack stack = getStackInSlot(i);
+            ItemStack stack = getStackInSlot(i);
+            if(stack != null && ItemStack.areItemsEqual(item, getStackInSlot(i))
+                    && stack.stackSize + item.stackSize <= stack.getMaxStackSize()){
                 stack.stackSize += item.stackSize;
                 setInventorySlotContents(i, stack);
                 return true;
@@ -319,9 +302,8 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         return false;
     }
 
-
     @Override
-    public Packet getDescriptionPacket() {
+    public SPacketUpdateTileEntity getUpdatePacket() {
         SPacketUpdateTileEntity packet = null;
         NBTTagCompound tag = new NBTTagCompound();
         if(getResult() != null) {
@@ -330,7 +312,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         if(upgrade != null) {
             tag.setInteger("Upgrade", upgrade.getType());
             if(upgrade.getType() == 0){
-                if(getFluidInTank() != null)
+                if(getFluidInTank() != null && fluidTank.getFluid() != null)
                     tag.setTag("Fluid", fluidTank.getFluid().writeToNBT(new NBTTagCompound()));
             }
         }
@@ -343,8 +325,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         super.onDataPacket(net, pkt);
         NBTTagCompound tag = pkt.getNbtCompound();
-        if(tag == null)
-            return;
+
         if(tag.hasKey("Result")){
             setResult(ItemStack.loadItemStackFromNBT(tag.getCompoundTag("Result")));
         }
@@ -359,7 +340,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound compound) {
+    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
         NBTTagList list = new NBTTagList();
 
@@ -382,6 +363,8 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
                 compound.setTag("Fluid", fluidTag);
             }
         }
+
+        return compound;
     }
 
     @Override
@@ -424,14 +407,10 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     }
 
     @Override
-    public void openInventory(EntityPlayer player) {
-
-    }
+    public void openInventory(EntityPlayer player) {}
 
     @Override
-    public void closeInventory(EntityPlayer player) {
-
-    }
+    public void closeInventory(EntityPlayer player) {}
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
@@ -477,54 +456,55 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         return upgrade != null && upgrade.getType() == 0;
     }
 
+    @ParametersAreNonnullByDefault
     @Override
-    public int fill(EnumFacing from, FluidStack resource, boolean doFill) {
-        if(!getHasFluidUpgrade()|| !canFill(from, resource.getFluid()))
-            return 0;
-        shouldSendNetworkUpdate = true;
-        return fluidTank.fill(resource, doFill);
+    public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+    {
+        return capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY || super.hasCapability(capability, facing);
     }
 
+    @SuppressWarnings("unchecked")
+    @ParametersAreNonnullByDefault
+    @MethodsReturnNonnullByDefault
     @Override
-    public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain) {
-        if(!getHasFluidUpgrade() && fluidTank.getFluidAmount() > 0)
-            return null;
-        if(resource.isFluidEqual(getFluidInTank())){
-            drain(from, resource.amount, doDrain);
-        }
-        shouldSendNetworkUpdate = true;
-        return null;
-    }
-
-    @Override
-    public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain) {
-        if(!getHasFluidUpgrade())
-            return null;
-        shouldSendNetworkUpdate = true;
-        return fluidTank.drain(maxDrain, doDrain);
-    }
-
-    @Override
-    public boolean canFill(EnumFacing from, Fluid fluid) {
-        return getHasFluidUpgrade();
-    }
-
-    @Override
-    public boolean canDrain(EnumFacing from, Fluid fluid) {
-        return getHasFluidUpgrade();
-    }
-
-    @Override
-    public FluidTankInfo[] getTankInfo(EnumFacing from) {
-        if(getFluidInTank() != null){
-            return new FluidTankInfo[]{
-                new FluidTankInfo(getFluidInTank(), FluidContainerRegistry.BUCKET_VOLUME * 16)
-            };
-        }
-        return new FluidTankInfo[0];
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+    {
+        if (getHasFluidUpgrade() && capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+            return (T) fluidTank;
+        return super.getCapability(capability, facing);
     }
 
     public FluidStack getFluidInTank(){
         return fluidTank.getFluid();
+    }
+
+    @Override
+    public IFluidTankProperties[] getTankProperties() {
+        return new IFluidTankProperties[0];
+    }
+
+    @Override
+    public int fill(FluidStack resource, boolean doFill) {
+        if (!getHasFluidUpgrade())
+            return 0;
+        if (doFill)
+            shouldSendNetworkUpdate = true;
+        return fluidTank.fill(resource, doFill);
+    }
+
+    @Nullable
+    @Override
+    public FluidStack drain(FluidStack resource, boolean doDrain) {
+        if (!getHasFluidUpgrade())
+            return null;
+        return fluidTank.drain(resource, doDrain);
+    }
+
+    @Nullable
+    @Override
+    public FluidStack drain(int maxDrain, boolean doDrain) {
+        if (!getHasFluidUpgrade())
+            return null;
+        return fluidTank.drain(maxDrain, doDrain);
     }
 }

@@ -129,7 +129,7 @@ public class GuiProjectBench extends GuiContainer {
                 FluidStack fstack = tile.getFluidInTank();
                 int amount = (fstack.amount / 1000) * 3;
                 int bucketSize = 3;
-                mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+                mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
                 TextureAtlasSprite sprite = mc.getTextureMapBlocks().getAtlasSprite(fstack.getFluid().getStill(fstack).toString());
 
                 drawTexturedModelRectFromIconInverted(xDisp + 3, yDisp + ySize - 3, sprite, xSize - 6, (amount < bucketSize * 4) ? amount : 12);

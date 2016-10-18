@@ -80,9 +80,9 @@ public class ProjectBench{
     }
 
     private void registerItemsAndBlocks(FMLPreInitializationEvent ev){
-        projectBench = new BlockProjectBench().setCreativeTab(CreativeTabs.tabDecorations);
-        plan = new ItemPlan().setCreativeTab(CreativeTabs.tabMisc);
-        upgrade = new ItemUpgrade().setCreativeTab(CreativeTabs.tabMisc);
+        projectBench = new BlockProjectBench().setCreativeTab(CreativeTabs.DECORATIONS);
+        plan = new ItemPlan().setCreativeTab(CreativeTabs.MISC);
+        upgrade = new ItemUpgrade().setCreativeTab(CreativeTabs.MISC);
         GameRegistry.registerBlock(projectBench, ItemBlockProjectBench.class, "pb_block");
         GameRegistry.registerTileEntity(TileEntityProjectBench.class, "pb_te");
         GameRegistry.registerItem(plan, "plan");
@@ -91,25 +91,25 @@ public class ProjectBench{
 
     private void registerRecipes(){
         CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(projectBench, 1, 0),
-            " G ", "ICI", "WHW", 'G', "blockGlass", 'I', "ingotIron", 'C', Blocks.crafting_table,
-            'W', "plankWood", 'H', Blocks.chest
+            " G ", "ICI", "WHW", 'G', "blockGlass", 'I', "ingotIron", 'C', Blocks.CRAFTING_TABLE,
+            'W', "plankWood", 'H', Blocks.CHEST
         ));
         CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(plan, 8, 0),
-            " PS", "PNP", "SP ", 'P', Items.paper, 'S', Items.stick, 'N', Items.gold_nugget
+            " PS", "PNP", "SP ", 'P', Items.PAPER, 'S', Items.STICK, 'N', Items.GOLD_NUGGET
         ));
         CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 0),
             " G ", "I I", "WHW", 'G', "blockGlass", 'I', "ingotIron",
-            'W', "plankWood", 'H', Blocks.chest
+            'W', "plankWood", 'H', Blocks.CHEST
         ));
         CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1),
-            "SGS", "GBG", "SGS", 'S', "stone", 'G', "blockGlass", 'B', Items.bucket
+            "SGS", "GBG", "SGS", 'S', "stone", 'G', "blockGlass", 'B', Items.BUCKET
         ));
         CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 2),
-            " I ", "ICI", " I ", 'I', Items.iron_ingot, 'C', Blocks.chest
+            " I ", "ICI", " I ", 'I', Items.IRON_INGOT, 'C', Blocks.CHEST
         ));
 
         if (Config.DEBUG_RECIPE) {
-            CraftingManager.getInstance().addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.mossy_cobblestone), new ItemStack(Blocks.cobblestone), new ItemStack(Items.water_bucket)));
+            CraftingManager.getInstance().addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.MOSSY_COBBLESTONE), new ItemStack(Blocks.COBBLESTONE), new ItemStack(Items.WATER_BUCKET)));
         }
     }
 }

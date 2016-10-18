@@ -10,7 +10,6 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -107,7 +106,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
     private ItemStack[] fireCraftingEvents(EntityPlayer playerIn, ItemStack stack, InventoryCrafting inv){
         FMLCommonHandler.instance().firePlayerCraftingEvent(playerIn, stack, inv);
         ForgeHooks.setCraftingPlayer(playerIn);
-        ItemStack[] containerItems = CraftingManager.getInstance().func_180303_b(inv, playerIn.worldObj);
+        ItemStack[] containerItems = CraftingManager.getInstance().getRemainingItems(inv, playerIn.worldObj);
         ForgeHooks.setCraftingPlayer(null);
         return containerItems;
     }
@@ -146,7 +145,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
                 if(isFluid(piece)){
                     FluidStack fstack = FluidContainerRegistry.getFluidForFilledItem(piece);
                     if(fstack.amount <= theTile.getFluidInTank().amount){
-                        theTile.drain(EnumFacing.UP, fstack.amount, true);
+                        theTile.drain(fstack, true);
                         temp.decrStackSize(craftingInv, 1);
                         if(containerItems[craftingInv] != null){
                             containerItems[craftingInv] = null;
@@ -196,12 +195,9 @@ public class SlotModifiedCrafting extends SlotCrafting {
                 ItemStack leftOver = containerItems[i];
                 if(leftOver == null){
                     leftOver = temp.getStackInSlot(i);
-                }
-                if(leftOver != null){
-                    if(!theTile.addStackToInventory(leftOver)){
-                        if(!playerIn.inventory.addItemStackToInventory(leftOver)){
-                            playerIn.dropPlayerItemWithRandomChoice(leftOver,false);
-                        }
+                } else {
+                    if (!theTile.addStackToInventory(leftOver) && !playerIn.inventory.addItemStackToInventory(leftOver)) {
+                        playerIn.dropItem(leftOver, false);
                     }
                 }
             }
@@ -230,7 +226,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
                                     FluidStack fromCrafting = FluidContainerRegistry.getFluidForFilledItem(stackInSlot);
                                     FluidStack fromTank = theTile.getFluidInTank();
                                     if(fromCrafting != null && fromTank.amount > 0 && fromTank.isFluidEqual(fromCrafting)){
-                                        theTile.drain(EnumFacing.UP, fromCrafting.amount, true);
+                                        theTile.drain(fromCrafting, true);
                                         found = true;
                                     }
                                     break;
@@ -238,7 +234,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
                                 if (!found && ItemStack.areItemsEqual(stackInSlot, supplyStack)) {
                                     theTile.decrStackSize(supplyInv, 1);
                                     if (!theTile.addStackToInventory(containerItem)) {
-                                        playerIn.dropPlayerItemWithRandomChoice(containerItem, false);
+                                        playerIn.dropItem(containerItem, false);
                                     }
                                     found = true;
                                     break;
@@ -277,7 +273,7 @@ public class SlotModifiedCrafting extends SlotCrafting {
                                 theTile.setInventorySlotContents(i, containerItem);
                             } else if (!theTile.addStackToInventory(containerItem)) {
                                 if (!playerIn.inventory.addItemStackToInventory(containerItem)) {
-                                    playerIn.dropPlayerItemWithRandomChoice(containerItem, false);
+                                    playerIn.dropItem(containerItem, false);
                                 }
                             }
                         }

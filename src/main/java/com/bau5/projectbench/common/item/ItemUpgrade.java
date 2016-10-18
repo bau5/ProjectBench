@@ -35,7 +35,7 @@ public class ItemUpgrade extends Item{
     @Override
     public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
         IBlockState blockState = world.getBlockState(pos);
-        if(stack.getMetadata() == 0 && blockState != null && blockState.getBlock() == Blocks.crafting_table){
+        if(stack.getMetadata() == 0 && blockState != null && blockState.getBlock() == Blocks.CRAFTING_TABLE){
             if(!world.isRemote) {
                 IBlockState newState = ProjectBench.projectBench.getDefaultState();
                 world.setBlockState(pos, newState, 3);
