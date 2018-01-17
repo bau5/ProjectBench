@@ -1,17 +1,9 @@
 package com.bau5.projectbench.common;
 
 import com.bau5.projectbench.common.inventory.ContainerProjectBench;
-import com.bau5.projectbench.common.item.ItemPlan;
-import com.bau5.projectbench.common.item.ItemUpgrade;
-import com.bau5.projectbench.common.utils.Reference;
-import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 
 /**
