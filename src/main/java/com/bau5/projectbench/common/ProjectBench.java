@@ -6,11 +6,7 @@ import com.bau5.projectbench.common.utils.Config;
 import com.bau5.projectbench.common.utils.Reference;
 import com.bau5.projectbench.common.utils.VersionCheckEventHandler;
 import com.bau5.projectbench.common.utils.VersionChecker;
-import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
@@ -18,14 +14,12 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION)
-@Mod.EventBusSubscriber
 public class ProjectBench {
 
     @SidedProxy(clientSide = Reference.PROXY_CLIENT,
@@ -36,22 +30,24 @@ public class ProjectBench {
     public static ProjectBench instance;
     public static SimpleNetworkWrapper network;
 
-    @GameRegistry.ObjectHolder(Reference.MOD_ID + ":pb_block")
-    public static BlockProjectBench projectBench;
-    @GameRegistry.ObjectHolder(Reference.MOD_ID + ":plan")
-    public static ItemPlan plan;
-    @GameRegistry.ObjectHolder(Reference.MOD_ID + ":pb_upgrade")
-    public static ItemUpgrade upgrade;
+    @GameRegistry.ObjectHolder("pb_block")
+    public static final BlockProjectBench projectBench = new BlockProjectBench();
+    @GameRegistry.ObjectHolder("plan")
+    public static final ItemPlan plan = new ItemPlan();
+    @GameRegistry.ObjectHolder("pb_upgrade")
+    public static final ItemUpgrade upgrade = new ItemUpgrade();
 
     public Config config;
 
     @Mod.EventHandler
     public void preinit(FMLPreInitializationEvent ev){
+        System.out.println("Pre Init.");
         config = new Config(ev);
    }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent ev) {
+        System.out.println("Init.");
         NetworkRegistry.INSTANCE.registerGuiHandler(ProjectBench.instance, proxy);
         network = NetworkRegistry.INSTANCE.newSimpleChannel(Reference.CHANNEL);
         network.registerMessage(SimpleMessage.Handler.class, SimpleMessage.class, 0, Side.SERVER);
@@ -59,6 +55,7 @@ public class ProjectBench {
 
     @Mod.EventHandler
     public void onPostInit(FMLPostInitializationEvent ev){
+        System.out.println("Post Init.");
         if(ev.getSide() == Side.CLIENT){
             if(Config.VERSION_CHECK) {
                 VersionChecker.go();
@@ -76,21 +73,6 @@ public class ProjectBench {
         proxy.registerRenderingInformation();
     }
 
-    @SubscribeEvent
-    public void registerBlocks(RegistryEvent.Register<Block> event) {
-        BlockProjectBench projectBench = new BlockProjectBench();
-        projectBench.setCreativeTab(CreativeTabs.DECORATIONS);
-        event.getRegistry().register(projectBench);
-    }
-
-    // GameRegistry.registerTileEntity(TileEntityProjectBench.class, "pb_te");
-
-    @SubscribeEvent
-    public void registerItems(RegistryEvent.Register<Item> event){
-        ItemPlan plan = new ItemPlan();
-        ItemUpgrade upgrade = new ItemUpgrade();
-        event.getRegistry().registerAll(plan, upgrade);
-    }
 
     /*
     private void registerRecipes(){
