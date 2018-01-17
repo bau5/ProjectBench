@@ -1,0 +1,31 @@
+{
+  "result": {
+    "item": "projectbench:pb_block"
+  },
+  "pattern": [
+    " g ",
+    "ici",
+    "whw"
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "i": {
+      "type": "forge:ore_dict",
+      "ore": "ingotIron"
+    },
+    "g": {
+      "type": "forge:ore_dict",
+      "ore": "blockGlass"
+    },
+    "c": {
+      "item": "minecraft:crafting_table"
+    },
+    "w": {
+      "type": "forge:ore_dict",
+      "ore": "plankWood"
+    },
+    "h": {
+      "item": "minecraft:chest"
+    }
+  }
+}
