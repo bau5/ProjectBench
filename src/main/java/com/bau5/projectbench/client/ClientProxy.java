@@ -30,32 +30,6 @@ public class ClientProxy extends CommonProxy {
     @Override
     @SuppressWarnings("unchecked")
     public void registerRenderingInformation() {
-        String inv = "inventory";
-        Item itemFromBlock = Item.getItemFromBlock(ProjectBench.projectBench);
-        System.out.println(">> " + itemFromBlock.toString());
-        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
-                itemFromBlock, 0,
-                new ModelResourceLocation(Reference.MOD_ID + ":pb_block", inv));
-        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
-                ProjectBench.plan, 1,
-                new ModelResourceLocation(Reference.MOD_ID + ":planused", inv));
-        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
-                ProjectBench.plan, 0,
-                new ModelResourceLocation(Reference.MOD_ID + ":plan", inv));
-
-        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
-                ProjectBench.upgrade, 0,
-                new ModelResourceLocation(Reference.MOD_ID + ":upgrade_pb", inv));
-        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
-                ProjectBench.upgrade, 1,
-                new ModelResourceLocation(Reference.MOD_ID + ":upgrade_fluid", inv));
-        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(
-                ProjectBench.upgrade, 2,
-                new ModelResourceLocation(Reference.MOD_ID + ":upgrade_inventory", inv));
-
-        ModelBakery.registerItemVariants(ProjectBench.plan, new ResourceLocation("projectbench:plan"), new ResourceLocation("projectbench:planused"));
-        ModelBakery.registerItemVariants(ProjectBench.upgrade, new ResourceLocation("projectbench:upgrade_pb"), new ResourceLocation("projectbench:upgrade_fluid"), new ResourceLocation("projectbench:upgrade_inventory"));
-
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityProjectBench.class, new ProjectBenchRenderer());
     }
 }

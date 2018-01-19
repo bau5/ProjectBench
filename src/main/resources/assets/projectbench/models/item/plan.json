@@ -1,5 +1,5 @@
 {
-  "parent": "builtin/generated",
+  "parent": "minecraft:item/handheld",
   "textures": {
     "layer0": "projectbench:items/plan_blank"
   },
