@@ -33,6 +33,7 @@ public class ItemUpgrade extends Item{
         setMaxStackSize(4);
         setHasSubtypes(true);
         setUnlocalizedName("pb_upgrade");
+        setRegistryName("pb_upgrade");
     }
 
     @Override

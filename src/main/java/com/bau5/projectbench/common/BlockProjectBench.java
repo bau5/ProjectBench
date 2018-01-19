@@ -23,8 +23,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 public class BlockProjectBench extends BlockContainer {
     protected BlockProjectBench() {
         super(Material.WOOD);
+        setRegistryName("pb_block");
         setUnlocalizedName("pb_block");
-        setDefaultState(this.blockState.getBaseState());
         setHardness(1.0F);
         setHarvestLevel("net.minecraft.item.ItemAxe", 0);
     }

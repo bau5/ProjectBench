@@ -25,6 +25,7 @@ public class ItemPlan extends Item {
         setMaxStackSize(16);
         setHasSubtypes(true);
         setUnlocalizedName("plan");
+        setRegistryName("plan");
     }
 
     @Override
