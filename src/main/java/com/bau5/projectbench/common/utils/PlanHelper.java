@@ -6,6 +6,7 @@ import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.fml.common.asm.transformers.ItemStackTransformer;
 
 /**
  * Created by bau5 on 5/15/2015.
@@ -17,7 +18,7 @@ public class PlanHelper {
 
     public static ItemStack getPlanResult(ItemStack plan){
         if(plan == null || !plan.hasTagCompound() || !plan.getTagCompound().hasKey(PlanHelper.result)){
-            return null;
+            return ItemStack.EMPTY;
         }
         return new ItemStack(plan.getTagCompound().getCompoundTag(PlanHelper.result));
     }

@@ -21,6 +21,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -28,6 +29,7 @@ import net.minecraftforge.fluids.*;
 import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
+import net.minecraftforge.fml.common.asm.transformers.ItemStackTransformer;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -49,7 +51,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     private boolean usingPlan = false;
 
     private int inventorySize = 28;
-    private ItemStack[] inventory = new ItemStack[inventorySize];
+    private NonNullList<ItemStack> inventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
 
     private LocalInventoryCrafting crafter = new LocalInventoryCrafting(this);
     private IInventory craftResult = new InventoryCraftResult();
@@ -110,13 +112,10 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
                 upgrade = new InventorySizeUpgrade();
 
                 inventorySize += ((InventorySizeUpgrade) upgrade).getAdditionalSlotCount();
-                ItemStack[] newItems = new ItemStack[inventorySize];
-                for (int i = 0; i < inventory.length; i++) {
-                    if (inventory[i] != null) {
-                        newItems[i] = inventory[i].copy();
-                    }
+                NonNullList<ItemStack> newInventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
+                for (int i = 0; i < inventory.size(); i++) {
+                    newInventory.set(i, inventory.get(i));
                 }
-                inventory = newItems;
 
                 provider = new CraftingItemsProvider(this, 9, 45);
 
@@ -136,20 +135,16 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     }
 
     public ItemStack getPlanResult(){
-        ItemStack plan = getPlan();
-        if(plan != null){
-            ItemStack result = PlanHelper.getPlanResult(plan);
-            if(result != null)
-                usingPlan = true;
-            return result;
-        }
-        return null;
+        ItemStack result = PlanHelper.getPlanResult(getPlan());
+        if(result != null)
+            usingPlan = true;
+        return result;
     }
 
     public boolean craftingMatrixIsEmpty(){
         boolean flag = true;
         for(int i = 0; i < 9; i++){
-            if(inventory[i] != null) {
+            if(!inventory.get(i).isEmpty()) {
                 flag = false;
                 break;
             }
@@ -159,7 +154,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
     private void findRecipe() {
         for (int i = 0; i < 9; i++) {
-            crafter.setInventorySlotContents(i, inventory[i]);
+            crafter.setInventorySlotContents(i, inventory.get(i));
         }
         ItemStack result = findMatchingRecipe(crafter, world);
         if(result == null)
@@ -173,9 +168,8 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         currentRecipe = CraftingManager.findMatchingRecipe(inventoryCrafting, worldIn);
 
         if (currentRecipe == null) {
-            return null;
+            return ItemStack.EMPTY;
         }
-
         return currentRecipe.getCraftingResult(inventoryCrafting);
     }
 
@@ -183,14 +177,9 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         return currentRecipe;
     }
 
-    public boolean isOreRecipe(){
-        return currentRecipe instanceof ShapedOreRecipe || currentRecipe instanceof ShapelessOreRecipe;
-    }
-
     public ItemStack getPlan() {
-        return inventory[planIndex];
+        return inventory.get(planIndex);
     }
-
 
     public LocalInventoryCrafting getCrafter() {
         return crafter;
@@ -215,7 +204,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
     @Override
     public int getSizeInventory() {
-        return inventory.length;
+        return inventory.size();
     }
 
     @Override
@@ -227,27 +216,27 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     @Override
     public ItemStack getStackInSlot(int index)
     {
-        return this.inventory[index];
+        return inventory.get(index);
     }
 
     @Override
     public ItemStack decrStackSize(int index, int count)
     {
-        if (this.inventory[index] != null)
+        if (!inventory.get(index).isEmpty())
         {
             ItemStack itemstack;
 
-            if (this.inventory[index].getCount() <= count)
+            if (this.inventory.get(index).getCount() <= count)
             {
-                itemstack = this.inventory[index];
-                this.inventory[index] = null;
+                itemstack = this.inventory.get(index);
+                this.inventory.set(index, ItemStack.EMPTY);
                 this.markDirty();
                 checkAndMarkForRecipeUpdate(index);
                 return itemstack;
             }
             else
             {
-                itemstack = this.inventory[index].splitStack(count);
+                itemstack = this.inventory.get(index).splitStack(count);
 
                 this.markDirty();
                 checkAndMarkForRecipeUpdate(index);
@@ -256,36 +245,22 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         }
         else
         {
-            return null;
+            return ItemStack.EMPTY;
         }
     }
 
     @Override
     public ItemStack removeStackFromSlot(int index) {
-        return ItemStackHelper.getAndRemove(Arrays.asList(inventory), index);
+        return ItemStackHelper.getAndRemove(inventory, index);
     }
 
-    public ItemStack getStackInSlotOnClosing(int index)
-    {
-        if (this.inventory[index] != null)
-        {
-            ItemStack itemstack = this.inventory[index];
-            this.inventory[index] = null;
-            checkAndMarkForRecipeUpdate(index);
-            return itemstack;
-        }
-        else
-        {
-            return null;
-        }
-    }
 
     @Override
     public void setInventorySlotContents(int index, ItemStack stack)
     {
-        this.inventory[index] = stack;
+        this.inventory.set(index, stack);
 
-        if (stack != null && stack.getCount() > this.getInventoryStackLimit())
+        if (stack.getCount() > this.getInventoryStackLimit())
         {
             stack.setCount(this.getInventoryStackLimit());
         }
@@ -361,11 +336,11 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         NBTTagCompound res = super.writeToNBT(compound);
         NBTTagList list = new NBTTagList();
 
-        for(int i = 0; i < this.inventory.length; ++i){
-            if(this.inventory[i] != null){
+        for(int i = 0; i < this.inventory.size(); ++i){
+            if(!inventory.get(i).isEmpty()){
                 NBTTagCompound tag = new NBTTagCompound();
                 tag.setByte("Slot", (byte)i);
-                inventory[i].writeToNBT(tag);
+                inventory.get(i).writeToNBT(tag);
                 list.appendTag(tag);
             }
         }
@@ -391,7 +366,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         for(int i = 0; i < list.tagCount(); ++i){
             NBTTagCompound tag = list.getCompoundTagAt(i);
             int j = tag.getByte("Slot") & 255;
-            if(j < this.inventory.length){
+            if(j < this.inventory.size()){
                setInventorySlotContents(j, new ItemStack(tag));
             }
         }
