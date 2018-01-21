@@ -3,6 +3,7 @@ package com.bau5.projectbench.common;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
@@ -27,6 +28,7 @@ public class BlockProjectBench extends BlockContainer {
         setUnlocalizedName("pb_block");
         setHardness(1.0F);
         setHarvestLevel("net.minecraft.item.ItemAxe", 0);
+        setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
     @Override

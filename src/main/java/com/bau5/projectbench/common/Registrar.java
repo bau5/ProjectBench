@@ -21,7 +21,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class Registrar {
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        ProjectBench.projectBench.setCreativeTab(CreativeTabs.DECORATIONS);
         event.getRegistry().register(ProjectBench.projectBench);
         GameRegistry.registerTileEntity(TileEntityProjectBench.class, "pb_te");
     }
@@ -41,6 +40,7 @@ public class Registrar {
         ModelLoader.setCustomModelResourceLocation(
                 Item.getItemFromBlock(ProjectBench.projectBench), 0,
                 new ModelResourceLocation(Reference.MOD_ID + ":pb_block", inv));
+
         ModelLoader.setCustomModelResourceLocation(
                 ProjectBench.plan, 1,
                 new ModelResourceLocation(Reference.MOD_ID + ":planused", inv));

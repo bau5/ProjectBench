@@ -34,6 +34,7 @@ public class ItemUpgrade extends Item{
         setHasSubtypes(true);
         setUnlocalizedName("pb_upgrade");
         setRegistryName("pb_upgrade");
+        setCreativeTab(CreativeTabs.MISC);
     }
 
     @Override
@@ -83,8 +84,10 @@ public class ItemUpgrade extends Item{
 
     @Override
     public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
-        subItems.add(new ItemStack(this, 1, 0));
-        subItems.add(new ItemStack(this, 1, 1));
-        subItems.add(new ItemStack(this, 1, 2));
+        if (this.isInCreativeTab(tab)) {
+            subItems.add(new ItemStack(this, 1, 0));
+            subItems.add(new ItemStack(this, 1, 1));
+            subItems.add(new ItemStack(this, 1, 2));
+        }
     }
 }

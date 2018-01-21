@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nullable;
+import javax.swing.undo.CannotRedoException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class ItemPlan extends Item {
         setHasSubtypes(true);
         setUnlocalizedName("plan");
         setRegistryName("plan");
+        setCreativeTab(CreativeTabs.MISC);
     }
 
     @Override
@@ -78,11 +80,5 @@ public class ItemPlan extends Item {
             }
         }
         super.addInformation(stack, worldIn, tooltip, flagIn);
-    }
-
-    @Override
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-        //items.add(new ItemStack(ProjectBench.plan, 1, 0));
-        super.getSubItems(tab, items);
     }
 }
