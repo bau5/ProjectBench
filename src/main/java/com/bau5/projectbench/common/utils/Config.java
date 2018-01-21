@@ -93,9 +93,9 @@ public class Config {
                 +"\nMax: " + 1});
         settings.put("Rotation Speed", new String[]{ intCat,
                 "Affects the speed of the rotation (if enabled)."
-                +"\nDefault: " + 7
-                +"\nMin: " + 0.1
-                +"\nMax: " + 20});
+                +"\nDefault: " + 1
+                +"\nMin: " + 0
+                +"\nMax: " + 1});
         settings.put("Bounce Speed", new String[]{ intCat,
                 "Affects the speed of bouncing item (if enabled)."
                 +"\nDefault: " + 1
@@ -116,7 +116,7 @@ public class Config {
 
     public static boolean DEBUG_RECIPE  = true;
 
-    public static double ROTATION_SPEED = 7;
+    public static double ROTATION_SPEED = 1.0;
     public static double RENDER_HEIGHT  = 0.5;
     public static double BOUNCE_HEIGHT  = 7;
     public static double BOUNCE_SPEED   = 7;
