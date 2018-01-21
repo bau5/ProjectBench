@@ -116,6 +116,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
                 for (int i = 0; i < inventory.size(); i++) {
                     newInventory.set(i, inventory.get(i));
                 }
+                inventory = newInventory;
 
                 provider = new CraftingItemsProvider(this, 9, 45);
 

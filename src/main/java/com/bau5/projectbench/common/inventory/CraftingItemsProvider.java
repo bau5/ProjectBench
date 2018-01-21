@@ -30,7 +30,6 @@ public class CraftingItemsProvider {
     }
 
     public ItemStack getStackFromSupplier(int supplyInv) {
-        ItemStack stack = provider.getStackInSlot(supplyInv);
-        return stack;
+        return provider.getStackInSlot(supplyInv);
     }
 }
