@@ -22,7 +22,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
  * Created by bau5 on 4/15/2015.
  */
 public class BlockProjectBench extends BlockContainer {
-    protected BlockProjectBench() {
+    BlockProjectBench() {
         super(Material.WOOD);
         setRegistryName("pb_block");
         setUnlocalizedName("pb_block");
@@ -91,11 +91,6 @@ public class BlockProjectBench extends BlockContainer {
         }
 
         super.breakBlock(worldIn, pos, state);
-    }
-
-    @Override
-    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        return super.getExtendedState(state, world, pos);
     }
 
     @Override
