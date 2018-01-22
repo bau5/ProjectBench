@@ -55,11 +55,11 @@ public class ItemPlan extends Item {
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
         if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ){
-            ItemStack[] stacks = PlanHelper.getComponentsForPlan(stack);
+            NonNullList<ItemStack> stacks = PlanHelper.getComponentsForPlan(stack);
             if(stacks != null) {
                 ArrayList<ItemStack> stackList = new ArrayList<ItemStack>();
                 for (ItemStack part : stacks) {
-                    if (part == null)
+                    if (part == ItemStack.EMPTY)
                         continue;
                     boolean flag = false;
                     for (ItemStack have : stackList) {

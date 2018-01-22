@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
@@ -59,7 +60,7 @@ public class GuiProjectBench extends GuiContainer {
             for(int i = 0; i < inventorySlots.inventorySlots.size(); i++){
                 Slot slot = inventorySlots.inventorySlots.get(i);
                 ItemStack stack = slot.getStack();
-                if(stack != null && stack.getItem().equals(ProjectBench.plan) && stack.getMetadata() == 1){
+                if(!stack.isEmpty() && stack.getItem().equals(ProjectBench.plan) && stack.getMetadata() == 1){
                     GlStateManager.pushMatrix();
                     GlStateManager.enableBlend();
                     GlStateManager.blendFunc(768, 1);
@@ -175,38 +176,36 @@ public class GuiProjectBench extends GuiContainer {
     private void drawPlanStacks(int xSize, int ySize){
         TileEntityProjectBench tpb = tile;
         if (tpb.getResult() != null && tpb.getPlan() != null) {
-            ItemStack[] stacks = PlanHelper.getComponentsForPlan(tpb.getPlan());
-            if (stacks != null) {
-                int index = 0;
-                for (int i = 0; i < 3; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        GlStateManager.pushMatrix();
-                        GlStateManager.enableBlend();
-                        GlStateManager.blendFunc(768, 1);
-                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                        GlStateManager.disableLighting();
-                        GlStateManager.disableDepth();
-                        RenderHelper.disableStandardItemLighting();
-                        RenderHelper.enableGUIStandardItemLighting();
-                        ItemStack stack = stacks[index++];
-                        int xLoc = (xSize + 30) + (j * 18);
-                        int yLoc = (ySize + 17) + (i * 18);
-                        if (stack != null) {
-                            FontRenderer font = stack.getItem().getFontRenderer(stack);
-                            if (font == null)
-                                font = fontRenderer;
-                            GlStateManager.colorMask(true, true, true, false);
-                            itemRender.renderItemAndEffectIntoGUI(stack, xLoc, yLoc);
-                            itemRender.renderItemOverlayIntoGUI(font, stack, xLoc, yLoc, "");
-                            this.drawGradientRect(xLoc, yLoc, xLoc + 16, yLoc + 16, -2130706433, -2130706433);
-                            GlStateManager.colorMask(true, true, true, true);
-                        }
-                        GlStateManager.disableBlend();
-                        GlStateManager.enableLighting();
-                        GlStateManager.enableDepth();
-                        RenderHelper.enableStandardItemLighting();
-                        GlStateManager.popMatrix();
+            NonNullList<ItemStack> stacks = PlanHelper.getComponentsForPlan(tpb.getPlan());
+            int index = 0;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    GlStateManager.pushMatrix();
+                    GlStateManager.enableBlend();
+                    GlStateManager.blendFunc(768, 1);
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    GlStateManager.disableLighting();
+                    GlStateManager.disableDepth();
+                    RenderHelper.disableStandardItemLighting();
+                    RenderHelper.enableGUIStandardItemLighting();
+                    ItemStack stack = stacks.get(index++);
+                    int xLoc = (xSize + 30) + (j * 18);
+                    int yLoc = (ySize + 17) + (i * 18);
+                    if (stack != ItemStack.EMPTY) {
+                        FontRenderer font = stack.getItem().getFontRenderer(stack);
+                        if (font == null)
+                            font = fontRenderer;
+                        GlStateManager.colorMask(true, true, true, false);
+                        itemRender.renderItemAndEffectIntoGUI(stack, xLoc, yLoc);
+                        itemRender.renderItemOverlayIntoGUI(font, stack, xLoc, yLoc, "");
+                        this.drawGradientRect(xLoc, yLoc, xLoc + 16, yLoc + 16, -2130706433, -2130706433);
+                        GlStateManager.colorMask(true, true, true, true);
                     }
+                    GlStateManager.disableBlend();
+                    GlStateManager.enableLighting();
+                    GlStateManager.enableDepth();
+                    RenderHelper.enableStandardItemLighting();
+                    GlStateManager.popMatrix();
                 }
             }
         }
@@ -224,7 +223,7 @@ public class GuiProjectBench extends GuiContainer {
         @Override
         public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial) {
             if(id == 1) {
-                ItemStack stack = tile.getStackInSlot(27);
+                ItemStack stack = tile.getPlan();
                 this.enabled = tile.getResult() != null &&
                         stack != null && !stack.hasTagCompound() && stack.getCount() == 1;
             }

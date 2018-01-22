@@ -5,6 +5,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 
 public class LocalInventoryCrafting extends InventoryCrafting {
     private IInventory parent;
@@ -23,12 +24,12 @@ public class LocalInventoryCrafting extends InventoryCrafting {
         parent = parentInventory;
     }
 
-    public void setInventoryContents(ItemStack[] stacks){
-        if(stacks.length != getSizeInventory()){
+    public void setInventoryContents(NonNullList<ItemStack> stacks){
+        if(stacks.size() != getSizeInventory()){
             return;
         }
-        for(int i = 0; i < stacks.length; i++) {
-            this.setInventorySlotContents(i, stacks[i]);
+        for(int i = 0; i < stacks.size(); i++) {
+            this.setInventorySlotContents(i, stacks.get(i));
         }
     }
 

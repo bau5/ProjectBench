@@ -49,16 +49,16 @@ public class SimpleMessage implements IMessage {
     public static class Handler implements IMessageHandler<SimpleMessage, IMessage>{
 
         @Override
-            public IMessage onMessage(SimpleMessage message, MessageContext ctx) {
-                switch(message.id){
-                    case 0: emptyCraftMatrix(ctx.getServerHandler().player);
-                        break;
-                    case 1:
-                        TileEntityProjectBench tile = ((ContainerProjectBench) ctx.getServerHandler().player.openContainer).getTileEntity();
-                        PlanHelper.writePlan(tile);
-                        break;
-                }
-                return null;
+        public IMessage onMessage(SimpleMessage message, MessageContext ctx) {
+            switch(message.id){
+                case 0: emptyCraftMatrix(ctx.getServerHandler().player);
+                    break;
+                case 1:
+                    TileEntityProjectBench tile = ((ContainerProjectBench) ctx.getServerHandler().player.openContainer).getTileEntity();
+                    PlanHelper.writePlan(tile);
+                    break;
+            }
+            return null;
         }
 
         private void emptyCraftMatrix(EntityPlayerMP thePlayer) {

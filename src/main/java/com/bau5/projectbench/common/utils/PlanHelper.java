@@ -6,6 +6,7 @@ import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.asm.transformers.ItemStackTransformer;
 
 /**
@@ -23,35 +24,36 @@ public class PlanHelper {
         return new ItemStack(plan.getTagCompound().getCompoundTag(PlanHelper.result));
     }
 
-    public static ItemStack[] getComponentsForPlan(ItemStack plan){
+    public static NonNullList<ItemStack> getComponentsForPlan(ItemStack plan){
         // TODO: use ItemStackHelper.loadAllItems();
         if(plan == null || !plan.hasTagCompound())
-            return null;
+            return NonNullList.create();
         NBTTagList list = plan.getTagCompound().getTagList(PlanHelper.title, 10);
-        if(list == null || list.tagCount() == 0){
-            return null;
+        if(list.tagCount() == 0){
+            return NonNullList.create();
         }
-        ItemStack[] stacks = new ItemStack[9];
+
+        NonNullList<ItemStack> stacks = NonNullList.withSize(9, ItemStack.EMPTY);
         for(int i = 0; i < list.tagCount(); i++){
             NBTTagCompound tag = list.getCompoundTagAt(i);
             int index = tag.getByte("Slot") & 255;
             if(index < 9) {
-                stacks[index] = new ItemStack(tag);
+                stacks.set(index,new ItemStack(tag));
             }
         }
         return stacks;
     }
 
     public static void writePlan(TileEntityProjectBench tile) {
-        ItemStack planStack = tile.getStackInSlot(27);
-        if(tile.getResult() == null)
+        ItemStack planStack = tile.getPlan();
+        if(tile.getResult() == ItemStack.EMPTY)
             return;
-        if(planStack != null && planStack.getItem().equals(ProjectBench.plan) && !planStack.hasTagCompound()){
+        if(planStack != ItemStack.EMPTY && planStack.getItem().equals(ProjectBench.plan) && !planStack.hasTagCompound()){
             NBTTagCompound stackTag = new NBTTagCompound();
             NBTTagList list = new NBTTagList();
             for(int i = 0; i < 9; i++){
                 ItemStack component = tile.getStackInSlot(i);
-                if(component != null){
+                if(component != ItemStack.EMPTY){
                     component = component.copy();
                     component.setCount(1);
                     if(component.getMaxDamage() > 0 && component.getItemDamage() != 0){

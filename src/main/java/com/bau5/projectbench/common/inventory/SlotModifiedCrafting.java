@@ -5,7 +5,6 @@ import com.bau5.projectbench.common.utils.OreDictRecipeHelper;
 import com.bau5.projectbench.common.utils.PlanHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.util.NonNullList;
@@ -39,12 +38,10 @@ public class SlotModifiedCrafting extends SlotCrafting {
             InventoryBasic copy = new InventoryBasic("local", false, 18);
             for(int i = 0; i < 18; i++){
                 ItemStack stack = theTile.getStackInSlot(i + 9);
-                if(stack != null)
-                    stack = stack.copy();
-                copy.setInventorySlotContents(i, stack);
+                copy.setInventorySlotContents(i, stack.copy());
             }
 
-            ItemStack[] components = PlanHelper.getComponentsForPlan(theTile.getPlan());
+            NonNullList<ItemStack> components = PlanHelper.getComponentsForPlan(theTile.getPlan());
             LocalInventoryCrafting crafting = new LocalInventoryCrafting();
             crafting.setInventoryContents(components);
             theTile.findMatchingRecipe(crafting, playerIn.world);
@@ -123,14 +120,14 @@ public class SlotModifiedCrafting extends SlotCrafting {
         this.onCrafting(stack);
         if(theTile.isUsingPlan()){
             //Get plan recipe
-            ItemStack[] components = PlanHelper.getComponentsForPlan(theTile.getPlan());
+            NonNullList<ItemStack> components = PlanHelper.getComponentsForPlan(theTile.getPlan());
             //Set plan recipe to temporary matrix
             LocalInventoryCrafting temp = new LocalInventoryCrafting();
             temp.setInventoryContents(components);
             NonNullList<ItemStack> containerItems = fireCraftingEvents(player, stack, temp);
             //Consume all item in grid
             int indexInCrafting = -1;
-            for(int craftingInv = 0; craftingInv < components.length; craftingInv++){
+            for(int craftingInv = 0; craftingInv < components.size(); craftingInv++){
                 ItemStack piece = temp.getStackInSlot(craftingInv);
                 if(piece == null)
                     continue;

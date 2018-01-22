@@ -50,12 +50,12 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     private IRecipe currentRecipe;
     private boolean usingPlan = false;
 
+    // Default inventory size
     private int inventorySize = 28;
     private NonNullList<ItemStack> inventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
 
     private LocalInventoryCrafting crafter = new LocalInventoryCrafting(this);
     private IInventory craftResult = new InventoryCraftResult();
-    private int planIndex = getSizeInventory() - 1;
 
     private IUpgrade upgrade = null;
 
@@ -65,9 +65,13 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     private boolean shouldSendNetworkUpdate = false;
 
     private void checkAndMarkForRecipeUpdate(int index){
-        if((index >= 0 && index < 9) || index == planIndex) {
-            shouldUpdateRecipe = true;
+        if((index >= 0 && index < 9) || index == getPlanIndex()) {
+            forceUpdateRecipe();
         }
+    }
+
+    public int getPlanIndex() {
+        return inventorySize - 1;
     }
 
     public void forceUpdateRecipe() {
@@ -86,7 +90,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     public void update() {
         if(updateRecipe()){
             findRecipe();
-            if(getResult() == null && craftingMatrixIsEmpty()){
+            if(getResult() == ItemStack.EMPTY && craftingMatrixIsEmpty()){
                 setResult(getPlanResult());
             }
             world.scheduleUpdate(this.getPos(), this.getBlockType(), 0);
@@ -137,7 +141,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
     public ItemStack getPlanResult(){
         ItemStack result = PlanHelper.getPlanResult(getPlan());
-        if(result != null)
+        if(result != ItemStack.EMPTY)
             usingPlan = true;
         return result;
     }
@@ -158,7 +162,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
             crafter.setInventorySlotContents(i, inventory.get(i));
         }
         ItemStack result = findMatchingRecipe(crafter, world);
-        if(result == null)
+        if(result == ItemStack.EMPTY)
             currentRecipe = null;
         setResult(result);
         usingPlan = false;
@@ -179,7 +183,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     }
 
     public ItemStack getPlan() {
-        return inventory.get(planIndex);
+        return inventory.get(getPlanIndex());
     }
 
     public LocalInventoryCrafting getCrafter() {
