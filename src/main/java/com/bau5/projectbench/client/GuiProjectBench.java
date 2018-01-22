@@ -175,7 +175,7 @@ public class GuiProjectBench extends GuiContainer {
 
     private void drawPlanStacks(int xSize, int ySize){
         TileEntityProjectBench tpb = tile;
-        if (tpb.getResult() != null && tpb.getPlan() != null) {
+        if (tpb.getResult() != ItemStack.EMPTY && tpb.getPlan() != ItemStack.EMPTY) {
             NonNullList<ItemStack> stacks = PlanHelper.getComponentsForPlan(tpb.getPlan());
             int index = 0;
             for (int i = 0; i < 3; i++) {
