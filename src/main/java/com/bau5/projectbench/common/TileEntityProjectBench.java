@@ -39,26 +39,36 @@ import javax.annotation.Nullable;
 public class TileEntityProjectBench extends TileEntity implements ITickable, IInventory, IFluidHandler {
     private int fluidUpdateTick = 0;
 
-    // TODO: find bucket volume proper
-    private FluidTank fluidTank = new FluidTank(16000);
+    private FluidTank fluidTank;
 
     private ItemStack result;
     private IRecipe currentRecipe;
     private boolean usingPlan = false;
 
-    // Default inventory size
-    private int inventorySize = 28;
-    private NonNullList<ItemStack> inventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
+    private NonNullList<ItemStack> inventory;
 
-    private LocalInventoryCrafting crafter = new LocalInventoryCrafting(this);
-    private IInventory craftResult = new InventoryCraftResult();
+    private LocalInventoryCrafting crafter;
+    private IInventory craftResult;
 
     private IUpgrade upgrade = null;
 
-    private CraftingItemsProvider provider = new CraftingItemsProvider(this, 9, 27);
+    private CraftingItemsProvider provider;
 
     private boolean shouldUpdateRecipe = false;
     private boolean shouldSendNetworkUpdate = false;
+
+    public TileEntityProjectBench() {
+        // Default inventory size -> chest (18) + crafting (9) + plan (1)
+        int inventorySize = 28;
+        inventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
+        // leave one slot for the plan
+        provider = new CraftingItemsProvider(this, 9, inventorySize - 1);
+        crafter = new LocalInventoryCrafting(this);
+        craftResult = new InventoryCraftResult();
+
+        // TODO: find bucket volume proper
+        fluidTank = new FluidTank(16000);
+    }
 
     private void checkAndMarkForRecipeUpdate(int index){
         if((index >= 0 && index < 9) || index == getPlanIndex()) {
@@ -67,7 +77,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     }
 
     public int getPlanIndex() {
-        return inventorySize - 1;
+        return inventory.size() - 1;
     }
 
     public void forceUpdateRecipe() {
@@ -109,14 +119,13 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
                 upgrade = new FluidUpgrade();
                 break;
             case 2:
-                upgrade = new InventorySizeUpgrade();
+                InventorySizeUpgrade isUpgrade = new InventorySizeUpgrade();
                 ItemStack plan = getPlan();
-                inventorySize += ((InventorySizeUpgrade) upgrade).getAdditionalSlotCount();
-                NonNullList<ItemStack> newInventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
+                NonNullList<ItemStack> newInventory = NonNullList.withSize(inventory.size() + isUpgrade.getAdditionalSlotCount(), ItemStack.EMPTY);
                 for (int i = 0; i < inventory.size() - 1; i++) {
                     newInventory.set(i, inventory.get(i));
                 }
-                newInventory.set(inventorySize - 1, plan);
+                newInventory.set(newInventory.size() - 1, plan);
                 inventory = newInventory;
 
                 provider = new CraftingItemsProvider(this, 9, 45);
@@ -159,7 +168,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
             crafter.setInventorySlotContents(i, inventory.get(i));
         }
         ItemStack result = findMatchingRecipe(crafter, world);
-        if(result == ItemStack.EMPTY)
+        if(result.isEmpty())
             currentRecipe = null;
         setResult(result);
         usingPlan = false;
@@ -326,7 +335,8 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         if(tag.hasKey("Upgrade")){
             int type = tag.getInteger("Upgrade");
             switch(type){
-                case 0: upgrade = new FluidUpgrade();
+                case 0:
+                    upgrade = new FluidUpgrade();
                     fluidTank.setFluid(FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("Fluid")));
                     break;
             }
@@ -347,7 +357,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
             }
         }
         res.setTag("Items", list);
-        if(getResult() != null){
+        if(getResult() != ItemStack.EMPTY){
             res.setTag(PlanHelper.result, getResult().writeToNBT(new NBTTagCompound()));
         }
         if(upgrade != null){
@@ -456,7 +466,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
     @Override
     public int fill(FluidStack resource, boolean doFill) {
-        if(!getHasFluidUpgrade() || getHasFluidUpgrade())
+        if(!getHasFluidUpgrade())
             return 0;
         shouldSendNetworkUpdate = true;
         return fluidTank.fill(resource, doFill);
