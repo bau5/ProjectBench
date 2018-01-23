@@ -34,7 +34,7 @@ import java.util.Collections;
  */
 public class GuiProjectBench extends GuiContainer {
     private TileEntityProjectBench tile;
-    private static final ResourceLocation gui_texture = new ResourceLocation("projectbench", "textures/gui/pbgui.png");
+    private static final ResourceLocation gui_texture = new ResourceLocation("projectbench", "textures/gui/pbgui2.png");
     private static final ResourceLocation other_texture = new ResourceLocation("projectbench", "textures/gui/parts.png");
 
     public GuiProjectBench(InventoryPlayer inventory, TileEntityProjectBench tileEntity) {
@@ -227,8 +227,8 @@ public class GuiProjectBench extends GuiContainer {
         public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial) {
             if(id == 1) {
                 ItemStack stack = tile.getPlan();
-                this.enabled = tile.getResult() != null &&
-                        stack != null && !stack.hasTagCompound() && stack.getCount() == 1;
+                this.enabled = tile.getResult() != ItemStack.EMPTY &&
+                        stack != ItemStack.EMPTY && !stack.hasTagCompound() && stack.getCount() == 1;
             }
             super.drawButton(mc, mouseX, mouseY, partial);
             if(getHoverState(isMouseOver()) == 2){
