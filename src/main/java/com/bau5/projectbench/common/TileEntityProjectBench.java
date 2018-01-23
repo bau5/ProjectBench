@@ -114,12 +114,13 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
                 break;
             case 2:
                 upgrade = new InventorySizeUpgrade();
-
+                ItemStack plan = getPlan();
                 inventorySize += ((InventorySizeUpgrade) upgrade).getAdditionalSlotCount();
                 NonNullList<ItemStack> newInventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
-                for (int i = 0; i < inventory.size(); i++) {
+                for (int i = 0; i < inventory.size() - 1; i++) {
                     newInventory.set(i, inventory.get(i));
                 }
+                newInventory.set(inventorySize - 1, plan);
                 inventory = newInventory;
 
                 provider = new CraftingItemsProvider(this, 9, 45);
