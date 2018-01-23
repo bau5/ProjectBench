@@ -1,0 +1,25 @@
+{
+  "result": {
+    "item": "projectbench:pb_upgrade",
+    "data": 1
+  },
+  "pattern": [
+    "sgs",
+    "gbg",
+    "sgs"
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "g": {
+      "type": "forge:ore_dict",
+      "ore": "blockGlass"
+    },
+    "s": {
+      "type": "forge:ore_dict",
+      "ore": "stone"
+    },
+    "b": {
+      "item": "minecraft:bucket"
+    }
+  }
+}

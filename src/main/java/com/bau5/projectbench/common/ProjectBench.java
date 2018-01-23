@@ -74,27 +74,4 @@ public class ProjectBench {
 
         proxy.registerRenderingInformation();
     }
-
-
-    /*
-    private void registerRecipes(){
-        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(plan, 8, 0),
-            " PS", "PNP", "SP ", 'P', Items.paper, 'S', Items.stick, 'N', Items.gold_nugget
-        ));
-        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 0),
-            " G ", "I I", "WHW", 'G', "blockGlass", 'I', "ingotIron",
-            'W', "plankWood", 'H', Blocks.chest
-        ));
-        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 1),
-            "SGS", "GBG", "SGS", 'S', "stone", 'G', "blockGlass", 'B', Items.bucket
-        ));
-        CraftingManager.getInstance().addRecipe(new ShapedOreRecipe(new ItemStack(upgrade, 1, 2),
-            " I ", "ICI", " I ", 'I', Items.iron_ingot, 'C', Blocks.chest
-        ));
-
-        if (Config.DEBUG_RECIPE) {
-            CraftingManager.getInstance().addRecipe(new ShapelessOreRecipe(new ItemStack(Blocks.mossy_cobblestone), new ItemStack(Blocks.cobblestone), new ItemStack(Items.water_bucket)));
-        }
-    }
-    */
 }

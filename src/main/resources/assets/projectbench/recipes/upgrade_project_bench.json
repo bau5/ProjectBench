@@ -1,24 +1,22 @@
 {
   "result": {
-    "item": "projectbench:pb_block"
+    "item": "projectbench:pb_upgrade",
+    "data": 0
   },
   "pattern": [
     " g ",
-    "ici",
+    "i i",
     "whw"
   ],
   "type": "forge:ore_shaped",
   "key": {
-    "i": {
-      "type": "forge:ore_dict",
-      "ore": "ingotIron"
-    },
     "g": {
       "type": "forge:ore_dict",
       "ore": "blockGlass"
     },
-    "c": {
-      "item": "minecraft:crafting_table"
+    "i": {
+      "type": "forge:ore_dict",
+      "ore": "ingotIron"
     },
     "w": {
       "type": "forge:ore_dict",

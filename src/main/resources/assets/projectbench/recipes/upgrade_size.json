@@ -1,0 +1,21 @@
+{
+  "result": {
+    "item": "projectbench:pb_upgrade",
+    "data": 2
+  },
+  "pattern": [
+    " i ",
+    "ihi",
+    " i "
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "i": {
+      "type": "forge:ore_dict",
+      "ore": "ingotIron"
+    },
+    "h": {
+      "item": "minecraft:chest"
+    }
+  }
+}
