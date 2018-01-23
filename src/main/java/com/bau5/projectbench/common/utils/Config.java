@@ -1,5 +1,6 @@
 package com.bau5.projectbench.common.utils;
 
+import com.bau5.projectbench.common.ProjectBench;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -41,8 +42,7 @@ public class Config {
             fmlconfig.addCustomCategoryComment("Features", "True/false toggles for various features of the mod.");
             fmlconfig.addCustomCategoryComment("Feature Modifiers", "Modifiable values for various features of the mod.");
         }catch(Exception ex){
-            FMLLog.info("[Project Bench] Failed loading configuration file.");
-            ex.printStackTrace();
+            ProjectBench.logger.debug("Failed loading configuration file: " + ex.getMessage());
         }finally{
             config.save();
         }

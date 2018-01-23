@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.logging.log4j.Logger;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION)
 public class ProjectBench {
@@ -37,38 +38,39 @@ public class ProjectBench {
     @GameRegistry.ObjectHolder("pb_upgrade")
     public static final ItemUpgrade upgrade = new ItemUpgrade();
 
+    public static Logger logger;
     public Config config;
 
     @Mod.EventHandler
     public void preinit(FMLPreInitializationEvent ev){
-        System.out.println("Pre Init.");
+        logger = ev.getModLog();
         config = new Config(ev);
+        logger.info("Config loaded.");
    }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent ev) {
-        System.out.println("Init.");
         NetworkRegistry.INSTANCE.registerGuiHandler(ProjectBench.instance, proxy);
         network = NetworkRegistry.INSTANCE.newSimpleChannel(Reference.CHANNEL);
         network.registerMessage(SimpleMessage.Handler.class, SimpleMessage.class, 0, Side.SERVER);
+        logger.info("Network handler registered.");
     }
 
     @Mod.EventHandler
     public void onPostInit(FMLPostInitializationEvent ev){
-        System.out.println("Post Init.");
         if(ev.getSide() == Side.CLIENT){
             if(Config.VERSION_CHECK) {
                 VersionChecker.go();
                 MinecraftForge.EVENT_BUS.register(new VersionCheckEventHandler());
             }else{
-                FMLLog.info("[Project Bench] Version checking disabled.");
+                logger.info("Version checking disabled.");
             }
         }
-        FMLLog.info("[Project Bench] Initialization complete. Fluids found:");
+        logger.info("Initialization complete. Fluids found:");
         for(String name : FluidRegistry.getRegisteredFluids().keySet()){
-            FMLLog.info("\t%s", name);
+            logger.info("\t%s", name);
         }
-        FMLLog.info("These fluids and their containers will be recognized by the Project Bench.");
+        logger.info("These fluids and their containers will be recognized by the Project Bench.");
 
         proxy.registerRenderingInformation();
     }

@@ -1,11 +1,14 @@
 package com.bau5.projectbench.common.utils;
 
+import com.bau5.projectbench.common.ProjectBench;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
+
+import static com.bau5.projectbench.common.ProjectBench.logger;
 
 /**
  * Created by bau5 on 5/21/2015.
@@ -76,7 +79,7 @@ public class VersionChecker implements Runnable{
 
     }
 
-    public static void checkLatestChanges(){
+    private void checkLatestChanges(){
         InputStream remoteChangesStream = null;
 
         try{
@@ -101,21 +104,19 @@ public class VersionChecker implements Runnable{
     @Override
     public void run() {
         int tries = 0;
-        FMLLog.info("Starting Version check.");
-        try {
-            while (tries < 3 && (!isComplete())) {
-                tries++;
-                checkVersion();
-                if (STATE == OUT_OF_DATE) {
-                    Reference.REMOTE_VERSION = remoteVersion;
-                    Reference.REMOTE_IMPORTANCE = remoteImportance;
-                    checkLatestChanges();
-                    FMLLog.info("[Project Bench] Finished version checking. We're out of date. New -> " + remoteVersion);
-                }else if(isUpToDate()){
-                    FMLLog.info("[Project Bench] Up to date.");
-                }
+        logger.info("Starting version check.");
+        while (tries < 3 && (!isComplete())) {
+            tries++;
+            checkVersion();
+            if (STATE == OUT_OF_DATE) {
+                Reference.REMOTE_VERSION = remoteVersion;
+                Reference.REMOTE_IMPORTANCE = remoteImportance;
+                checkLatestChanges();
+                logger.info("Finished version checking. We're out of date. New -> " + remoteVersion);
+            }else if(isUpToDate()){
+                logger.info("Up to date.");
             }
-        } catch (Exception ex) {}
+        }
     }
 
     public static void go(){
