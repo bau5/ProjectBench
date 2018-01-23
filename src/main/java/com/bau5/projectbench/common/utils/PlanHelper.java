@@ -26,7 +26,7 @@ public class PlanHelper {
 
     public static NonNullList<ItemStack> getComponentsForPlan(ItemStack plan){
         // TODO: use ItemStackHelper.loadAllItems();
-        if(plan == null || !plan.hasTagCompound())
+        if(plan == null || plan.isEmpty() || !plan.hasTagCompound())
             return NonNullList.create();
         NBTTagList list = plan.getTagCompound().getTagList(PlanHelper.title, 10);
         if(list.tagCount() == 0){

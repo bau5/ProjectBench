@@ -26,13 +26,15 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Created by bau5 on 4/15/2015.
  */
 public class GuiProjectBench extends GuiContainer {
     private TileEntityProjectBench tile;
-    private static final ResourceLocation gui_texture = new ResourceLocation("projectbench", "textures/gui/pbGUI.png");
+    private static final ResourceLocation gui_texture = new ResourceLocation("projectbench", "textures/gui/pbgui.png");
     private static final ResourceLocation other_texture = new ResourceLocation("projectbench", "textures/gui/parts.png");
 
     public GuiProjectBench(InventoryPlayer inventory, TileEntityProjectBench tileEntity) {
@@ -69,9 +71,8 @@ public class GuiProjectBench extends GuiContainer {
                     GlStateManager.disableDepth();
                     RenderHelper.disableStandardItemLighting();
                     RenderHelper.enableGUIStandardItemLighting();
-                    FontRenderer font = null;
 
-                    font = stack.getItem().getFontRenderer(stack);
+                    FontRenderer font = stack.getItem().getFontRenderer(stack);
                     if (font == null)
                         font = fontRenderer;
                     GlStateManager.colorMask(true, true, true, false);
@@ -175,11 +176,16 @@ public class GuiProjectBench extends GuiContainer {
 
     private void drawPlanStacks(int xSize, int ySize){
         TileEntityProjectBench tpb = tile;
-        if (tpb.getResult() != ItemStack.EMPTY && tpb.getPlan() != ItemStack.EMPTY) {
-            NonNullList<ItemStack> stacks = PlanHelper.getComponentsForPlan(tpb.getPlan());
+        NonNullList<ItemStack> stacks = PlanHelper.getComponentsForPlan(tpb.getPlan());
+        if (stacks.size() > 0) {
             int index = 0;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
+                    ItemStack stack = stacks.get(index++);
+                    // Early out if empty
+                    if (stack.isEmpty()) {
+                        continue;
+                    }
                     GlStateManager.pushMatrix();
                     GlStateManager.enableBlend();
                     GlStateManager.blendFunc(768, 1);
@@ -188,19 +194,16 @@ public class GuiProjectBench extends GuiContainer {
                     GlStateManager.disableDepth();
                     RenderHelper.disableStandardItemLighting();
                     RenderHelper.enableGUIStandardItemLighting();
-                    ItemStack stack = stacks.get(index++);
                     int xLoc = (xSize + 30) + (j * 18);
                     int yLoc = (ySize + 17) + (i * 18);
-                    if (stack != ItemStack.EMPTY) {
-                        FontRenderer font = stack.getItem().getFontRenderer(stack);
-                        if (font == null)
-                            font = fontRenderer;
-                        GlStateManager.colorMask(true, true, true, false);
-                        itemRender.renderItemAndEffectIntoGUI(stack, xLoc, yLoc);
-                        itemRender.renderItemOverlayIntoGUI(font, stack, xLoc, yLoc, "");
-                        this.drawGradientRect(xLoc, yLoc, xLoc + 16, yLoc + 16, -2130706433, -2130706433);
-                        GlStateManager.colorMask(true, true, true, true);
-                    }
+                    FontRenderer font = stack.getItem().getFontRenderer(stack);
+                    if (font == null)
+                        font = fontRenderer;
+                    GlStateManager.colorMask(true, true, true, false);
+                    itemRender.renderItemAndEffectIntoGUI(stack, xLoc, yLoc);
+                    itemRender.renderItemOverlayIntoGUI(font, stack, xLoc, yLoc, "");
+                    this.drawGradientRect(xLoc, yLoc, xLoc + 16, yLoc + 16, -2130706433, -2130706433);
+                    GlStateManager.colorMask(true, true, true, true);
                     GlStateManager.disableBlend();
                     GlStateManager.enableLighting();
                     GlStateManager.enableDepth();
@@ -239,15 +242,14 @@ public class GuiProjectBench extends GuiContainer {
 
         public void drawButtonToolTip(int mouseX, int mouseY){
             if(hoverTime > 40) {
-                ArrayList<String> list = new ArrayList<>();
+                float prez = zLevel;
                 zLevel = 400.0F;
                 if (id == 0) {
-                    list.add("Empty Grid");
-                    drawHoveringText(list, mouseX, mouseY);
+                    drawHoveringText(Collections.singletonList("Empty Grid"), mouseX, mouseY);
                 } else if (id == 1) {
-                    list.add("Write Plan");
-                    drawHoveringText(list, mouseX, mouseY);
+                    drawHoveringText(Collections.singletonList("Write Plan"), mouseX, mouseY);
                 }
+                zLevel = prez;
             }
         }
 
