@@ -68,7 +68,7 @@ public class ProjectBench {
         }
         logger.info("Initialization complete. Fluids found:");
         for(String name : FluidRegistry.getRegisteredFluids().keySet()){
-            logger.info("\t%s", name);
+            logger.info("\t" + name);
         }
         logger.info("These fluids and their containers will be recognized by the Project Bench.");
 
