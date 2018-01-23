@@ -13,7 +13,6 @@ import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nullable;
-import javax.swing.undo.CannotRedoException;
 import java.util.ArrayList;
 import java.util.List;
 

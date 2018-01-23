@@ -2,7 +2,6 @@ package com.bau5.projectbench.common.utils;
 
 import com.bau5.projectbench.common.ProjectBench;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import java.io.File;

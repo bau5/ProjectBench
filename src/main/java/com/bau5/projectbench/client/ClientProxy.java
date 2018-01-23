@@ -1,15 +1,8 @@
 package com.bau5.projectbench.client;
 
 import com.bau5.projectbench.common.CommonProxy;
-import com.bau5.projectbench.common.ProjectBench;
 import com.bau5.projectbench.common.TileEntityProjectBench;
-import com.bau5.projectbench.common.utils.Reference;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.ClientRegistry;

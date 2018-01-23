@@ -3,12 +3,9 @@ package com.bau5.projectbench.common.item;
 import com.bau5.projectbench.common.ProjectBench;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
-
-import java.util.List;
 
 /**
  * Created by bau5 on 4/15/2015.

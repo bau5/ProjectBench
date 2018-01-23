@@ -2,12 +2,10 @@ package com.bau5.projectbench.common.utils;
 
 import com.bau5.projectbench.common.ProjectBench;
 import com.bau5.projectbench.common.TileEntityProjectBench;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.fml.common.asm.transformers.ItemStackTransformer;
 
 /**
  * Created by bau5 on 5/15/2015.

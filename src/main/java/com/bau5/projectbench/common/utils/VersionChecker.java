@@ -1,6 +1,5 @@
 package com.bau5.projectbench.common.utils;
 
-import com.bau5.projectbench.common.ProjectBench;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 

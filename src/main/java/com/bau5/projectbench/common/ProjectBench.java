@@ -8,7 +8,6 @@ import com.bau5.projectbench.common.utils.VersionCheckEventHandler;
 import com.bau5.projectbench.common.utils.VersionChecker;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
