@@ -54,11 +54,9 @@ public class SlotModifiedCrafting extends SlotCrafting {
             }
             if(components != null) {
                 boolean complete = true;
-                int indexInRecipe = -1;
                 for(ItemStack piece : components){
                     if(piece == null)
                         continue;
-                    indexInRecipe++;
                     FluidStack fluidContained = FluidUtil.getFluidContained(piece);
                     if (fluidContained != null && theTile.getFluidInTank() != null && theTile.getFluidInTank().isFluidEqual(fluidContained)){
                         if(fluidContained.amount <= theTile.getFluidInTank().amount){
@@ -201,66 +199,62 @@ public class SlotModifiedCrafting extends SlotCrafting {
                 ItemStack stackInSlot = theTile.getStackInSlot(i);
                 ItemStack containerItem = containerItems.get(i);
                 boolean found = false;
-                if (stackInSlot != null) {
-                    if (!stackInSlot.isEmpty()) {
-                        //Begin check for OreRecipe, set that up
-                        ArrayList<ItemStack> alts = new ArrayList<ItemStack>();
-                        boolean useOreDict = OreDictRecipeHelper.getIsOreDictAndFill(theTile.getCurrentRecipe(), stackInSlot, alts);
-                        //End Ore dict check
-                        //Begin Search for match
-                        for (int supplyInv = provider.getSupplyStart(); supplyInv < provider.getSupplyStop(); supplyInv++) {
-                            ItemStack supplyStack = provider.getStackFromSupplier(supplyInv);
-                            if(supplyStack == null)
-                                continue;
-                                if(theTile.getHasFluidUpgrade() && theTile.getFluidInTank() != null ){
-                                    FluidStack fromCrafting = FluidUtil.getFluidContained(stackInSlot);
-                                    FluidStack fromTank = theTile.getFluidInTank();
-                                    if(fromCrafting != null && fromTank.amount > 0 && fromTank.isFluidEqual(fromCrafting)){
-                                        theTile.drain(fromCrafting.amount, true);
-                                        found = true;
-                                    }
-                                    break;
-                                }
-                                if (!found && ItemStack.areItemsEqual(stackInSlot, supplyStack)) {
-                                    theTile.decrStackSize(supplyInv, 1);
-                                    if (!theTile.addStackToInventory(containerItem)) {
-                                        player.dropItem(containerItem, true, false);
-                                    }
-                                    found = true;
-                                    break;
-                                }
-                            if(useOreDict){  //Use ore dict if this item in the recipe does.
-                                for(ItemStack alternativeStack : alts){
-                                    if(OreDictionary.itemMatches(alternativeStack, supplyStack, !useOreDict)){
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if(!found){
-                                    found = OreDictionary.itemMatches(stackInSlot, supplyStack, !useOreDict);
-                                }
-                                if(found){
-                                    theTile.decrStackSize(supplyInv, 1);
-                                    theTile.forceUpdateRecipe();
-                                }
-                            }else if (supplyStack != null && OreDictionary.itemMatches(stackInSlot, supplyStack, useOreDict)) {
-                                theTile.decrStackSize(supplyInv, 1);
+                if (stackInSlot.isEmpty() && containerItem.isEmpty()) {
+                    continue;
+                }
+                ArrayList<ItemStack> alts = new ArrayList<>();
+                boolean useOreDict = OreDictRecipeHelper.getIsOreDictAndFill(theTile.getCurrentRecipe(), stackInSlot, alts);
+                for (int supplyInv = provider.getSupplyStart(); supplyInv < provider.getSupplyStop(); supplyInv++) {
+                    ItemStack supplyStack = provider.getStackFromSupplier(supplyInv);
+                    if(supplyStack == ItemStack.EMPTY)
+                        continue;
+                    if (ItemStack.areItemsEqual(stackInSlot, supplyStack)) {
+                        theTile.decrStackSize(supplyInv, 1);
+                        if (!theTile.addStackToInventory(containerItem)) {
+                            player.dropItem(containerItem, true, false);
+                        }
+                        found = true;
+                        break;
+                    }
+                    if(useOreDict){  //Use ore dict if this item in the recipe does.
+                        for(ItemStack alternativeStack : alts){
+                            if(OreDictionary.itemMatches(alternativeStack, supplyStack, !useOreDict)){
                                 found = true;
-                                theTile.forceUpdateRecipe();
-                            }
-                            if (found)
                                 break;
+                            }
+                        }
+                        if(!found){
+                            found = OreDictionary.itemMatches(stackInSlot, supplyStack, !useOreDict);
+                        }
+                        if(found){
+                            theTile.decrStackSize(supplyInv, 1);
+                            theTile.forceUpdateRecipe();
+                        }
+                    }else if (OreDictionary.itemMatches(stackInSlot, supplyStack, useOreDict)) {
+                        theTile.decrStackSize(supplyInv, 1);
+                        found = true;
+                        theTile.forceUpdateRecipe();
+                    }
+                    if(theTile.getHasFluidUpgrade() && theTile.getFluidInTank() != null){
+                        FluidStack fromCrafting = FluidUtil.getFluidContained(stackInSlot);
+                        FluidStack fromTank = theTile.getFluidInTank();
+                        if(fromCrafting != null && fromTank.amount > 0 && fromTank.isFluidEqual(fromCrafting)){
+                            theTile.drain(fromCrafting.amount, true);
+                            found = true;
+                            break;
                         }
                     }
-                    if (!found) {
-                        theTile.decrStackSize(i, 1);
+                    if (found)
+                        break;
+                }
+                if (!found) {
+                    theTile.decrStackSize(i, 1);
 
-                        if (theTile.getStackInSlot(i) == null) {
-                            theTile.setInventorySlotContents(i, containerItem);
-                        } else if (!theTile.addStackToInventory(containerItem)) {
-                            if (!player.inventory.addItemStackToInventory(containerItem)) {
-                                player.dropItem(containerItem, true, false);
-                            }
+                    if (theTile.getStackInSlot(i) == null) {
+                        theTile.setInventorySlotContents(i, containerItem);
+                    } else if (!theTile.addStackToInventory(containerItem)) {
+                        if (!player.inventory.addItemStackToInventory(containerItem)) {
+                            player.dropItem(containerItem, true, false);
                         }
                     }
                 }

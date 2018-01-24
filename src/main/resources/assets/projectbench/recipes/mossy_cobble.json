@@ -1,0 +1,21 @@
+{
+  "result": {
+    "item": "minecraft:mossy_cobblestone",
+    "count": 4
+  },
+  "pattern": [
+    " c ",
+    "cwc",
+    " c "
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "c": {
+      "type": "forge:ore_dict",
+      "ore": "cobblestone"
+    },
+    "w": {
+      "item": "minecraft:water_bucket"
+    }
+  }
+}

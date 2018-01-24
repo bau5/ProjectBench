@@ -19,13 +19,17 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
@@ -36,6 +40,7 @@ import javax.annotation.Nullable;
 /**
  * Created by bau5 on 4/15/2015.
  */
+// https://mcforge.readthedocs.io/en/latest/datastorage/capabilities/#forge-provided-capabilities
 public class TileEntityProjectBench extends TileEntity implements ITickable, IInventory, IFluidHandler {
     private int fluidUpdateTick = 0;
 
@@ -66,8 +71,9 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         crafter = new LocalInventoryCrafting(this);
         craftResult = new InventoryCraftResult();
 
-        // TODO: find bucket volume proper
-        fluidTank = new FluidTank(16000);
+        fluidTank = new FluidTank(Fluid.BUCKET_VOLUME * 16);
+
+        result = ItemStack.EMPTY;
     }
 
     private void checkAndMarkForRecipeUpdate(int index){
@@ -206,7 +212,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
     }
 
     public ItemStack getResult() {
-        return result;
+        return result == null ? ItemStack.EMPTY : result;
     }
 
     public CraftingItemsProvider getCraftingItemsProvider() {
@@ -309,7 +315,7 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         SPacketUpdateTileEntity packet = null;
         NBTTagCompound tag = new NBTTagCompound();
         if(getResult() != null) {
-            tag.setTag("Result", result.writeToNBT(new NBTTagCompound()));
+            tag.setTag("Result", getResult().writeToNBT(new NBTTagCompound()));
         }
         if(upgrade != null) {
             tag.setInteger("Upgrade", upgrade.getType());
@@ -362,10 +368,9 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         }
         if(upgrade != null){
             res.setInteger("Upgrade", upgrade.getType());
-            if(upgrade.getType() == 0 && fluidTank.getFluid() != null){
-                NBTTagCompound fluidTag = getFluidInTank().writeToNBT(new NBTTagCompound());
-                res.setTag("Fluid", fluidTag);
-            }
+            NBTTagCompound fluidTag = new NBTTagCompound();
+            fluidTank.writeToNBT(fluidTag);
+            res.setTag("Fluid", fluidTag);
         }
         return res;
     }
@@ -389,11 +394,9 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
         if(compound.hasKey("Upgrade")){
             int type = compound.getInteger("Upgrade");
             switch(type){
-                case 0: upgrade = new FluidUpgrade();
-                    if(compound.hasKey("Fluid")) {
-                        FluidStack fstack = FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("Fluid"));
-                        fluidTank.setFluid(fstack);
-                    }
+                case 0:
+                    upgrade = new FluidUpgrade();
+                    fluidTank = new FluidTank(Fluid.BUCKET_VOLUME * 16).readFromNBT(compound.getCompoundTag("Fluid"));
                     break;
             }
         }
@@ -462,6 +465,23 @@ public class TileEntityProjectBench extends TileEntity implements ITickable, IIn
 
     public boolean getHasFluidUpgrade(){
         return upgrade != null && upgrade.getType() == 0;
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
+        if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY || capability == CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY) {
+            return true;
+        }
+        return super.hasCapability(capability, facing);
+    }
+
+    @Nullable
+    @Override
+    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
+        if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY || capability == CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY) {
+            return (T) fluidTank;
+        }
+        return super.getCapability(capability, facing);
     }
 
     @Override
